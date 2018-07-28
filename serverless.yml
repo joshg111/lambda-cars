@@ -59,6 +59,7 @@ functions:
 
   cars:
     handler: cars-handler.cars
+    timeout: 30
 
     events:
       - http:

@@ -12,20 +12,20 @@ const OPTIONS = {
   json: true
 };
 
-rp({...OPTIONS, body: {
-  action: "set",
-  input: {key: 'abc', value: '{a: "1", b: "2"}'}
-}}).then((rsp) => {
-  console.log("rsp = ", rsp);
-  console.log(rsp.status === 'success');
-
-  rp({...OPTIONS, body: {
-    action: "get",
-    input: {key: 'abc'}
-  }}).then((rsp) => {
-    console.log("rsp = ", rsp);
-  })
-})
+// rp({...OPTIONS, body: {
+//   action: "set",
+//   input: {key: 'abc', value: '{a: "1", b: "2"}'}
+// }}).then((rsp) => {
+//   console.log("rsp = ", rsp);
+//   console.log(rsp.status === 'success');
+//
+//   rp({...OPTIONS, body: {
+//     action: "get",
+//     input: {key: 'abc'}
+//   }}).then((rsp) => {
+//     console.log("rsp = ", rsp);
+//   })
+// })
 
 rp({...CARS, body: {
   make: 'toyota', model: 'camry'

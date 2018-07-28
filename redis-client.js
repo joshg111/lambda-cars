@@ -10,17 +10,16 @@ if (typeof client === 'undefined') {
   console.log("Client undefined");
   startClient();
 }
-if(!client.connected) {
+else if(!client.connected) {
   console.log("Client not connected");
   startClient();
 }
 
 async function set(input) {
   const {key, value} = input;
-  console.log("key", key);
+  console.log("set key", key);
 
   var rsp = await setAsync(key, JSON.stringify(value), 'EX', 24*60*60);
-  console.log("rsp", rsp);
 
 };
 
@@ -28,7 +27,9 @@ async function get(input) {
   const {key} = input;
   console.log("get key", key);
   var rsp = await getAsync(key)
-  console.log("rsp", rsp);
+  if(rsp !== null) {
+    rsp = JSON.parse(rsp);
+  }
   return rsp;
 }
 
@@ -39,40 +40,33 @@ function startClient() {
       console.log("Error " + err);
   });
 
+  client.on("ready", function () {
+      console.log("Ready, for redis client");
+  });
+
   const {promisify} = require('util');
   getAsync = promisify(client.get).bind(client);
   setAsync = promisify(client.set).bind(client);
 }
 
-module.exports.hello = async (event, context, callback) => {
-  context.callbackWaitsForEmptyEventLoop = false;
+async function requestCache(action, input) {
 
   // startClient();
+  var res = null;
 
-  console.log("event", event);
-  var {action, input} = JSON.parse(event.body);
   console.log("action", action);
   console.log("input", input);
-
-  const rr = {
-    statusCode: 200,
-    body: JSON.stringify({
-      status: 'success'
-    }),
-  };
 
   if(action === "set") {
     await set(input);
   }
   else if(action === "get") {
-    var res = await get(input);
-    rr.body = JSON.stringify({status: 'success',
-      res
-    })
+    res = await get(input);
+
   }
 
-  // client.quit();
-
-  callback(null, rr);
+  return res;
 
 };
+
+module.exports = {requestCache};

@@ -2,6 +2,7 @@
 
 var cheerio = require('cheerio'); // Basically jQuery for node.js
 var rp = require('request-promise');
+var {requestCache} = require('./redis-client');
 
 const USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.167 Safari/537.36';
 
@@ -31,12 +32,14 @@ async function getCarHrefs({make, model}) {
   }
   catch(err) {
     console.log("getCarHrefs = ", err);
+    throw new Error(err);
   }
 
   return cars;
 }
 
 async function matchCraigsAttrs(attrs) {
+  console.log("matchCraigsAttrs: attrs = ", attrs);
   var res = {};
   attrs.forEach((elem, index) => {
     var splitElem = /(.+): (.+)/g.exec(elem);
@@ -59,6 +62,7 @@ async function getCraigs(href, {make, model}) {
     // Get the first attr group.
     var mainAttrs = $('p.attrgroup').eq(0).find('span').text().trim();
     res["year"] = /^(\d+) /g.exec(mainAttrs)[1];
+    res["desc"] = res.year + " " + make + " " + model;
     var re = new RegExp(model+" (.*)", "i");
     var styleMatch = mainAttrs.match(re);
     res["style"] = styleMatch ? styleMatch[1] : "";
@@ -76,8 +80,9 @@ async function getCraigs(href, {make, model}) {
   }
   catch(err) {
     console.log("getCraigs = ", err);
-    return null;
+    throw new Error(err);
   }
+  console.log("getCraigs res = ", res);
   return res;
 }
 
@@ -86,10 +91,8 @@ async function getKbbStyle(craigs, {make, model}) {
 
   var res = null;
 
-  var link = 'https://www.kbb.com/' + make.toLowerCase() + '/' + model.toLowerCase() + '/' + craigs.year + '/styles/?intent=buy-used';
-  // console.log(link);
-
   try {
+    var link = 'https://www.kbb.com/' + make.toLowerCase() + '/' + model.toLowerCase() + '/' + craigs.year + '/styles/?intent=buy-used';
     var $ = await rp({...OPTIONS, uri: link});
     var styleLinks = $('a.style-link').map((index, elem) => {
       return $(elem).attr('href');
@@ -104,7 +107,7 @@ async function getKbbStyle(craigs, {make, model}) {
   }
   catch(err) {
     console.log("getKbbStyle = ", err);
-    return null;
+    throw new Error(err);
   }
 
   return res;
@@ -131,7 +134,7 @@ async function getKbbPrice(link) {
   }
   catch(err) {
     console.log("getKbbPrice err = ", err);
-    return null;
+    throw new Error(err);
   }
 
   return kbbPrice;
@@ -140,65 +143,77 @@ async function getKbbPrice(link) {
 async function getKbb(craigs, input) {
 
   var kbbLink = await getKbbStyle(craigs, input);
+  if(kbbLink === null) {
+    return null;
+  }
   return {kbbPrice: await getKbbPrice(kbbLink), kbbLink}
 }
 
-async function requestCache(action, input) {
-  var res = null;
+// async function requestCache(action, input) {
+//   var res = null;
+//   try {
+//     const options = {
+//       uri: 'https://q62fhm3rwk.execute-api.us-east-1.amazonaws.com/dev/hello',
+//       method: 'POST',
+//       json: true,
+//       body: {
+//         action,
+//         input
+//       },
+//       timeout: 2000
+//     };
+//
+//     var rsp = await rp(options);
+//     if(rsp.status !== 'success') {
+//       throw new Error("Cache request failed");
+//     }
+//
+//     if(action === "get" && rsp.res !== null) {
+//       res = JSON.parse(rsp.res);
+//     }
+//   }
+//   catch(err) {
+//     console.log("requestCache err for key = ", input.key, err);
+//     return null;
+//   }
+//
+//   return res;
+// }
+
+async function handleCar(href, input) {
+
   try {
-    const options = {
-      uri: 'https://q62fhm3rwk.execute-api.us-east-1.amazonaws.com/dev/hello',
-      method: 'POST',
-      json: true,
-      body: {
-        action,
-        input
-      },
-      timeout: 2000
-    };
-
-    var rsp = await rp(options);
-    if(rsp.status !== 'success') {
-      throw new Error("Cache request failed");
+    // First, check the cache.
+    var cacheRes = await requestCache("get", {key: href});
+    if(cacheRes !== null) {
+      return cacheRes;
     }
+    console.log("Cache miss");
 
-    if(action === "get" && rsp.res !== null) {
-      res = JSON.parse(rsp.res);
-    }
+    var craigs = await getCraigs(href, input);
+    var kbb = await getKbb(craigs, input);
+
+    // Calc percentage difference.
+    var craigsPrice = parseInt(craigs.price);
+    var kbbPrice = parseInt(kbb.kbbPrice);
+    var kbbPricePercentage = (craigsPrice / kbbPrice) - 1
+
+    var res = {...craigs, ...kbb, kbbPricePercentage, ...input}
+
+    // Set the result in the cache.
+    await requestCache("set", {key: href, value: res});
   }
   catch(e) {
-    console.log("requestCache err for key = ", input.key, e);
+    console.log("handleCar err = ", e);
     return null;
   }
 
   return res;
 }
 
-async function handleCar(href, input) {
-
-  // First, check the cache.
-  var cacheRes = await requestCache("get", {key: href});
-  if(cacheRes !== null) {
-    return cacheRes;
-  }
-
-  var craigs = await getCraigs(href, input);
-  var kbb = await getKbb(craigs, input);
-
-  // Calc percentage difference.
-  var craigsPrice = parseInt(craigs.price);
-  var kbbPrice = parseInt(kbb.kbbPrice);
-  var kbbPricePercentage = (craigsPrice / kbbPrice) - 1
-
-  var res = {...craigs, ...kbb, kbbPricePercentage, ...input}
-
-  // Set the result in the cache.
-  await requestCache("set", {key: href, value: res});
-
-  return res;
-}
-
 module.exports.cars = async (event, context, callback) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
   var startTime = new Date();
 
   console.log("event", event);
@@ -213,6 +228,10 @@ module.exports.cars = async (event, context, callback) => {
   }
 
   var carsResolved = await Promise.all(cars);
+
+  carsResolved = carsResolved.filter((element, index) => {
+    return element !== null;
+  });
 
   // Sort
   carsResolved.sort((a,b) => {
