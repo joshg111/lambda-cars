@@ -16,10 +16,10 @@ const OPTIONS = {
   timeout: 6000
 };
 
-async function getCarHrefs({make, model}) {
+async function getCarHrefs({make, model, city}) {
   console.log("make = ", make, "model = ", model);
   var makeModel = make + "+" + model.replace(/\s*/g, '');
-  var uri = 'https://sandiego.craigslist.org/search/cto?sort=date&srchType=T&hasPic=1&bundleDuplicates=1&min_price=0&max_price=20000&auto_make_model=' + makeModel + '&auto_title_status=1';
+  var uri = 'https://' + city + '.craigslist.org/search/cto?sort=date&srchType=T&hasPic=1&bundleDuplicates=1&min_price=0&max_price=20000&auto_make_model=' + makeModel + '&auto_title_status=1';
   console.log(uri);
   try {
     var $ = await rp({...OPTIONS, uri});
@@ -53,6 +53,11 @@ async function matchCraigsAttrs(attrs) {
     }
   });
 
+  //TODO: Transform attributes.
+  if('odometer' in res && res.odometer && res.odometer.length < 4) {
+    res.odometer *= 1000;
+  }
+
   return res;
 }
 
@@ -67,10 +72,10 @@ async function getCraigs(href, {make, model}) {
     // Get the first attr group.
     var mainAttrs = $('p.attrgroup').eq(0).find('span').text().trim();
     res["year"] = /^(\d+) /g.exec(mainAttrs)[1];
-    res["desc"] = res.year + " " + make + " " + model;
     var re = new RegExp(model+" (.*)", "i");
     var styleMatch = mainAttrs.match(re);
     res["style"] = styleMatch ? styleMatch[1] : "";
+    res["desc"] = res.year + " " + make + " " + model + " " + res.style;
     res["timeago"] = $('div.postinginfos time').map((index, elem) => {
       return $(elem).attr('datetime');
     }).get()[0];
@@ -112,6 +117,8 @@ async function getKbbStyle(craigs, {make, model}) {
     var style = styleLinks[0];
     style = style.replace(/\/options/g, "");
     res = 'https://www.kbb.com' + style + '&pricetype=private-party&condition=good';
+    res = res.replace(/&mileage=\d*/g, "");
+    res += craigs.odometer ? '&mileage=' + craigs.odometer : "";
 
     // console.log("styleLinks = ", styleLinks);
   }
@@ -119,7 +126,7 @@ async function getKbbStyle(craigs, {make, model}) {
     console.log("getKbbStyle = ", err);
     throw new Error(err);
   }
-
+  console.log("getKbbStyle res = ", res);
   return res;
 }
 
@@ -159,45 +166,14 @@ async function getKbb(craigs, input) {
   return {kbbPrice: await getKbbPrice(kbbLink), kbbLink}
 }
 
-// async function requestCache(action, input) {
-//   var res = null;
-//   try {
-//     const options = {
-//       uri: 'https://q62fhm3rwk.execute-api.us-east-1.amazonaws.com/dev/hello',
-//       method: 'POST',
-//       json: true,
-//       body: {
-//         action,
-//         input
-//       },
-//       timeout: 2000
-//     };
-//
-//     var rsp = await rp(options);
-//     if(rsp.status !== 'success') {
-//       throw new Error("Cache request failed");
-//     }
-//
-//     if(action === "get" && rsp.res !== null) {
-//       res = JSON.parse(rsp.res);
-//     }
-//   }
-//   catch(err) {
-//     console.log("requestCache err for key = ", input.key, err);
-//     return null;
-//   }
-//
-//   return res;
-// }
-
 async function handleCar(href, input) {
 
   try {
     // First, check the cache.
-    var cacheRes = await requestCache("get", {key: href});
-    if(cacheRes !== null) {
-      return cacheRes;
-    }
+    // var cacheRes = await requestCache("get", {key: href});
+    // if(cacheRes !== null) {
+    //   return cacheRes;
+    // }
     console.log("Cache miss");
 
     var craigs = await getCraigs(href, input);
