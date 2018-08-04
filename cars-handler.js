@@ -42,10 +42,15 @@ async function matchCraigsAttrs(attrs) {
   console.log("matchCraigsAttrs: attrs = ", attrs);
   var res = {};
   attrs.forEach((elem, index) => {
-    var splitElem = /(.+): (.+)/g.exec(elem);
-    var key = splitElem[1];
-    var val = splitElem[2];
-    res[key.trim()] = val.trim();
+    try {
+      var splitElem = /(.+): (.+)/g.exec(elem);
+      var key = splitElem[1];
+      var val = splitElem[2];
+      res[key.trim()] = val.trim();
+    }
+    catch(err) {
+      console.log("matchCraigsAttrs failed with elem = ", elem);
+    }
   });
 
   return res;
@@ -77,6 +82,11 @@ async function getCraigs(href, {make, model}) {
       return $(elem).text();
     }).get());
     res = {...res, ...attrs, craigsLink: href};
+    ['odometer', 'year', 'desc', 'price', 'timeago', 'thumbnail', 'location', 'style'].forEach(e => {
+      if(! (e in res)) {
+        throw new Error("Missing craigslist param = " + e);
+      }
+    })
   }
   catch(err) {
     console.log("getCraigs = ", err);
@@ -196,9 +206,9 @@ async function handleCar(href, input) {
     // Calc percentage difference.
     var craigsPrice = parseInt(craigs.price);
     var kbbPrice = parseInt(kbb.kbbPrice);
-    var kbbPricePercentage = (craigsPrice / kbbPrice) - 1
+    var percentAboveKbb = Math.round(((craigsPrice / kbbPrice) - 1) * 100);
 
-    var res = {...craigs, ...kbb, kbbPricePercentage, ...input}
+    var res = {...craigs, ...kbb, percentAboveKbb, ...input}
 
     // Set the result in the cache.
     await requestCache("set", {key: href, value: res});
@@ -235,7 +245,7 @@ module.exports.cars = async (event, context, callback) => {
 
   // Sort
   carsResolved.sort((a,b) => {
-    return (a.kbbPricePercentage - b.kbbPricePercentage);
+    return (a.percentAboveKbb - b.percentAboveKbb);
   })
 
   console.log("carsResolved = ", carsResolved);

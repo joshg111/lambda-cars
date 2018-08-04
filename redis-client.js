@@ -1,6 +1,7 @@
 'use strict';
 
-var redis = require("redis")
+var redis = require("redis");
+const config = require("./config");
 
 var client;
 var getAsync;
@@ -24,17 +25,28 @@ async function set(input) {
 };
 
 async function get(input) {
-  const {key} = input;
-  console.log("get key", key);
-  var rsp = await getAsync(key)
-  if(rsp !== null) {
-    rsp = JSON.parse(rsp);
+  try {
+    const {key} = input;
+    console.log("get key", key);
+    var rsp = await getAsync(key)
+    if(rsp !== null) {
+      rsp = JSON.parse(rsp);
+    }
   }
+  catch(err) {
+    console.log("Failed redis get for input = ", key);
+  }
+
   return rsp;
 }
 
 function startClient() {
-  client = redis.createClient({host: "lambda-redis-small.skzc5i.0001.use1.cache.amazonaws.com"});
+  client = redis.createClient(
+    {
+      host: config.redis.HOST,
+      port: config.redis.PORT,
+      password: config.redis.PASSWORD
+    });
 
   client.on("error", function (err) {
       console.log("Error " + err);
@@ -51,7 +63,6 @@ function startClient() {
 
 async function requestCache(action, input) {
 
-  // startClient();
   var res = null;
 
   console.log("action", action);
@@ -70,3 +81,7 @@ async function requestCache(action, input) {
 };
 
 module.exports = {requestCache};
+
+// requestCache("get", {key: "hi"}).then((rsp) => {
+//   console.log(rsp);
+// });
