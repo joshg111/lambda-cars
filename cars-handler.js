@@ -101,20 +101,92 @@ async function getCraigs(href, {make, model}) {
   return res;
 }
 
+function searchRank(craigsStyle, kbbStyles) {
+  if(!craigsStyle) {
+    return null
+  }
+
+  var res = [];
+
+  var craigsSplit = craigsStyle.split(" ");
+  console.log(craigsSplit);
+
+  for(var kbbStyle of kbbStyles) {
+    console.log("kbbStyle = ", kbbStyle);
+    var newRankedObj = {'rank': 0, 'value': kbbStyle};
+    res.push(newRankedObj);
+
+    for(var craigsWord of craigsSplit) {
+      console.log("word", craigsWord);
+      var kbbSplit = kbbStyle.text.split(" ");
+      console.log("kbbsplit", kbbSplit);
+
+      for(var kbbWord of kbbSplit) {
+        console.log("kbbword", kbbWord);
+        if((kbbWord.match(new RegExp(craigsWord, "gi"))) !== null) {
+          console.log("Found match craigsWord = ", craigsWord, ", kbbWord = ", kbbWord);
+          newRankedObj.rank++;
+        }
+      }
+    }
+  }
+  console.log("searchRank = ", res);
+  return res;
+}
+
+// console.log(searchRank("abc", [{'text': "abc", 'href': 'habc'}, {'text': "ghi", 'href': 'hghi'}, {'text': "abc", 'href': 'habc'}]));
+
+// Return all the highest ranked items.
+function filterByRank(items) {
+  var currMax = 0;
+  for(var item of items) {
+    currMax = Math.max(currMax, item.rank)
+  }
+  return items.filter((item) => item.rank === currMax).map((item) => item.value);
+}
+
+function matchStyle(craigsStyle, kbbStyles) {
+  // Match the first word in the craigsStyle, then for subsequent words try to qualify the existing matches unless
+  // there are no existing matches.
+
+  var stylesForBodyType = filterByRank(searchRank('Sedan', kbbStyles));
+
+  if(!craigsStyle) {
+    return stylesForBodyType[0].href;
+  }
+
+  return filterByRank(searchRank(craigsStyle, stylesForBodyType))[0].href;
+}
+
+// console.log(matchStyle("abc", [{'text': "abc", 'href': 'habc'}, {'text': "ghi sedan", 'href': 'hghi'}, {'text': "abc", 'href': 'habc'}]));
+// console.log(matchStyle("abc", [{'text': "abc sedan", 'href': 'habc'}, {'text': "ghi sedan", 'href': 'hghi'}, {'text': "abc sedan", 'href': 'habc2'}]));
+// console.log(matchStyle(null, [{'text': "abc sedan", 'href': 'habc'}, {'text': "ghi sedan", 'href': 'hghi'}, {'text': "abc sedan", 'href': 'habc2'}]));
+
+async function getStyleList(craigs, {make, model}) {
+  var link = 'https://www.kbb.com/' + make.toLowerCase() + '/' + model.toLowerCase() + '/' + craigs.year + '/styles/?intent=buy-used';
+  var $ = await rp({...OPTIONS, uri: link});
+
+  var styleLinks = $('a.style-link').get();
+  var styleList = [];
+  for(var style of styleLinks) {
+    styleList.push({'text': $(style).find("div.button-header").text(), 'href': $(style).attr('href')});
+  }
+
+  return styleList;
+}
+
+// getStyleList({'year': '1998'}, {'make': 'honda', 'model': 'civic'}).then(console.log);
+
 async function getKbbStyle(craigs, {make, model}) {
   // Return - A link to the next kbb page after choosing the style.
 
   var res = null;
 
   try {
-    var link = 'https://www.kbb.com/' + make.toLowerCase() + '/' + model.toLowerCase() + '/' + craigs.year + '/styles/?intent=buy-used';
-    var $ = await rp({...OPTIONS, uri: link});
-    var styleLinks = $('a.style-link').map((index, elem) => {
-      return $(elem).attr('href');
-    }).get();
+    var styleList = await getStyleList(craigs, {make, model});
 
     // TODO: Match style.
-    var style = styleLinks[0];
+    var style = await matchStyle(craigs.style, styleList);
     style = style.replace(/\/options/g, "");
     res = 'https://www.kbb.com' + style + '&pricetype=private-party&condition=good';
     res = res.replace(/&mileage=\d*/g, "");
@@ -129,6 +201,10 @@ async function getKbbStyle(craigs, {make, model}) {
   console.log("getKbbStyle res = ", res);
   return res;
 }
+
+// getKbbStyle({'year': '2010', 'style': 'limited'}, {'make': 'ford', 'model': 'edge'}).then(console.log);
+// getKbbStyle({'year': '1998', 'style': 'ex'}, {'make': 'Honda', 'model': 'Civic'}).then(console.log);
+getKbbStyle({'year': '2010', 'style': 'ex-l'}, {'make': 'Honda', 'model': 'Accord'}).then(console.log);
 
 async function getKbbPrice(link) {
   // console.log(link);
@@ -170,10 +246,10 @@ async function handleCar(href, input) {
 
   try {
     // First, check the cache.
-    // var cacheRes = await requestCache("get", {key: href});
-    // if(cacheRes !== null) {
-    //   return cacheRes;
-    // }
+    var cacheRes = await requestCache("get", {key: href});
+    if(cacheRes !== null) {
+      return cacheRes;
+    }
     console.log("Cache miss");
 
     var craigs = await getCraigs(href, input);
