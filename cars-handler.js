@@ -3,18 +3,12 @@
 var cheerio = require('cheerio'); // Basically jQuery for node.js
 var rp = require('request-promise');
 var {requestCache} = require('./redis-client');
+const pConfig = require("./public-config");
+const {matchKbbModels} = require("./get-model");
 
-const USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.167 Safari/537.36';
+const USER_AGENT = pConfig.rp.USER_AGENT
+const OPTIONS = pConfig.rp.OPTIONS;
 
-const OPTIONS = {
-  transform: function (body) {
-      return cheerio.load(body);
-  },
-  headers: {
-    'User-Agent': USER_AGENT
-  },
-  timeout: 6000
-};
 
 async function getCarHrefs({make, model, city}) {
   console.log("make = ", make, "model = ", model);
@@ -69,6 +63,10 @@ async function getCraigs(href, {make, model}) {
     var $ = await rp({...OPTIONS, uri: href});
     res["price"] = $('span.postingtitletext span.price').text().trim().replace('$', '');
 
+    res["title"] = $('span.postingtitletext span#titletextonly').text().trim();
+
+    res["extra"] = {"body": $('section#postingbody').text()}
+
     // Get the first attr group.
     var mainAttrs = $('p.attrgroup').eq(0).find('span').text().trim();
     res["year"] = /^(\d+) /g.exec(mainAttrs)[1];
@@ -101,32 +99,62 @@ async function getCraigs(href, {make, model}) {
   return res;
 }
 
-function searchRank(craigsStyle, kbbStyles) {
-  if(!craigsStyle) {
+// function searchRank(craigsStyle, kbbStyles) {
+//   if(!craigsStyle) {
+//     return null
+//   }
+//
+//   var res = [];
+//
+//   var craigsSplit = craigsStyle.split(" ");
+//   console.log(craigsSplit);
+//
+//   for(var kbbStyle of kbbStyles) {
+//     console.log("kbbStyle = ", kbbStyle);
+//     var newRankedObj = {'rank': 0, 'value': kbbStyle};
+//     res.push(newRankedObj);
+//
+//     for(var craigsWord of craigsSplit) {
+//       console.log("word", craigsWord);
+//       var kbbSplit = kbbStyle.text.split(" ");
+//       console.log("kbbsplit", kbbSplit);
+//
+//       for(var kbbWord of kbbSplit) {
+//         console.log("kbbword", kbbWord);
+//         if((kbbWord.match(new RegExp(craigsWord, "gi"))) !== null) {
+//           console.log("Found match craigsWord = ", craigsWord, ", kbbWord = ", kbbWord);
+//           newRankedObj.rank++;
+//         }
+//       }
+//     }
+//   }
+//   console.log("searchRank = ", res);
+//   return res;
+// }
+
+// Input
+// source: String - Eg. craigsStyle or posting contents/title.
+// targets: [String] - Eg. KbbStyles or KbbBodyTypes (Sedan/Coupe/Hatchback/Wagon)
+function searchRank(source, targets) {
+  if(!source) {
     return null
   }
 
   var res = [];
 
-  var craigsSplit = craigsStyle.split(" ");
-  console.log(craigsSplit);
-
-  for(var kbbStyle of kbbStyles) {
-    console.log("kbbStyle = ", kbbStyle);
-    var newRankedObj = {'rank': 0, 'value': kbbStyle};
+  for(var target of targets) {
+    console.log("target = ", target);
+    var newRankedObj = {'rank': 0, 'value': target};
     res.push(newRankedObj);
 
-    for(var craigsWord of craigsSplit) {
-      console.log("word", craigsWord);
-      var kbbSplit = kbbStyle.text.split(" ");
-      console.log("kbbsplit", kbbSplit);
+    var targetSplit = target.text.split(" ");
+    console.log("targetSplit", targetSplit);
 
-      for(var kbbWord of kbbSplit) {
-        console.log("kbbword", kbbWord);
-        if((kbbWord.match(new RegExp(craigsWord, "gi"))) !== null) {
-          console.log("Found match craigsWord = ", craigsWord, ", kbbWord = ", kbbWord);
-          newRankedObj.rank++;
-        }
+    for(var targetWord of targetSplit) {
+      console.log("targetWord", targetWord);
+      if((source.match(new RegExp("([^\\w-]|^)" + targetWord + "([^\\w-]|$)", "gi"))) !== null) {
+        console.log("Found match source = ", source, ", targetWord = ", targetWord);
+        newRankedObj.rank++;
       }
     }
   }
@@ -134,7 +162,10 @@ function searchRank(craigsStyle, kbbStyles) {
   return res;
 }
 
-// console.log(searchRank("abc", [{'text': "abc", 'href': 'habc'}, {'text': "ghi", 'href': 'hghi'}, {'text': "abc", 'href': 'habc'}]));
+// searchRank("ABC", [{'text': "abc", 'href': 'habc1'}, {'text': "ghi", 'href': 'hghi'}, {'text': "abc", 'href': 'habc2'}]);
+// searchRank("asdf asdf ABC asdf", [{'text': "abc", 'href': 'habc1'}, {'text': "ghi", 'href': 'hghi'}, {'text': "abc", 'href': 'habc2'}]);
+// searchRank("asdf asdf asdfABC asdf", [{'text': "abc", 'href': 'habc1'}, {'text': "ghi", 'href': 'hghi'}, {'text': "abc", 'href': 'habc2'}]);
+// searchRank("asdf asdf abc", [{'text': "abc", 'href': 'habc1'}, {'text': "ghi", 'href': 'hghi'}, {'text': "abc", 'href': 'habc2'}]);
 
 // Return all the highest ranked items.
 function filterByRank(items) {
@@ -142,28 +173,54 @@ function filterByRank(items) {
   for(var item of items) {
     currMax = Math.max(currMax, item.rank)
   }
-  return items.filter((item) => item.rank === currMax).map((item) => item.value);
+  var filtered = items.filter((item) => item.rank === currMax).map((item) => item.value);
+  var numFiltered = items.length - filtered.length;
+
+  return {numFiltered, filtered};
 }
 
-function matchStyle(craigsStyle, kbbStyles) {
+function matchStyle(craigs, kbbStyles) {
   // Match the first word in the craigsStyle, then for subsequent words try to qualify the existing matches unless
   // there are no existing matches.
-
-  var stylesForBodyType = filterByRank(searchRank('Sedan', kbbStyles));
-
-  if(!craigsStyle) {
-    return stylesForBodyType[0].href;
+  var res = {filtered: kbbStyles, numFiltered: 0};
+  if(craigs.type) {
+    res = filterByRank(searchRank(craigs.type, res.filtered));
+    console.log("type numFiltered = ", res.numFiltered);
   }
 
-  return filterByRank(searchRank(craigsStyle, stylesForBodyType))[0].href;
+  if(craigs.style) {
+    res = filterByRank(searchRank(craigs.style, res.filtered));
+    console.log("style numFiltered = ", res.numFiltered);
+  }
+
+  if(res.filtered.length > 1) {
+    // Try searching the title.
+    res = filterByRank(searchRank(craigs.title, res.filtered));
+    console.log("title numFiltered = ", res.numFiltered);
+  }
+
+  if(res.filtered.length > 1) {
+    // Try searching the body.
+    res = filterByRank(searchRank(craigs.extra.body, res.filtered));
+    console.log("body numFiltered = ", res.numFiltered);
+  }
+
+  if(res.filtered.length > 1) {
+    // Would rather have a randomly picked sedan.
+    res = filterByRank(searchRank('Sedan', res.filtered));
+    console.log("default Sedan numFiltered = ", res.numFiltered);
+  }
+
+  return res.filtered[0].href;
 }
 
 // console.log(matchStyle("abc", [{'text': "abc", 'href': 'habc'}, {'text': "ghi sedan", 'href': 'hghi'}, {'text': "abc", 'href': 'habc'}]));
 // console.log(matchStyle("abc", [{'text': "abc sedan", 'href': 'habc'}, {'text': "ghi sedan", 'href': 'hghi'}, {'text': "abc sedan", 'href': 'habc2'}]));
 // console.log(matchStyle(null, [{'text': "abc sedan", 'href': 'habc'}, {'text': "ghi sedan", 'href': 'hghi'}, {'text': "abc sedan", 'href': 'habc2'}]));
 
-async function getStyleList(craigs, {make, model}) {
-  var link = 'https://www.kbb.com/' + make.toLowerCase() + '/' + model.toLowerCase() + '/' + craigs.year + '/styles/?intent=buy-used';
+async function getStyleList(craigs, {make, model}, kbbModel) {
+  console.log(model);
+  var link = 'https://www.kbb.com/' + make.toLowerCase().replace(/ /gi, '-') + '/' + kbbModel.toLowerCase().replace(/ /gi, '-').replace('/[\(|\)]/g', '') + '/' + craigs.year + '/styles/?intent=buy-used';
   var $ = await rp({...OPTIONS, uri: link});
 
   var styleLinks = $('a.style-link').get();
@@ -177,16 +234,16 @@ async function getStyleList(craigs, {make, model}) {
 
 // getStyleList({'year': '1998'}, {'make': 'honda', 'model': 'civic'}).then(console.log);
 
-async function getKbbStyle(craigs, {make, model}) {
+async function getKbbStyle(craigs, {make, model}, kbbModel) {
   // Return - A link to the next kbb page after choosing the style.
 
   var res = null;
 
   try {
-    var styleList = await getStyleList(craigs, {make, model});
+    var styleList = await getStyleList(craigs, {make, model}, kbbModel);
 
     // TODO: Match style.
-    var style = await matchStyle(craigs.style, styleList);
+    var style = await matchStyle(craigs, styleList);
     style = style.replace(/\/options/g, "");
     res = 'https://www.kbb.com' + style + '&pricetype=private-party&condition=good';
     res = res.replace(/&mileage=\d*/g, "");
@@ -204,7 +261,7 @@ async function getKbbStyle(craigs, {make, model}) {
 
 // getKbbStyle({'year': '2010', 'style': 'limited'}, {'make': 'ford', 'model': 'edge'}).then(console.log);
 // getKbbStyle({'year': '1998', 'style': 'ex'}, {'make': 'Honda', 'model': 'Civic'}).then(console.log);
-getKbbStyle({'year': '2010', 'style': 'ex-l'}, {'make': 'Honda', 'model': 'Accord'}).then(console.log);
+// getKbbStyle({'year': '2010', 'style': 'ex-l'}, {'make': 'Honda', 'model': 'Accord'}).then(console.log);
 
 async function getKbbPrice(link) {
   // console.log(link);
@@ -234,22 +291,26 @@ async function getKbbPrice(link) {
 }
 
 async function getKbb(craigs, input) {
+  var kbbLink;
 
-  var kbbLink = await getKbbStyle(craigs, input);
+  var kbbModel = await matchKbbModels({...input, ...craigs});
+  kbbLink = await getKbbStyle(craigs, input, kbbModel);
   if(kbbLink === null) {
     return null;
   }
-  return {kbbPrice: await getKbbPrice(kbbLink), kbbLink}
+
+
+  return {kbbPrice: await getKbbPrice(kbbLink), kbbLink, kbbModel}
 }
 
 async function handleCar(href, input) {
 
   try {
     // First, check the cache.
-    var cacheRes = await requestCache("get", {key: href});
-    if(cacheRes !== null) {
-      return cacheRes;
-    }
+    // var cacheRes = await requestCache("get", {key: href});
+    // if(cacheRes !== null) {
+    //   return cacheRes;
+    // }
     console.log("Cache miss");
 
     var craigs = await getCraigs(href, input);
@@ -259,7 +320,7 @@ async function handleCar(href, input) {
     var craigsPrice = parseInt(craigs.price);
     var kbbPrice = parseInt(kbb.kbbPrice);
     var percentAboveKbb = Math.round(((craigsPrice / kbbPrice) - 1) * 100);
-
+    delete craigs.extra;
     var res = {...craigs, ...kbb, percentAboveKbb, ...input}
 
     // Set the result in the cache.
@@ -272,6 +333,14 @@ async function handleCar(href, input) {
 
   return res;
 }
+
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/2015-honda-civic-si-sedan-30k/6644464694.html", {"make": "Honda", "model": "civic"}).then(console.log)
+// handleCar("https://inlandempire.craigslist.org/cto/d/2016-honda-civic-ex-4dr-sedan/6665090723.html", {"make": "Honda", "model": "civic"}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/2004-honda-civic-ex-coupe/6644109706.html", {"make": "Honda", "model": "civic"}).then(console.log)
+handleCar("https://sandiego.craigslist.org/nsd/cto/d/08-ford-150-crew-cab-xlt/6687567052.html", {"make": "Ford", "model": "F-150"}).then(console.log)
+
+
+
 
 module.exports.cars = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;

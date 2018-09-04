@@ -6,6 +6,8 @@ const config = require("./config");
 var client;
 var getAsync;
 var setAsync;
+var hsetAsync;
+var hgetAsync;
 
 if (typeof client === 'undefined') {
   console.log("Client undefined");
@@ -18,7 +20,7 @@ else if(!client.connected) {
 
 async function set(input) {
   const {key, value} = input;
-  console.log("set key", key);
+  // console.log("set key", key);
 
   var rsp = await setAsync(key, JSON.stringify(value), 'EX', 24*60*60);
 
@@ -27,7 +29,7 @@ async function set(input) {
 async function get(input) {
   try {
     const {key} = input;
-    console.log("get key", key);
+    // console.log("get key", key);
     var rsp = await getAsync(key)
     if(rsp !== null) {
       rsp = JSON.parse(rsp);
@@ -59,14 +61,16 @@ function startClient() {
   const {promisify} = require('util');
   getAsync = promisify(client.get).bind(client);
   setAsync = promisify(client.set).bind(client);
+  hsetAsync = promisify(client.hset).bind(client);
+  hgetAsync = promisify(client.hget).bind(client);
 }
 
 async function requestCache(action, input) {
 
   var res = null;
 
-  console.log("action", action);
-  console.log("input", input);
+  // console.log("action", action);
+  // console.log("input", input);
 
   if(action === "set") {
     await set(input);
@@ -80,7 +84,7 @@ async function requestCache(action, input) {
 
 };
 
-module.exports = {requestCache};
+module.exports = {requestCache, redisClient: client, hgetAsync, hsetAsync, getAsync, setAsync};
 
 // requestCache("get", {key: "hi"}).then((rsp) => {
 //   console.log(rsp);
