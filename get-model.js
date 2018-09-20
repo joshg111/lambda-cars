@@ -4,6 +4,7 @@ var rp = require('request-promise');
 const pConfig = require("./public-config");
 var {hgetAsync, hsetAsync} = require('./redis-client');
 var {searchRank, filterByRank} = require('./src/utils/rank-actions');
+var {getRelations} = require('./src/utils/relations');
 
 
 const OPTIONS = pConfig.rp.OPTIONS;
@@ -39,8 +40,8 @@ async function getApi() {
 }
 
 
-async function getKbbMakeId({make: craigsMake, year: craigsYear}, {api, version}) {
-  var link = 'https://www.kbb.com/Api/'+ api + '/' + version + '/vehicle/v1/Makes?vehicleClass=UsedCar&yearid='+craigsYear;
+async function matchKbbMakeId(craigs, kbb) {
+  var link = 'https://www.kbb.com/Api/'+ kbb.extra.api.api + '/' + kbb.extra.api.version + '/vehicle/v1/Makes?vehicleClass=UsedCar&yearid='+craigs.year;
 
   var options = {
       uri: link,
@@ -52,25 +53,35 @@ async function getKbbMakeId({make: craigsMake, year: craigsYear}, {api, version}
 
   var body = await rp(options);
   var makes = JSON.parse(body);
-  var re = new RegExp('^' + craigsMake + '$', 'i');
+  var res = makes.map((m) => {
+    return {text: m.name, id: m.id};
+  });
 
-  return makes.filter((make) => {
-    return re.exec(make.name) !== null;
-  })[0].id
+  res = searchRank([craigs.desc, craigs.title], res, ["word", "damerauLevenshteinDistance"]);
+  if(res.length > 1) {
+    res = searchRank([craigs.extra ? craigs.extra.body : null], res, ["word", "findLongestPrefix"]);
+  }
+
+  if(res.length > 1) {
+    console.log("Can't determine which make, return null");
+    return null;
+  }
+
+  var {text: make, id} = res[0];
+  return {make, id}
 }
 
 
-async function getKbbModels(craigs) {
-  var cacheRes = await hgetAsync("kbbModels", craigs.make + "." + craigs.year);
-  if(cacheRes !== null) {
-    console.log("getKbbModels cache hit: " + cacheRes);
-    return JSON.parse(cacheRes);
+async function getKbbModels(craigs, kbb) {
+  if(craigs.make && craigs.year) {
+    var cacheRes = await hgetAsync("kbbModels", kbb.kbbMake + "." + craigs.year);
+    if(cacheRes !== null) {
+      console.log("getKbbModels cache hit: " + cacheRes);
+      return JSON.parse(cacheRes);
+    }
   }
 
-  var api = await getApi();
-  var makeId = await getKbbMakeId(craigs, api);
-
-  var link = 'https://www.kbb.com/Api/'+ api.api + '/' + api.version + '/vehicle/v1/Models?makeid=' + makeId + '&vehicleClass=UsedCar&yearid=' + craigs.year;
+  var link = 'https://www.kbb.com/Api/'+ kbb.extra.api.api + '/' + kbb.extra.api.version + '/vehicle/v1/Models?makeid=' + kbb.extra.kbbMakeId + '&vehicleClass=UsedCar&yearid=' + craigs.year;
   var options = {
       uri: link,
       headers: {
@@ -81,39 +92,32 @@ async function getKbbModels(craigs) {
 
   var body = await rp(options);
   var models = JSON.parse(body);
-  var re = new RegExp(craigs.model, 'i');
   var res = models.map((model) => model.name);
 
   if(res.length > 0) {
     // Set cache.
 
-    await hsetAsync("kbbModels", craigs.model + "." + craigs.year, JSON.stringify(res));
+    await hsetAsync("kbbModels", kbb.kbbMake + "." + craigs.year, JSON.stringify(res));
   }
 
   return res;
 }
 
-async function matchModels(craigs) {
-  var models = await getKbbModels(craigs);
-  console.log(models);
-  models = models.map((m) => {
+async function matchModels(craigs, kbb) {
+  var models = await getKbbModels(craigs, kbb);
+  var res = models.map((m) => {
     return {text: m};
   });
-  // First do rank search of the craigsModel.
-  var res = filterByRank(searchRank(craigs.model, models, ['-'])).filtered;
+  console.log("models = ", res);
+
+  res = searchRank([craigs.desc, craigs.title], res, ["word", "damerauLevenshteinDistance", "findLongestPrefix"]);
   if(res.length > 1) {
-    // Try searching the title.
-    res = filterByRank(searchRank(craigs.title, res, ['-'])).filtered;
+    res = searchRank([craigs.extra ? craigs.extra.body : null], res, ["word", "findLongestPrefix"]);
   }
 
-  if(res.length > 1) {
-    // Try searching the body.
-    res = filterByRank(searchRank(craigs.extra.body, res, ['-'])).filtered;
-  }
-  console.log(res);
   return res[0].text;
 }
 
 // matchModels({make: 'ford', model: 'f-150', year: '2014'});
 
-module.exports = {matchKbbModels: matchModels};
+module.exports = {matchKbbModels: matchModels, matchKbbMake: matchKbbMakeId, getApi};

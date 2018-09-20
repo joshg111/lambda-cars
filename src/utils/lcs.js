@@ -1,6 +1,8 @@
 
 
 function findLcsDpNew(a, b) {
+  a = a.toLowerCase();
+  b = b.toLowerCase();
   var arr = [];
   for(var i = 0; i < a.length+1; i++) {
     arr.push(0);
@@ -22,6 +24,9 @@ function findLcsDpNew(a, b) {
 					res = a.substring(i-arr[i], i);
         }
       }
+      else {
+        arr[i] = 0;
+      }
     }
   }
 
@@ -30,5 +35,8 @@ function findLcsDpNew(a, b) {
 }
 
 // findLcsDpNew("abcdzefg", "abcdxefg");
+// findLcsDpNew('1999 Chevy Suburban Suv, Low Miles, New Tires, 3rd Row, Just Smog\'d', 'chevrolet');
+findLcsDpNew('Volvo', 'mercedes benz gl450');
+
 
 module.exports = {lcs: findLcsDpNew};
