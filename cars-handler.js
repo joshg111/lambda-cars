@@ -120,86 +120,6 @@ async function getCraigs(href) {
   return res;
 }
 
-// function searchRank(craigsStyle, kbbStyles) {
-//   if(!craigsStyle) {
-//     return null
-//   }
-//
-//   var res = [];
-//
-//   var craigsSplit = craigsStyle.split(" ");
-//   console.log(craigsSplit);
-//
-//   for(var kbbStyle of kbbStyles) {
-//     console.log("kbbStyle = ", kbbStyle);
-//     var newRankedObj = {'rank': 0, 'value': kbbStyle};
-//     res.push(newRankedObj);
-//
-//     for(var craigsWord of craigsSplit) {
-//       console.log("word", craigsWord);
-//       var kbbSplit = kbbStyle.text.split(" ");
-//       console.log("kbbsplit", kbbSplit);
-//
-//       for(var kbbWord of kbbSplit) {
-//         console.log("kbbword", kbbWord);
-//         if((kbbWord.match(new RegExp(craigsWord, "gi"))) !== null) {
-//           console.log("Found match craigsWord = ", craigsWord, ", kbbWord = ", kbbWord);
-//           newRankedObj.rank++;
-//         }
-//       }
-//     }
-//   }
-//   console.log("searchRank = ", res);
-//   return res;
-// }
-
-// Input
-// source: String - Eg. craigsStyle or posting contents/title.
-// targets: [String] - Eg. KbbStyles or KbbBodyTypes (Sedan/Coupe/Hatchback/Wagon)
-// function searchRank(source, targets) {
-//   if(!source) {
-//     return null
-//   }
-//
-//   var res = [];
-//
-//   for(var target of targets) {
-//     console.log("target = ", target);
-//     var newRankedObj = {'rank': 0, 'value': target};
-//     res.push(newRankedObj);
-//
-//     var targetSplit = target.text.split(" ");
-//     console.log("targetSplit", targetSplit);
-//
-//     for(var targetWord of targetSplit) {
-//       console.log("targetWord", targetWord);
-//       if((source.match(new RegExp("([^\\w-]|^)" + targetWord + "([^\\w-]|$)", "gi"))) !== null) {
-//         console.log("Found match source = ", source, ", targetWord = ", targetWord);
-//         newRankedObj.rank++;
-//       }
-//     }
-//   }
-//   console.log("searchRank = ", res);
-//   return res;
-// }
-
-// searchRank("ABC", [{'text': "abc", 'href': 'habc1'}, {'text': "ghi", 'href': 'hghi'}, {'text': "abc", 'href': 'habc2'}]);
-// searchRank("asdf asdf ABC asdf", [{'text': "abc", 'href': 'habc1'}, {'text': "ghi", 'href': 'hghi'}, {'text': "abc", 'href': 'habc2'}]);
-// searchRank("asdf asdf asdfABC asdf", [{'text': "abc", 'href': 'habc1'}, {'text': "ghi", 'href': 'hghi'}, {'text': "abc", 'href': 'habc2'}]);
-// searchRank("asdf asdf abc", [{'text': "abc", 'href': 'habc1'}, {'text': "ghi", 'href': 'hghi'}, {'text': "abc", 'href': 'habc2'}]);
-
-// Return all the highest ranked items.
-// function filterByRank(items) {
-//   var currMax = 0;
-//   console.log("items = ", items);
-//   for(var item of items) {
-//     currMax = Math.max(currMax, item.rank)
-//   }
-//   var filtered = items.filter((item) => item.rank === currMax).map((item) => item.value);
-//   var numFiltered = items.length - filtered.length;
-//
-//   return {numFiltered, filtered};
-// }
 
 function matchStyle(craigs, kbbStyles) {
   // Match the first word in the craigsStyle, then for subsequent words try to qualify the existing matches unless
@@ -357,10 +277,10 @@ async function handleCar(href, input) {
 
   try {
     // First, check the cache.
-    // var cacheRes = await requestCache("get", {key: href});
-    // if(cacheRes !== null) {
-    //   return cacheRes;
-    // }
+    var cacheRes = await requestCache("get", {key: href});
+    if(cacheRes !== null) {
+      return cacheRes;
+    }
     console.log("Cache miss");
 
     var craigs = await getCraigs(href);
@@ -476,8 +396,8 @@ module.exports.cars = async (event, context, callback) => {
 
 };
 
-var input = {query: "suv", city: "sandiego"};
-module.exports.cars({body: JSON.stringify(input)}, {callbackWaitsForEmptyEventLoop: false}, null);
+// var input = {query: "suv", city: "sandiego"};
+// module.exports.cars({body: JSON.stringify(input)}, {callbackWaitsForEmptyEventLoop: false}, null);
 
 // handleCar('https://sandiego.craigslist.org/csd/cto/d/2012-toyota-camry-xle-1-owner/6606439928.html', input);
 // getCraigs('https://sandiego.craigslist.org/csd/cto/d/2012-toyota-camry-xle-1-owner/6606439928.html', input);
