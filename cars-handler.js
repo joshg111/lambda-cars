@@ -41,11 +41,26 @@ async function getCarHrefs({make, model, city}) {
 
 }
 
-async function getCarHrefsWithSearch({query, city}) {
+function buildCraigsUrl(params) {
+  var url = '';
+  for (var k in params) {
+    if (params[k]) {
+      url += "&" + k + '=' + params[k]
+    }
+  }
 
-  query = query.replace(/\s+/gi, '+');
+  return url;
+}
 
-  var uri = 'https://' + city + '.craigslist.org/search/cto?query=' + query + '&sort=date&srchType=T&auto_transmission=2&hasPic=1&bundleDuplicates=1&min_price=0&max_price=20000&auto_title_status=1';
+async function getCarHrefsWithSearch(params) {
+
+  var {city, query} = params;
+  delete params['city'];
+
+  params['query'] = query.replace(/\s+/gi, '+');
+
+  // var uri = 'https://' + city + '.craigslist.org/search/cto?query=' + query + '&sort=date&srchType=T&auto_transmission=2&hasPic=1&bundleDuplicates=1&min_price=0&max_price=20000&auto_title_status=1';
+  var uri = 'https://' + city + '.craigslist.org/search/cto?sort=date&srchType=T&auto_transmission=2&hasPic=1&bundleDuplicates=1&auto_title_status=1' + buildCraigsUrl(params);
   console.log(uri);
 
   return await scrapeHrefs(uri);

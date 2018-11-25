@@ -2,7 +2,7 @@
  * Calculates the Damerau-Levenshtein distance between two strings.
  */
 function distance(source, target) {
-    console.log("Levenshtein: target = ", source);
+    // console.log("Levenshtein: target = ", source);
     if (!source) return target ? target.length : 0;
     else if (!target) return source.length;
 
@@ -37,7 +37,7 @@ function distance(source, target) {
         sd[source[i-1]] = i;
     }
     var res = score[m+1][n+1];
-    console.log("Levenshtein: res = ", res);
+    // console.log("Levenshtein: res = ", res);
     return res
 }
 
