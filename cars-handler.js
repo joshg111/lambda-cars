@@ -142,10 +142,10 @@ function matchStyle(craigs, kbbStyles) {
 
   var res = kbbStyles;
 
-  res = searchRank([craigs.desc, craigs.title, craigs.type], res, ["word", "damerauLevenshteinDistance", "findLongestPrefix"]);
-  if (res.length > 1) {
-      res = searchRank([craigs.desc, craigs.title, craigs.type], res, ["insequenceCount"]);
-  }
+  res = searchRank([craigs.desc, craigs.title, craigs.type], res, ["word", "damerauLevenshteinDistance", "findLongestPrefix", "insequenceCount"]);
+  // if (res.length > 1) {
+  //     res = searchRank([craigs.desc, craigs.title, craigs.type], res, ["insequenceCount"]);
+  // }
   if(res.length > 1) {
     res = searchRank([craigs.extra ? craigs.extra.body : null, 'Sedan'], res, ["word", "findLongestPrefix"]);
   }

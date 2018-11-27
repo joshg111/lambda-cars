@@ -82,7 +82,10 @@ var STRATEGIES =
       var maxDist = 0;
       for(var targetWord of targetSplit) {
         for(var sourceWord of sourceSplit) {
-          maxDist = Math.max(insequenceCount(targetWord, sourceWord), maxDist)
+          // Only get insequenceCount if there's a prefix match.
+          if (targetWord[0] == sourceWord[0]) {
+            maxDist = Math.max(insequenceCount(targetWord, sourceWord), maxDist)
+          }
         }
         res -= maxDist;
       }
