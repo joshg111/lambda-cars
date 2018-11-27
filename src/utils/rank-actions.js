@@ -1,6 +1,7 @@
 var {lcs} = require('./lcs');
 var {levenshteinDistance} = require('./levenshtein');
 var {damerauLevenshteinDistance} = require('./damerau-levenshtein');
+var {insequenceCount} = require('./insequence-count')
 var {findLongestTargetPrefix} = require('./longestPrefix');
 var {RankedTarget} = require('../rank/rankedTarget')
 var {getRelations} = require('./relations');
@@ -70,6 +71,29 @@ var {getRelations} = require('./relations');
 
 var STRATEGIES =
 {
+
+  insequenceCount:
+  {
+    searchStrategy: (source, targetText, rankedTarget) => {
+
+      var res = rankedTarget.getRank();
+      var targetSplit = targetText.split(" ");
+      var sourceSplit = source.split(" ");
+      var maxDist = 0;
+      for(var targetWord of targetSplit) {
+        for(var sourceWord of sourceSplit) {
+          maxDist = Math.max(insequenceCount(targetWord, sourceWord), maxDist)
+        }
+        res -= maxDist;
+      }
+
+      return res;
+
+
+      // return rankedTarget.getRank() - insequenceCount(source, targetText);
+    }
+  },
+
   findLongestPrefix:
     {
       searchStrategy: (source, targetWord, rankedTarget) => {
@@ -87,14 +111,36 @@ var STRATEGIES =
             console.log("Found match source = ", source, ", targetWord = ", targetWord);
             res -= targetWord.length;
           }
+          else {
+            // Slight penalty for word not showing up.
+            res += 1;
+          }
         }
         return res;
       }
     },
   damerauLevenshteinDistance:
     {
-      searchStrategy: (source, targetWord, rankedTarget) => {
-        return rankedTarget.getRank() + damerauLevenshteinDistance(targetWord, source);
+      searchStrategy: (source, targetText, rankedTarget) => {
+        // We should run this for each target word, and each source word, and
+        // add the smallest distance overall.
+
+        var res = rankedTarget.getRank();
+        var targetSplit = targetText.split(" ");
+        var sourceSplit = source.split(" ");
+        var minDist = 100;
+        for(var targetWord of targetSplit) {
+          for(var sourceWord of sourceSplit) {
+            minDist = Math.min(damerauLevenshteinDistance(targetWord, sourceWord), minDist)
+          }
+          if (minDist < 100) {
+            res += minDist;
+          }
+          minDist = 100;
+        }
+
+        return res;
+        // return rankedTarget.getRank() + damerauLevenshteinDistance(targetWord, source);
       }
     }
 };

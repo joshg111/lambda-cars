@@ -143,6 +143,9 @@ function matchStyle(craigs, kbbStyles) {
   var res = kbbStyles;
 
   res = searchRank([craigs.desc, craigs.title, craigs.type], res, ["word", "damerauLevenshteinDistance", "findLongestPrefix"]);
+  if (res.length > 1) {
+      res = searchRank([craigs.desc, craigs.title, craigs.type], res, ["insequenceCount"]);
+  }
   if(res.length > 1) {
     res = searchRank([craigs.extra ? craigs.extra.body : null, 'Sedan'], res, ["word", "findLongestPrefix"]);
   }
@@ -292,10 +295,10 @@ async function handleCar(href, input) {
 
   try {
     // First, check the cache.
-    var cacheRes = await requestCache("get", {key: href});
-    if(cacheRes !== null) {
-      return cacheRes;
-    }
+    // var cacheRes = await requestCache("get", {key: href});
+    // if(cacheRes !== null) {
+    //   return cacheRes;
+    // }
     console.log("Cache miss");
 
     var craigs = await getCraigs(href);
@@ -320,6 +323,8 @@ async function handleCar(href, input) {
 }
 
 
+
+handleCar("https://sandiego.craigslist.org/csd/cto/d/low-mileshonda-accord-exl/6752360209.html", {"make": "Honda", "model": "civic"}).then(console.log)
 
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/2000-mercedes-ml-320-awd-suv/6690082591.html", {"make": "Honda", "model": "civic"}).then(console.log)
 
