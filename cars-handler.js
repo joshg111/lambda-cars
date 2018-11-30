@@ -142,16 +142,23 @@ function matchStyle(craigs, kbbStyles) {
 
   var res = kbbStyles;
 
-  res = searchRank([craigs.desc, craigs.title, craigs.type], res, ["word", "damerauLevenshteinDistance", "findLongestPrefix", "insequenceCount"]);
+  res = searchRank([craigs.desc, craigs.title, craigs.type], res, ["word", "findLongestPrefix"]);
   // if (res.length > 1) {
   //     res = searchRank([craigs.desc, craigs.title, craigs.type], res, ["insequenceCount"]);
   // }
   if(res.length > 1) {
-    res = searchRank([craigs.extra ? craigs.extra.body : null, 'Sedan'], res, ["word", "findLongestPrefix"]);
+    // res = searchRank([craigs.extra ? craigs.extra.body : null, 'Sedan'], res, ["word", "findLongestPrefix"]);
+    res = searchRank([craigs.extra ? craigs.extra.body : null, 'Sedan'], res, ["word"]);
   }
 
   console.log(res);
-  return res[0].href;
+  // return res[0].href;
+  if (res.length > 1) {
+    // If we're not sure about which style, then don't set the text.
+    // The text is displayed to the user.
+    res[0].text = "";
+  }
+  return res[0];
 }
 
 // console.log(matchStyle("abc", [{'text': "abc", 'href': 'habc'}, {'text': "ghi sedan", 'href': 'hghi'}, {'text': "abc", 'href': 'habc'}]));
@@ -185,10 +192,14 @@ async function getStyleList(rsp) {
 async function getKbbStyle(craigs, kbb) {
   // Return - A link to the next kbb page after choosing the style.
   var res = null;
+  var matchedStyle = null;
 
   try {
 
-    var link = 'https://www.kbb.com/' + kbb.kbbMake.toLowerCase().replace(/ /gi, '-') + '/' + kbb.kbbModel.toLowerCase().replace(/ /gi, '-').replace('/[\(|\)]/g', '') + '/' + craigs.year + '/styles/?intent=buy-used';
+    var link = 'https://www.kbb.com/' +
+      kbb.kbbMake.toLowerCase().replace(/ /gi, '-') +
+      '/' + kbb.kbbModel.toLowerCase().replace(/ /gi, '-').replace('/[\(|\)]/g', '') +
+      '/' + craigs.year + '/styles/?intent=buy-used';
 
     var options = {
       uri: link,
@@ -213,7 +224,9 @@ async function getKbbStyle(craigs, kbb) {
       var styleList = await getStyleList(rsp);
 
       // Match style.
-      var res = await matchStyle(craigs, styleList);
+      var matchedStyleRes = await matchStyle(craigs, styleList);
+      res = matchedStyleRes.href;
+      matchedStyle = matchedStyleRes.text;
     }
 
     res = res.replace(/\/options/g, "");
@@ -228,7 +241,7 @@ async function getKbbStyle(craigs, kbb) {
     throw new Error(err);
   }
   console.log("getKbbStyle res = ", res);
-  return res;
+  return {href: res, style: matchedStyle};
 }
 
 // getKbbStyle({'year': '2017', 'style': 'limited'}, {'kbbMake': 'lexus', 'kbbModel': 'lx'}).then(console.log);
@@ -278,7 +291,9 @@ async function getKbb(craigs) {
     console.log("reached");
     kbb["kbbModel"] = await matchKbbModels(craigs, kbb);
     assert(kbb.kbbModel);
-    kbb["kbbLink"] = await getKbbStyle(craigs, kbb);
+    var kbbStyleRes = await getKbbStyle(craigs, kbb);
+    kbb["kbbLink"] = kbbStyleRes.href;
+    kbb["kbbStyle"] = kbbStyleRes.style;
     assert(kbb.kbbLink);
     kbb["kbbPrice"] = await getKbbPrice(kbb.kbbLink)
     assert(kbb.kbbPrice);
@@ -324,6 +339,7 @@ async function handleCar(href, input) {
 }
 
 
+handleCar("https://sandiego.craigslist.org/nsd/cto/d/remotestarter-2012-honda/6761403598.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/honda-accord-ex/6747943082.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/nsd/cto/d/2003-honda-accord-super/6760093735.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/2011-honda-accord-exl-low/6749156351.html", {}).then(console.log)
@@ -351,7 +367,13 @@ async function handleCar(href, input) {
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/2006-ford-150-super-cab-low/6680394811.html", {}).then(console.log)
 
 
+function msleep(n) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, n);
+}
 
+function sleep(n) {
+  msleep(n*1000);
+}
 
 module.exports.cars = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;

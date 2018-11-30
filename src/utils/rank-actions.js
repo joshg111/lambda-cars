@@ -75,22 +75,33 @@ var STRATEGIES =
   insequenceCount:
   {
     searchStrategy: (source, targetText, rankedTarget) => {
-
+      console.log("inseq targetText = ", targetText);
       var res = rankedTarget.getRank();
       var targetSplit = targetText.split(" ");
       var sourceSplit = source.split(" ");
       var maxCount = 0;
+      var maxRes = {count: 0, sourceWord: ""};
+
       for(var targetWord of targetSplit) {
         for(var sourceWord of sourceSplit) {
+          targetWord = targetWord.toLowerCase();
+          sourceWord = sourceWord.toLowerCase();
           // Only get insequenceCount if there's a prefix match.
           if (targetWord[0] == sourceWord[0]) {
-            maxCount = Math.max(insequenceCount(targetWord, sourceWord), maxCount)
+            // maxCount = Math.max(insequenceCount(targetWord, sourceWord), maxCount)
+            var count = insequenceCount(targetWord, sourceWord);
+            if (count > maxRes.count || (count == maxRes.count && sourceWord.length < maxRes.sourceWord)) {
+              maxRes = {count, sourceWord};
+              console.log("inseq sourceWord = ", sourceWord, ", targetWord = ", targetWord);
+            }
           }
         }
         // res is the sum of the max insequence count averaged by the source
         // and target lengths.
-        res += (maxCount / (source.length + targetWord.length - maxCount));
-        maxCount = 0;
+        res += (maxRes.count / (maxRes.sourceWord.length + targetWord.length - maxRes.count));
+        // res += (maxRes.count / (source.length + targetWord.length - maxRes.count));
+        // maxCount = 0;
+        maxRes = {count: 0, sourceWord: ""};
       }
 
       // Return the average of each target word rank.
@@ -166,6 +177,11 @@ var STRATEGIES =
     }
 };
 
+// var r1 = new RankedTarget("EXL Coupe 2D")
+// var r2 = new RankedTarget("EXL Sedan 2D")
+// console.log(STRATEGIES.insequenceCount.searchStrategy("RemoteStarter 2012 Honda Accord EX-L Bluetooth", r1.getTarget(), r1))
+// console.log(STRATEGIES.insequenceCount.searchStrategy("RemoteStarter 2012 Honda Accord EX-L Bluetooth", r2.getTarget(), r2))
+
 function searchRank(sources, targets, strategies) {
 
   console.log("searchRank called");
@@ -176,6 +192,7 @@ function searchRank(sources, targets, strategies) {
   }
 
   for(let source of sources) {
+    console.log("searchRank source = ", source);
     for(let strategy of strategies) {
 
       if(!source || source === "") {
@@ -193,7 +210,6 @@ function searchRank(sources, targets, strategies) {
             var rank2 = STRATEGIES[strategy].searchStrategy(source, relation, rankedTarget);
             console.log("Found relation rank = ", rank2, "relation = ", relation, "strategy = ", strategy);
             console.log("Normal rank = ", rank1);
-            // console.log("source = ", source);
             rank1 = Math.max(rank1, rank2);
           }
         }

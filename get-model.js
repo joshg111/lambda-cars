@@ -57,7 +57,7 @@ async function matchKbbMakeId(craigs, kbb) {
     return {text: m.name, id: m.id};
   });
 
-  res = searchRank([craigs.desc, craigs.title], res, ["word", "damerauLevenshteinDistance"]);
+  res = searchRank([craigs.desc, craigs.title], res, ["word", "findLongestPrefix"]);
   if(res.length > 1) {
     res = searchRank([craigs.extra ? craigs.extra.body : null], res, ["word", "findLongestPrefix"]);
   }
@@ -109,7 +109,7 @@ async function matchModels(craigs, kbb) {
   });
   console.log("models = ", res);
 
-  res = searchRank([craigs.desc, craigs.title], res, ["word", "damerauLevenshteinDistance", "findLongestPrefix"]);
+  res = searchRank([craigs.desc, craigs.title], res, ["word", "findLongestPrefix"]);
   if(res.length > 1) {
     console.log("Model search using body content");
     res = searchRank([craigs.extra ? craigs.extra.body : null], res, ["word", "findLongestPrefix"]);
