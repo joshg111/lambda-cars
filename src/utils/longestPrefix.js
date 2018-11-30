@@ -6,6 +6,7 @@ function findLongestTargetPrefix(sourceText, target) {
   target = target.toLowerCase();
   console.log("source = ", sourceText, ", target = ", target);
   var maxI = 0;
+  var res = {count: 0, sourceWord: ""};
   var sourceSplit = sourceText.split(" ");
 
   for(var source of sourceSplit) {
@@ -18,11 +19,12 @@ function findLongestTargetPrefix(sourceText, target) {
         break;
       }
     }
-    maxI = Math.max(i, maxI);
+    if (i > res.count || (i == res.count && source.length > res.sourceWord.length)) {
+      res = {count: i, sourceWord: source};
+    }
+
   }
 
-
-  var res = maxI;
   console.log("findLongestPrefix = ", res);
   return res;
 }

@@ -275,6 +275,7 @@ async function getKbb(craigs) {
     assert(kbbMake.id);
     kbb["kbbMake"] = kbbMake.make;
     kbb.extra["kbbMakeId"] = kbbMake.id;
+    console.log("reached");
     kbb["kbbModel"] = await matchKbbModels(craigs, kbb);
     assert(kbb.kbbModel);
     kbb["kbbLink"] = await getKbbStyle(craigs, kbb);
@@ -323,8 +324,10 @@ async function handleCar(href, input) {
 }
 
 
-
-handleCar("https://sandiego.craigslist.org/csd/cto/d/low-mileshonda-accord-exl/6752360209.html", {"make": "Honda", "model": "civic"}).then(console.log)
+handleCar("https://sandiego.craigslist.org/csd/cto/d/honda-accord-ex/6747943082.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/nsd/cto/d/2003-honda-accord-super/6760093735.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/2011-honda-accord-exl-low/6749156351.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/low-mileshonda-accord-exl/6752360209.html", {"make": "Honda", "model": "civic"}).then(console.log)
 
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/2000-mercedes-ml-320-awd-suv/6690082591.html", {"make": "Honda", "model": "civic"}).then(console.log)
 

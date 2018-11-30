@@ -6,7 +6,13 @@ var RELATIONS = {
 
 function getRelations(s) {
   s = s.toLowerCase();
-  return (s in RELATIONS) ? RELATIONS[s] : []
+  var res = (s in RELATIONS) ? RELATIONS[s] : []
+  hyphen = s.search(/-/g);
+  if (hyphen > -1) {
+    res.push(s.replace(/-/g, ''))
+  }
+  
+  return res;
 }
 
 

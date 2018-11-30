@@ -73,12 +73,11 @@ async function matchKbbMakeId(craigs, kbb) {
 
 
 async function getKbbModels(craigs, kbb) {
-  if(craigs.make && craigs.year) {
-    var cacheRes = await hgetAsync("kbbModels", kbb.kbbMake + "." + craigs.year);
-    if(cacheRes !== null) {
-      console.log("getKbbModels cache hit: " + cacheRes);
-      return JSON.parse(cacheRes);
-    }
+  console.log("getting models");
+  var cacheRes = await hgetAsync("kbbModels", kbb.kbbMake + "." + craigs.year);
+  if(cacheRes !== null) {
+    console.log("getKbbModels cache hit: " + cacheRes);
+    return JSON.parse(cacheRes);
   }
 
   var link = 'https://www.kbb.com/Api/'+ kbb.extra.api.api + '/' + kbb.extra.api.version + '/vehicle/v1/Models?makeid=' + kbb.extra.kbbMakeId + '&vehicleClass=UsedCar&yearid=' + craigs.year;
@@ -112,9 +111,10 @@ async function matchModels(craigs, kbb) {
 
   res = searchRank([craigs.desc, craigs.title], res, ["word", "damerauLevenshteinDistance", "findLongestPrefix"]);
   if(res.length > 1) {
+    console.log("Model search using body content");
     res = searchRank([craigs.extra ? craigs.extra.body : null], res, ["word", "findLongestPrefix"]);
   }
-
+  console.log("match model = ", res[0].text);
   return res[0].text;
 }
 

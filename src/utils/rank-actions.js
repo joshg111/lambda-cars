@@ -79,18 +79,22 @@ var STRATEGIES =
       var res = rankedTarget.getRank();
       var targetSplit = targetText.split(" ");
       var sourceSplit = source.split(" ");
-      var maxDist = 0;
+      var maxCount = 0;
       for(var targetWord of targetSplit) {
         for(var sourceWord of sourceSplit) {
           // Only get insequenceCount if there's a prefix match.
           if (targetWord[0] == sourceWord[0]) {
-            maxDist = Math.max(insequenceCount(targetWord, sourceWord), maxDist)
+            maxCount = Math.max(insequenceCount(targetWord, sourceWord), maxCount)
           }
         }
-        res -= maxDist;
+        // res is the sum of the max insequence count averaged by the source
+        // and target lengths.
+        res += (maxCount / (source.length + targetWord.length - maxCount));
+        maxCount = 0;
       }
 
-      return res;
+      // Return the average of each target word rank.
+      return (res / (targetSplit.length + 1));
 
 
       // return rankedTarget.getRank() - insequenceCount(source, targetText);
@@ -100,7 +104,9 @@ var STRATEGIES =
   findLongestPrefix:
     {
       searchStrategy: (source, targetWord, rankedTarget) => {
-        return rankedTarget.getRank() - findLongestTargetPrefix(source, targetWord);
+        prefixRes = findLongestTargetPrefix(source, targetWord);
+        return (rankedTarget.getRank() + (prefixRes.count /
+          (prefixRes.sourceWord.length + targetWord.length - prefixRes.count)) / 2);
       }
     },
 
@@ -112,14 +118,13 @@ var STRATEGIES =
         for(var targetWord of targetSplit) {
           if((source.match(new RegExp("([^\\w-]|^)" + targetWord + "([^\\w-]|$)", "gi"))) !== null) {
             console.log("Found match source = ", source, ", targetWord = ", targetWord);
-            res -= targetWord.length;
-          }
-          else {
-            // Slight penalty for word not showing up.
             res += 1;
           }
+          else {
+            res -= 1;
+          }
         }
-        return res;
+        return res / (targetSplit.length + 1);
       }
     },
   damerauLevenshteinDistance:
@@ -127,22 +132,35 @@ var STRATEGIES =
       searchStrategy: (source, targetText, rankedTarget) => {
         // We should run this for each target word, and each source word, and
         // add the smallest distance overall.
+        console.log("targetText = ", targetText);
 
         var res = rankedTarget.getRank();
+        return res;
         var targetSplit = targetText.split(" ");
         var sourceSplit = source.split(" ");
-        var minDist = 100;
+        var minRes = {dist: 100, sourceWord: ""};
+        var avgDiff = 0;
+
         for(var targetWord of targetSplit) {
           for(var sourceWord of sourceSplit) {
-            minDist = Math.min(damerauLevenshteinDistance(targetWord, sourceWord), minDist)
+            var dist = damerauLevenshteinDistance(targetWord, sourceWord)
+            if (dist < minRes.dist ||
+              dist == minRes.dist && sourceWord.length < minRes.sourceWord.length) {
+                minRes = {dist, sourceWord}
+              }
           }
-          if (minDist < 100) {
-            res += minDist;
+          if (minRes.dist < 100) {
+            console.log("levenshtein = ", avgDiff)
+            avgDiff -= minRes.dist / (targetWord.length + minRes.sourceWord.length - minRes.dist)
           }
           minDist = 100;
         }
 
-        return res;
+        console.log("levenshtein = ", avgDiff)
+        console.log("avgDiff = ", avgDiff / targetSplit.length)
+        avgDiff = avgDiff / targetSplit.length;
+        console.log("res = ", res + avgDiff)
+        return (res + avgDiff) / 2;
         // return rankedTarget.getRank() + damerauLevenshteinDistance(targetWord, source);
       }
     }
@@ -175,7 +193,8 @@ function searchRank(sources, targets, strategies) {
             var rank2 = STRATEGIES[strategy].searchStrategy(source, relation, rankedTarget);
             console.log("Found relation rank = ", rank2, "relation = ", relation, "strategy = ", strategy);
             console.log("Normal rank = ", rank1);
-            rank1 = Math.min(rank1, rank2);
+            // console.log("source = ", source);
+            rank1 = Math.max(rank1, rank2);
           }
         }
         rankedTarget.setRank(rank1);
@@ -209,7 +228,7 @@ function searchRank(sources, targets, strategies) {
 //   return {numFiltered, filtered};
 // }
 
-function filterByRank(items, strategy = Math.min) {
+function filterByRank(items, strategy = Math.max) {
   console.log("filterByRank called");
   var curr = items[0].getRank();
   for(var item of items) {
@@ -217,7 +236,7 @@ function filterByRank(items, strategy = Math.min) {
   }
   var filtered = items.filter((item) => item.getRank() === curr).map((item) => item.getTarget());
 
-  console.log(filtered);
+  console.log("filtered = ", filtered);
   return filtered;
 }
 
