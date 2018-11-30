@@ -296,10 +296,10 @@ async function handleCar(href, input) {
 
   try {
     // First, check the cache.
-    // var cacheRes = await requestCache("get", {key: href});
-    // if(cacheRes !== null) {
-    //   return cacheRes;
-    // }
+    var cacheRes = await requestCache("get", {key: href});
+    if(cacheRes !== null) {
+      return cacheRes;
+    }
     console.log("Cache miss");
 
     var craigs = await getCraigs(href);
@@ -324,7 +324,7 @@ async function handleCar(href, input) {
 }
 
 
-handleCar("https://sandiego.craigslist.org/csd/cto/d/honda-accord-ex/6747943082.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/honda-accord-ex/6747943082.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/nsd/cto/d/2003-honda-accord-super/6760093735.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/2011-honda-accord-exl-low/6749156351.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/low-mileshonda-accord-exl/6752360209.html", {"make": "Honda", "model": "civic"}).then(console.log)
