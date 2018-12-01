@@ -136,11 +136,16 @@ async function getCraigs(href) {
 }
 
 
-function matchStyle(craigs, kbbStyles) {
+function matchStyle(craigs, kbbStyles, kbb) {
   // Match the first word in the craigsStyle, then for subsequent words try to qualify the existing matches unless
   // there are no existing matches.
 
   var res = kbbStyles;
+
+  for (var i = 0; i < kbbStyles.length; i++) {
+    res[i].text = res[i].text.replace(new RegExp(kbb.kbbMake, "gi"), "")
+    res[i].text = res[i].text.replace(new RegExp(kbb.kbbModel, "gi"), "")
+  }
 
   res = searchRank([craigs.desc, craigs.title, craigs.type], res, ["word", "findLongestPrefix"]);
   // if (res.length > 1) {
@@ -224,7 +229,7 @@ async function getKbbStyle(craigs, kbb) {
       var styleList = await getStyleList(rsp);
 
       // Match style.
-      var matchedStyleRes = await matchStyle(craigs, styleList);
+      var matchedStyleRes = await matchStyle(craigs, styleList, kbb);
       res = matchedStyleRes.href;
       matchedStyle = matchedStyleRes.text;
     }
@@ -311,10 +316,10 @@ async function handleCar(href, input) {
 
   try {
     // First, check the cache.
-    var cacheRes = await requestCache("get", {key: href});
-    if(cacheRes !== null) {
-      return cacheRes;
-    }
+    // var cacheRes = await requestCache("get", {key: href});
+    // if(cacheRes !== null) {
+    //   return cacheRes;
+    // }
     console.log("Cache miss");
 
     var craigs = await getCraigs(href);
