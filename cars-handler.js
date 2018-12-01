@@ -316,10 +316,10 @@ async function handleCar(href, input) {
 
   try {
     // First, check the cache.
-    // var cacheRes = await requestCache("get", {key: href});
-    // if(cacheRes !== null) {
-    //   return cacheRes;
-    // }
+    var cacheRes = await requestCache("get", {key: href});
+    if(cacheRes !== null) {
+      return cacheRes;
+    }
     console.log("Cache miss");
 
     var craigs = await getCraigs(href);
@@ -343,8 +343,9 @@ async function handleCar(href, input) {
   return res;
 }
 
-
-handleCar("https://sandiego.craigslist.org/nsd/cto/d/remotestarter-2012-honda/6761403598.html", {}).then(console.log)
+handleCar("https://sandiego.craigslist.org/csd/cto/d/super-clean-2001-bmw-330-low/6761753365.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/esd/cto/d/2003-bmw-325i-clean-runs-great/6757216852.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/nsd/cto/d/remotestarter-2012-honda/6761403598.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/honda-accord-ex/6747943082.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/nsd/cto/d/2003-honda-accord-super/6760093735.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/2011-honda-accord-exl-low/6749156351.html", {}).then(console.log)

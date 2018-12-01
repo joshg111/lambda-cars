@@ -117,25 +117,29 @@ var STRATEGIES =
       searchStrategy: (source, targetWord, rankedTarget) => {
         prefixRes = findLongestTargetPrefix(source, targetWord);
         return (rankedTarget.getRank() + (prefixRes.count /
-          (prefixRes.sourceWord.length + targetWord.length - prefixRes.count)) / 2);
+          (prefixRes.sourceWord.length)) / 2);
       }
     },
 
   word:
     {
       searchStrategy: (source, targetText, rankedTarget) => {
-        var res = rankedTarget.getRank();
+        // var res = rankedTarget.getRank();
+        var res = 0;
         var targetSplit = targetText.split(" ");
         for(var targetWord of targetSplit) {
           if((source.match(new RegExp("([^\\w-]|^)" + targetWord + "([^\\w-]|$)", "gi"))) !== null) {
             console.log("Found match source = ", source, ", targetWord = ", targetWord);
             res += 1;
           }
-          else {
-            res -= 1;
-          }
+          // else {
+          //   res -= 1;
+          // }
         }
-        return res / (targetSplit.length + 1);
+
+        res = (res / (targetSplit.length + 1));
+
+        return (res + rankedTarget.getRank()) / 2;
       }
     },
   damerauLevenshteinDistance:
