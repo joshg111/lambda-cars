@@ -1,0 +1,1535 @@
+Client undefined
+l 1
+49
+81
+4
+10
+findLongestPrefix =  { count: 1, sourceWord: 'ml' }
+findLongestPrefix =  { count: 3, sourceWord: 'aszf' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 1, sourceWord: 'c250' }
+findLongestPrefix =  { count: 1, sourceWord: 'c250' }
+Cache miss
+Ready, for redis client
+[ '2009 Mercedes-Benz E350',
+  '2009',
+  'Mercedes-Benz E350',
+  index: 0,
+  input: '2009 Mercedes-Benz E350' ]
+matchCraigsAttrs: attrs =  [ 'VIN: WDBUF56X09B426983',
+  'condition: excellent',
+  'cylinders: 6 cylinders',
+  'drive: rwd',
+  'fuel: gas',
+  'odometer: 73166',
+  'paint color: grey',
+  'size: mid-size',
+  'title status: clean',
+  'transmission: automatic',
+  'type: sedan' ]
+getCraigs res =  { price: '10888',
+  title: '2009 Mercedes-Benz E350 Sports Pkg AMG wheels',
+  extra: 
+   { body: '\n        \n            QR Code Link to This Post\n            \n        \nDrive it home today. Call (Or Text) us now !!\nCall (or text) ЬЄвя  show contact info\n\nIconic Coach\n8650 Miramar Rd, San Diego, CA 92126\n\nCopy & Paste the URL below\nto view more information!\nhttp://www.iiconiccoach.com\n\n\nYear:2009\nMake:Mercedes-Benz\nModel:E350 * Sports Pkg * AMG Wheels\nMileage  73,166\nStock #:P426983\nVIN #:WDBUF56X09B426983\nTrans: Automatic\nColor:Flint gray mettallic\nInterior:Ash leather\nVehicle Type:Sedan\nDrive Train:RWD\nEngine:3.5L 268.0hp\n\nWe are conveniently located at 8650 Miramar Rd, San Diego. We humbly invite you to come in & let us get to know you and what vehicle will suit your needs best. Stop by for a hassle-free test drive & the best car buying experience yet! \nIconic Coach    ' },
+  year: '2009',
+  desc: 'Mercedes-Benz E350',
+  timeago: '2018-11-29T11:37:50-0800',
+  location: '(Miramar Rd San Diego)',
+  thumbnail: 'https://images.craigslist.org/00i0i_3q7lzxQDypM_600x450.jpg',
+  VIN: 'WDBUF56X09B426983',
+  condition: 'excellent',
+  cylinders: '6 cylinders',
+  drive: 'rwd',
+  fuel: 'gas',
+  odometer: '73166',
+  'paint color': 'grey',
+  size: 'mid-size',
+  'title status': 'clean',
+  transmission: 'automatic',
+  type: 'sedan',
+  craigsLink: 'https://sandiego.craigslist.org/csd/cto/d/2009-mercedes-benz-e350/6760705651.html' }
+searchRank called
+searchRank source =  Mercedes-Benz E350
+Found relation rank =  0 relation =  chevy strategy =  word
+Normal rank =  0
+Found match source =  Mercedes-Benz E350 , targetWord =  Mercedes-Benz
+Found relation rank =  0 relation =  mercedesbenz strategy =  word
+Normal rank =  0.5
+Found relation rank =  0 relation =  rollsroyce strategy =  word
+Normal rank =  0
+strategy =  word , rankedTargets = [ RankedTarget { target: { text: 'Acura', id: 2 }, rank: 0 },
+  RankedTarget { target: { text: 'Aston Martin', id: 54 }, rank: 0 },
+  RankedTarget { target: { text: 'Audi', id: 4 }, rank: 0 },
+  RankedTarget { target: { text: 'Bentley', id: 57 }, rank: 0 },
+  RankedTarget { target: { text: 'BMW', id: 5 }, rank: 0 },
+  RankedTarget { target: { text: 'Buick', id: 7 }, rank: 0 },
+  RankedTarget { target: { text: 'Cadillac', id: 8 }, rank: 0 },
+  RankedTarget { target: { text: 'Chevrolet', id: 9 }, rank: 0 },
+  RankedTarget { target: { text: 'Chrysler', id: 10 }, rank: 0 },
+  RankedTarget { target: { text: 'Dodge', id: 13 }, rank: 0 },
+  RankedTarget { target: { text: 'Ferrari', id: 397 }, rank: 0 },
+  RankedTarget { target: { text: 'Ford', id: 15 }, rank: 0 },
+  RankedTarget { target: { text: 'GMC', id: 16 }, rank: 0 },
+  RankedTarget { target: { text: 'Honda', id: 18 }, rank: 0 },
+  RankedTarget { target: { text: 'HUMMER', id: 19 }, rank: 0 },
+  RankedTarget { target: { text: 'Hyundai', id: 20 }, rank: 0 },
+  RankedTarget { target: { text: 'INFINITI', id: 21 }, rank: 0 },
+  RankedTarget { target: { text: 'Jaguar', id: 23 }, rank: 0 },
+  RankedTarget { target: { text: 'Jeep', id: 24 }, rank: 0 },
+  RankedTarget { target: { text: 'Kia', id: 25 }, rank: 0 },
+  RankedTarget { target: { text: 'Lamborghini', id: 59 }, rank: 0 },
+  RankedTarget { target: { text: 'Land Rover', id: 26 }, rank: 0 },
+  RankedTarget { target: { text: 'Lexus', id: 27 }, rank: 0 },
+  RankedTarget { target: { text: 'Lincoln', id: 28 }, rank: 0 },
+  RankedTarget { target: { text: 'Lotus', id: 55 }, rank: 0 },
+  RankedTarget { target: { text: 'Maserati', id: 61 }, rank: 0 },
+  RankedTarget { target: { text: 'Maybach', id: 56 }, rank: 0 },
+  RankedTarget { target: { text: 'Mazda', id: 30 }, rank: 0 },
+  RankedTarget { target: { text: 'Mercedes-Benz', id: 31 }, rank: 0.5 },
+  RankedTarget { target: { text: 'Mercury', id: 32 }, rank: 0 },
+  RankedTarget { target: { text: 'MINI', id: 29 }, rank: 0 },
+  RankedTarget { target: { text: 'Mitsubishi', id: 34 }, rank: 0 },
+  RankedTarget { target: { text: 'Nissan', id: 35 }, rank: 0 },
+  RankedTarget { target: { text: 'Pontiac', id: 40 }, rank: 0 },
+  RankedTarget { target: { text: 'Porsche', id: 41 }, rank: 0 },
+  RankedTarget { target: { text: 'Rolls-Royce', id: 58 }, rank: 0 },
+  RankedTarget { target: { text: 'Saab', id: 43 }, rank: 0 },
+  RankedTarget { target: { text: 'Saturn', id: 44 }, rank: 0 },
+  RankedTarget { target: { text: 'Scion', id: 45 }, rank: 0 },
+  RankedTarget { target: { text: 'smart', id: 507 }, rank: 0 },
+  RankedTarget { target: { text: 'Subaru', id: 47 }, rank: 0 },
+  RankedTarget { target: { text: 'Suzuki', id: 48 }, rank: 0 },
+  RankedTarget { target: { text: 'Toyota', id: 49 }, rank: 0 },
+  RankedTarget { target: { text: 'Volkswagen', id: 50 }, rank: 0 },
+  RankedTarget { target: { text: 'Volvo', id: 51 }, rank: 0 } ]
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 1, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  chevy strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 1, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 1, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 1, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 13, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 8, sourceWord: 'mercedes-benz' }
+Found relation rank =  0.5576923076923077 relation =  mercedesbenz strategy =  findLongestPrefix
+Normal rank =  0.75
+findLongestPrefix =  { count: 4, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 1, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 1, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  rollsroyce strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+strategy =  findLongestPrefix , rankedTargets = [ RankedTarget { target: { text: 'Acura', id: 2 }, rank: 0 },
+  RankedTarget {
+    target: { text: 'Aston Martin', id: 54 },
+    rank: 0.038461538461538464 },
+  RankedTarget { target: { text: 'Audi', id: 4 }, rank: 0 },
+  RankedTarget { target: { text: 'Bentley', id: 57 }, rank: 0 },
+  RankedTarget { target: { text: 'BMW', id: 5 }, rank: 0 },
+  RankedTarget { target: { text: 'Buick', id: 7 }, rank: 0 },
+  RankedTarget { target: { text: 'Cadillac', id: 8 }, rank: 0 },
+  RankedTarget { target: { text: 'Chevrolet', id: 9 }, rank: 0 },
+  RankedTarget { target: { text: 'Chrysler', id: 10 }, rank: 0 },
+  RankedTarget { target: { text: 'Dodge', id: 13 }, rank: 0 },
+  RankedTarget { target: { text: 'Ferrari', id: 397 }, rank: 0 },
+  RankedTarget { target: { text: 'Ford', id: 15 }, rank: 0 },
+  RankedTarget { target: { text: 'GMC', id: 16 }, rank: 0 },
+  RankedTarget { target: { text: 'Honda', id: 18 }, rank: 0 },
+  RankedTarget { target: { text: 'HUMMER', id: 19 }, rank: 0 },
+  RankedTarget { target: { text: 'Hyundai', id: 20 }, rank: 0 },
+  RankedTarget { target: { text: 'INFINITI', id: 21 }, rank: 0 },
+  RankedTarget { target: { text: 'Jaguar', id: 23 }, rank: 0 },
+  RankedTarget { target: { text: 'Jeep', id: 24 }, rank: 0 },
+  RankedTarget { target: { text: 'Kia', id: 25 }, rank: 0 },
+  RankedTarget { target: { text: 'Lamborghini', id: 59 }, rank: 0 },
+  RankedTarget { target: { text: 'Land Rover', id: 26 }, rank: 0 },
+  RankedTarget { target: { text: 'Lexus', id: 27 }, rank: 0 },
+  RankedTarget { target: { text: 'Lincoln', id: 28 }, rank: 0 },
+  RankedTarget { target: { text: 'Lotus', id: 55 }, rank: 0 },
+  RankedTarget {
+    target: { text: 'Maserati', id: 61 },
+    rank: 0.038461538461538464 },
+  RankedTarget {
+    target: { text: 'Maybach', id: 56 },
+    rank: 0.038461538461538464 },
+  RankedTarget {
+    target: { text: 'Mazda', id: 30 },
+    rank: 0.038461538461538464 },
+  RankedTarget { target: { text: 'Mercedes-Benz', id: 31 }, rank: 0.75 },
+  RankedTarget {
+    target: { text: 'Mercury', id: 32 },
+    rank: 0.15384615384615385 },
+  RankedTarget { target: { text: 'MINI', id: 29 }, rank: 0.038461538461538464 },
+  RankedTarget {
+    target: { text: 'Mitsubishi', id: 34 },
+    rank: 0.038461538461538464 },
+  RankedTarget { target: { text: 'Nissan', id: 35 }, rank: 0 },
+  RankedTarget { target: { text: 'Pontiac', id: 40 }, rank: 0 },
+  RankedTarget { target: { text: 'Porsche', id: 41 }, rank: 0 },
+  RankedTarget { target: { text: 'Rolls-Royce', id: 58 }, rank: 0 },
+  RankedTarget { target: { text: 'Saab', id: 43 }, rank: 0 },
+  RankedTarget { target: { text: 'Saturn', id: 44 }, rank: 0 },
+  RankedTarget { target: { text: 'Scion', id: 45 }, rank: 0 },
+  RankedTarget { target: { text: 'smart', id: 507 }, rank: 0 },
+  RankedTarget { target: { text: 'Subaru', id: 47 }, rank: 0 },
+  RankedTarget { target: { text: 'Suzuki', id: 48 }, rank: 0 },
+  RankedTarget { target: { text: 'Toyota', id: 49 }, rank: 0 },
+  RankedTarget { target: { text: 'Volkswagen', id: 50 }, rank: 0 },
+  RankedTarget { target: { text: 'Volvo', id: 51 }, rank: 0 } ]
+searchRank source =  2009 Mercedes-Benz E350 Sports Pkg AMG wheels
+Found relation rank =  0 relation =  chevy strategy =  word
+Normal rank =  0
+Found match source =  2009 Mercedes-Benz E350 Sports Pkg AMG wheels , targetWord =  Mercedes-Benz
+Found relation rank =  0.75 relation =  mercedesbenz strategy =  word
+Normal rank =  0.875
+Found relation rank =  0 relation =  rollsroyce strategy =  word
+Normal rank =  0
+strategy =  word , rankedTargets = [ RankedTarget { target: { text: 'Acura', id: 2 }, rank: 0 },
+  RankedTarget {
+    target: { text: 'Aston Martin', id: 54 },
+    rank: 0.038461538461538464 },
+  RankedTarget { target: { text: 'Audi', id: 4 }, rank: 0 },
+  RankedTarget { target: { text: 'Bentley', id: 57 }, rank: 0 },
+  RankedTarget { target: { text: 'BMW', id: 5 }, rank: 0 },
+  RankedTarget { target: { text: 'Buick', id: 7 }, rank: 0 },
+  RankedTarget { target: { text: 'Cadillac', id: 8 }, rank: 0 },
+  RankedTarget { target: { text: 'Chevrolet', id: 9 }, rank: 0 },
+  RankedTarget { target: { text: 'Chrysler', id: 10 }, rank: 0 },
+  RankedTarget { target: { text: 'Dodge', id: 13 }, rank: 0 },
+  RankedTarget { target: { text: 'Ferrari', id: 397 }, rank: 0 },
+  RankedTarget { target: { text: 'Ford', id: 15 }, rank: 0 },
+  RankedTarget { target: { text: 'GMC', id: 16 }, rank: 0 },
+  RankedTarget { target: { text: 'Honda', id: 18 }, rank: 0 },
+  RankedTarget { target: { text: 'HUMMER', id: 19 }, rank: 0 },
+  RankedTarget { target: { text: 'Hyundai', id: 20 }, rank: 0 },
+  RankedTarget { target: { text: 'INFINITI', id: 21 }, rank: 0 },
+  RankedTarget { target: { text: 'Jaguar', id: 23 }, rank: 0 },
+  RankedTarget { target: { text: 'Jeep', id: 24 }, rank: 0 },
+  RankedTarget { target: { text: 'Kia', id: 25 }, rank: 0 },
+  RankedTarget { target: { text: 'Lamborghini', id: 59 }, rank: 0 },
+  RankedTarget { target: { text: 'Land Rover', id: 26 }, rank: 0 },
+  RankedTarget { target: { text: 'Lexus', id: 27 }, rank: 0 },
+  RankedTarget { target: { text: 'Lincoln', id: 28 }, rank: 0 },
+  RankedTarget { target: { text: 'Lotus', id: 55 }, rank: 0 },
+  RankedTarget {
+    target: { text: 'Maserati', id: 61 },
+    rank: 0.038461538461538464 },
+  RankedTarget {
+    target: { text: 'Maybach', id: 56 },
+    rank: 0.038461538461538464 },
+  RankedTarget {
+    target: { text: 'Mazda', id: 30 },
+    rank: 0.038461538461538464 },
+  RankedTarget { target: { text: 'Mercedes-Benz', id: 31 }, rank: 0.875 },
+  RankedTarget {
+    target: { text: 'Mercury', id: 32 },
+    rank: 0.15384615384615385 },
+  RankedTarget { target: { text: 'MINI', id: 29 }, rank: 0.038461538461538464 },
+  RankedTarget {
+    target: { text: 'Mitsubishi', id: 34 },
+    rank: 0.038461538461538464 },
+  RankedTarget { target: { text: 'Nissan', id: 35 }, rank: 0 },
+  RankedTarget { target: { text: 'Pontiac', id: 40 }, rank: 0 },
+  RankedTarget { target: { text: 'Porsche', id: 41 }, rank: 0 },
+  RankedTarget { target: { text: 'Rolls-Royce', id: 58 }, rank: 0 },
+  RankedTarget { target: { text: 'Saab', id: 43 }, rank: 0 },
+  RankedTarget { target: { text: 'Saturn', id: 44 }, rank: 0 },
+  RankedTarget { target: { text: 'Scion', id: 45 }, rank: 0 },
+  RankedTarget { target: { text: 'smart', id: 507 }, rank: 0 },
+  RankedTarget { target: { text: 'Subaru', id: 47 }, rank: 0 },
+  RankedTarget { target: { text: 'Suzuki', id: 48 }, rank: 0 },
+  RankedTarget { target: { text: 'Toyota', id: 49 }, rank: 0 },
+  RankedTarget { target: { text: 'Volkswagen', id: 50 }, rank: 0 },
+  RankedTarget { target: { text: 'Volvo', id: 51 }, rank: 0 } ]
+findLongestPrefix =  { count: 1, sourceWord: 'amg' }
+findLongestPrefix =  { count: 1, sourceWord: 'amg' }
+findLongestPrefix =  { count: 1, sourceWord: 'amg' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  chevy strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 1, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 1, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 1, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 13, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 8, sourceWord: 'mercedes-benz' }
+Found relation rank =  0.7451923076923077 relation =  mercedesbenz strategy =  findLongestPrefix
+Normal rank =  0.9375
+findLongestPrefix =  { count: 4, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 1, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 1, sourceWord: 'mercedes-benz' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 1, sourceWord: 'pkg' }
+findLongestPrefix =  { count: 1, sourceWord: 'pkg' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  rollsroyce strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 1, sourceWord: 'sports' }
+findLongestPrefix =  { count: 1, sourceWord: 'sports' }
+findLongestPrefix =  { count: 1, sourceWord: 'sports' }
+findLongestPrefix =  { count: 1, sourceWord: 'sports' }
+findLongestPrefix =  { count: 1, sourceWord: 'sports' }
+findLongestPrefix =  { count: 1, sourceWord: 'sports' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+strategy =  findLongestPrefix , rankedTargets = [ RankedTarget { target: { text: 'Acura', id: 2 }, rank: 0.16666666666666666 },
+  RankedTarget {
+    target: { text: 'Aston Martin', id: 54 },
+    rank: 0.1858974358974359 },
+  RankedTarget { target: { text: 'Audi', id: 4 }, rank: 0.16666666666666666 },
+  RankedTarget { target: { text: 'Bentley', id: 57 }, rank: 0 },
+  RankedTarget { target: { text: 'BMW', id: 5 }, rank: 0 },
+  RankedTarget { target: { text: 'Buick', id: 7 }, rank: 0 },
+  RankedTarget { target: { text: 'Cadillac', id: 8 }, rank: 0 },
+  RankedTarget { target: { text: 'Chevrolet', id: 9 }, rank: 0 },
+  RankedTarget { target: { text: 'Chrysler', id: 10 }, rank: 0 },
+  RankedTarget { target: { text: 'Dodge', id: 13 }, rank: 0 },
+  RankedTarget { target: { text: 'Ferrari', id: 397 }, rank: 0 },
+  RankedTarget { target: { text: 'Ford', id: 15 }, rank: 0 },
+  RankedTarget { target: { text: 'GMC', id: 16 }, rank: 0 },
+  RankedTarget { target: { text: 'Honda', id: 18 }, rank: 0 },
+  RankedTarget { target: { text: 'HUMMER', id: 19 }, rank: 0 },
+  RankedTarget { target: { text: 'Hyundai', id: 20 }, rank: 0 },
+  RankedTarget { target: { text: 'INFINITI', id: 21 }, rank: 0 },
+  RankedTarget { target: { text: 'Jaguar', id: 23 }, rank: 0 },
+  RankedTarget { target: { text: 'Jeep', id: 24 }, rank: 0 },
+  RankedTarget { target: { text: 'Kia', id: 25 }, rank: 0 },
+  RankedTarget { target: { text: 'Lamborghini', id: 59 }, rank: 0 },
+  RankedTarget { target: { text: 'Land Rover', id: 26 }, rank: 0 },
+  RankedTarget { target: { text: 'Lexus', id: 27 }, rank: 0 },
+  RankedTarget { target: { text: 'Lincoln', id: 28 }, rank: 0 },
+  RankedTarget { target: { text: 'Lotus', id: 55 }, rank: 0 },
+  RankedTarget {
+    target: { text: 'Maserati', id: 61 },
+    rank: 0.057692307692307696 },
+  RankedTarget {
+    target: { text: 'Maybach', id: 56 },
+    rank: 0.057692307692307696 },
+  RankedTarget {
+    target: { text: 'Mazda', id: 30 },
+    rank: 0.057692307692307696 },
+  RankedTarget { target: { text: 'Mercedes-Benz', id: 31 }, rank: 0.9375 },
+  RankedTarget {
+    target: { text: 'Mercury', id: 32 },
+    rank: 0.23076923076923078 },
+  RankedTarget { target: { text: 'MINI', id: 29 }, rank: 0.057692307692307696 },
+  RankedTarget {
+    target: { text: 'Mitsubishi', id: 34 },
+    rank: 0.057692307692307696 },
+  RankedTarget { target: { text: 'Nissan', id: 35 }, rank: 0 },
+  RankedTarget {
+    target: { text: 'Pontiac', id: 40 },
+    rank: 0.16666666666666666 },
+  RankedTarget {
+    target: { text: 'Porsche', id: 41 },
+    rank: 0.16666666666666666 },
+  RankedTarget { target: { text: 'Rolls-Royce', id: 58 }, rank: 0 },
+  RankedTarget { target: { text: 'Saab', id: 43 }, rank: 0.08333333333333333 },
+  RankedTarget {
+    target: { text: 'Saturn', id: 44 },
+    rank: 0.08333333333333333 },
+  RankedTarget { target: { text: 'Scion', id: 45 }, rank: 0.08333333333333333 },
+  RankedTarget {
+    target: { text: 'smart', id: 507 },
+    rank: 0.08333333333333333 },
+  RankedTarget {
+    target: { text: 'Subaru', id: 47 },
+    rank: 0.08333333333333333 },
+  RankedTarget {
+    target: { text: 'Suzuki', id: 48 },
+    rank: 0.08333333333333333 },
+  RankedTarget { target: { text: 'Toyota', id: 49 }, rank: 0 },
+  RankedTarget { target: { text: 'Volkswagen', id: 50 }, rank: 0 },
+  RankedTarget { target: { text: 'Volvo', id: 51 }, rank: 0 } ]
+rankedTargets = [ RankedTarget { target: { text: 'Acura', id: 2 }, rank: 0.16666666666666666 },
+  RankedTarget {
+    target: { text: 'Aston Martin', id: 54 },
+    rank: 0.1858974358974359 },
+  RankedTarget { target: { text: 'Audi', id: 4 }, rank: 0.16666666666666666 },
+  RankedTarget { target: { text: 'Bentley', id: 57 }, rank: 0 },
+  RankedTarget { target: { text: 'BMW', id: 5 }, rank: 0 },
+  RankedTarget { target: { text: 'Buick', id: 7 }, rank: 0 },
+  RankedTarget { target: { text: 'Cadillac', id: 8 }, rank: 0 },
+  RankedTarget { target: { text: 'Chevrolet', id: 9 }, rank: 0 },
+  RankedTarget { target: { text: 'Chrysler', id: 10 }, rank: 0 },
+  RankedTarget { target: { text: 'Dodge', id: 13 }, rank: 0 },
+  RankedTarget { target: { text: 'Ferrari', id: 397 }, rank: 0 },
+  RankedTarget { target: { text: 'Ford', id: 15 }, rank: 0 },
+  RankedTarget { target: { text: 'GMC', id: 16 }, rank: 0 },
+  RankedTarget { target: { text: 'Honda', id: 18 }, rank: 0 },
+  RankedTarget { target: { text: 'HUMMER', id: 19 }, rank: 0 },
+  RankedTarget { target: { text: 'Hyundai', id: 20 }, rank: 0 },
+  RankedTarget { target: { text: 'INFINITI', id: 21 }, rank: 0 },
+  RankedTarget { target: { text: 'Jaguar', id: 23 }, rank: 0 },
+  RankedTarget { target: { text: 'Jeep', id: 24 }, rank: 0 },
+  RankedTarget { target: { text: 'Kia', id: 25 }, rank: 0 },
+  RankedTarget { target: { text: 'Lamborghini', id: 59 }, rank: 0 },
+  RankedTarget { target: { text: 'Land Rover', id: 26 }, rank: 0 },
+  RankedTarget { target: { text: 'Lexus', id: 27 }, rank: 0 },
+  RankedTarget { target: { text: 'Lincoln', id: 28 }, rank: 0 },
+  RankedTarget { target: { text: 'Lotus', id: 55 }, rank: 0 },
+  RankedTarget {
+    target: { text: 'serati', id: 61 },
+    rank: 0.057692307692307696 },
+  RankedTarget {
+    target: { text: 'Maybach', id: 56 },
+    rank: 0.057692307692307696 },
+  RankedTarget {
+    target: { text: 'Mazda', id: 30 },
+    rank: 0.057692307692307696 },
+  RankedTarget { target: { text: 'Mercedes-Benz', id: 31 }, rank: 0.9375 },
+  RankedTarget {
+    target: { text: 'Mercury', id: 32 },
+    rank: 0.23076923076923078 },
+  RankedTarget { target: { text: 'MINI', id: 29 }, rank: 0.057692307692307696 },
+  RankedTarget {
+    target: { text: 'Mitsubishi', id: 34 },
+    rank: 0.057692307692307696 },
+  RankedTarget { target: { text: 'Nissan', id: 35 }, rank: 0 },
+  RankedTarget {
+    target: { text: 'Pontiac', id: 40 },
+    rank: 0.16666666666666666 },
+  RankedTarget {
+    target: { text: 'Porsche', id: 41 },
+    rank: 0.16666666666666666 },
+  RankedTarget { target: { text: 'Rolls-Royce', id: 58 }, rank: 0 },
+  RankedTarget { target: { text: 'Saab', id: 43 }, rank: 0.08333333333333333 },
+  RankedTarget {
+    target: { text: 'Saturn', id: 44 },
+    rank: 0.08333333333333333 },
+  RankedTarget { target: { text: 'Scion', id: 45 }, rank: 0.08333333333333333 },
+  RankedTarget {
+    target: { text: 'smart', id: 507 },
+    rank: 0.08333333333333333 },
+  RankedTarget {
+    target: { text: 'Subaru', id: 47 },
+    rank: 0.08333333333333333 },
+  RankedTarget {
+    target: { text: 'Suzuki', id: 48 },
+    rank: 0.08333333333333333 },
+  RankedTarget { target: { text: 'Toyota', id: 49 }, rank: 0 },
+  RankedTarget { target: { text: 'Volkswagen', id: 50 }, rank: 0 },
+  RankedTarget { target: { text: 'Volvo', id: 51 }, rank: 0 } ]
+filterByRank called
+filtered =  [ { text: 'Mercedes-Benz', id: 31 } ]
+reached
+getting models
+getKbbModels cache hit: ["C-Class","CL-Class","CLK-Class","CLS-Class","E-Class","G-Class","GL-Class","M-Class","R-Class","S-Class","SL-Class","SLK-Class","SLR McLaren"]
+models =  [ { text: 'C-Class' },
+  { text: 'CL-Class' },
+  { text: 'CLK-Class' },
+  { text: 'CLS-Class' },
+  { text: 'E-Class' },
+  { text: 'G-Class' },
+  { text: 'GL-Class' },
+  { text: 'M-Class' },
+  { text: 'R-Class' },
+  { text: 'S-Class' },
+  { text: 'SL-Class' },
+  { text: 'SLK-Class' },
+  { text: 'SLR McLaren' } ]
+searchRank called
+searchRank source =   E350
+Found relation rank =  0 relation =  cclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  clclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  clkclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  clsclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  eclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  gclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  glclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  mclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  rclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  sclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  slclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  slkclass strategy =  word
+Normal rank =  0
+strategy =  word , rankedTargets = [ RankedTarget { target: { text: 'C-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CL-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CLK-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CLS-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'E-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'G-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'GL-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'M-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'R-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'S-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'SL-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'SLK-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'SLR McLaren' }, rank: 0 } ]
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  cclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  clclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  clkclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  clsclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 1, sourceWord: 'e350' }
+findLongestPrefix =  { count: 1, sourceWord: 'e350' }
+Found relation rank =  0.125 relation =  eclass strategy =  findLongestPrefix
+Normal rank =  0.125
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  gclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  glclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  mclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  rclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  sclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  slclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  slkclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+strategy =  findLongestPrefix , rankedTargets = [ RankedTarget { target: { text: 'C-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CL-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CLK-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CLS-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'E-Class' }, rank: 0.125 },
+  RankedTarget { target: { text: 'G-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'GL-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'M-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'R-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'S-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'SL-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'SLK-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'SLR McLaren' }, rank: 0 } ]
+searchRank source =  2009  E350 Sports Pkg AMG wheels
+Found relation rank =  0 relation =  cclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  clclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  clkclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  clsclass strategy =  word
+Normal rank =  0
+Found relation rank =  0.125 relation =  eclass strategy =  word
+Normal rank =  0.125
+Found relation rank =  0 relation =  gclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  glclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  mclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  rclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  sclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  slclass strategy =  word
+Normal rank =  0
+Found relation rank =  0 relation =  slkclass strategy =  word
+Normal rank =  0
+strategy =  word , rankedTargets = [ RankedTarget { target: { text: 'C-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CL-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CLK-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CLS-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'E-Class' }, rank: 0.125 },
+  RankedTarget { target: { text: 'G-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'GL-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'M-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'R-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'S-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'SL-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'SLK-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'SLR McLaren' }, rank: 0 } ]
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  cclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  clclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  clkclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  clsclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 1, sourceWord: 'e350' }
+findLongestPrefix =  { count: 1, sourceWord: 'e350' }
+Found relation rank =  0.1875 relation =  eclass strategy =  findLongestPrefix
+Normal rank =  0.1875
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  gclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  glclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  mclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 0, sourceWord: '' }
+findLongestPrefix =  { count: 0, sourceWord: '' }
+Found relation rank =  0 relation =  rclass strategy =  findLongestPrefix
+Normal rank =  0
+findLongestPrefix =  { count: 1, sourceWord: 'sports' }
+findLongestPrefix =  { count: 1, sourceWord: 'sports' }
+Found relation rank =  0.08333333333333333 relation =  sclass strategy =  findLongestPrefix
+Normal rank =  0.08333333333333333
+findLongestPrefix =  { count: 1, sourceWord: 'sports' }
+findLongestPrefix =  { count: 1, sourceWord: 'sports' }
+Found relation rank =  0.08333333333333333 relation =  slclass strategy =  findLongestPrefix
+Normal rank =  0.08333333333333333
+findLongestPrefix =  { count: 1, sourceWord: 'sports' }
+findLongestPrefix =  { count: 1, sourceWord: 'sports' }
+Found relation rank =  0.08333333333333333 relation =  slkclass strategy =  findLongestPrefix
+Normal rank =  0.08333333333333333
+findLongestPrefix =  { count: 1, sourceWord: 'sports' }
+strategy =  findLongestPrefix , rankedTargets = [ RankedTarget { target: { text: 'C-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CL-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CLK-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CLS-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'E-Class' }, rank: 0.1875 },
+  RankedTarget { target: { text: 'G-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'GL-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'M-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'R-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'S-Class' }, rank: 0.08333333333333333 },
+  RankedTarget { target: { text: 'SL-Class' }, rank: 0.08333333333333333 },
+  RankedTarget { target: { text: 'SLK-Class' }, rank: 0.08333333333333333 },
+  RankedTarget { target: { text: 'SLR McLaren' }, rank: 0.08333333333333333 } ]
+rankedTargets = [ RankedTarget { target: { text: 'C-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CL-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CLK-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'CLS-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'E-Class' }, rank: 0.1875 },
+  RankedTarget { target: { text: 'G-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'GL-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'M-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'R-Class' }, rank: 0 },
+  RankedTarget { target: { text: 'S-Class' }, rank: 0.08333333333333333 },
+  RankedTarget { target: { text: 'SL-Class' }, rank: 0.08333333333333333 },
+  RankedTarget { target: { text: 'SLK-Class' }, rank: 0.08333333333333333 },
+  RankedTarget { target: { text: 'SLR McLaren' }, rank: 0.08333333333333333 } ]
+filterByRank called
+filtered =  [ { text: 'E-Class' } ]
+match model =  E-Class
+/mercedes-benz/e-class/2009/styles/?intent=buy-used
+searchRank called
+searchRank source =   E350
+inseq targetText =  E 350 Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 350 Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  350
+sourceWord >  e350 350 0.75
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 350 4MATIC Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 350 4MATIC Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  350
+sourceWord >  e350 350 0.75
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 320 BLUETEC Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 320 BLUETEC Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-320-bluetec-sedan-4d/options/?vehicleid=226867&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  320
+sourceWord >  e350 320 0.5
+inseq sourceWord =  e350 , targetWord =  bluetec
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 550 Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 550 Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-550-sedan-4d/options/?vehicleid=226869&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  550
+sourceWord >  e350 550 0.5
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 550 4MATIC Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 550 4MATIC Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-550-4matic-sedan-4d/options/?vehicleid=226871&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  550
+sourceWord >  e350 550 0.5
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 63 AMG Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 63 AMG Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  63
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 350 4MATIC Wagon 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 350 4MATIC Wagon 4D',
+     href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+  rank: 0 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  350
+sourceWord >  e350 350 0.75
+inseq targetText =  E 63 AMG Wagon 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 63 AMG Wagon 4D',
+     href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+  rank: 0 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  63
+strategy =  insequenceCount , rankedTargets = [ RankedTarget {
+    target: 
+     { text: 'E 350 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.1875 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.1875 },
+  RankedTarget {
+    target: 
+     { text: 'E 320 BLUETEC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-320-bluetec-sedan-4d/options/?vehicleid=226867&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.125 },
+  RankedTarget {
+    target: 
+     { text: 'E 550 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-550-sedan-4d/options/?vehicleid=226869&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.125 },
+  RankedTarget {
+    target: 
+     { text: 'E 550 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-550-4matic-sedan-4d/options/?vehicleid=226871&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.125 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.0625 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0.1875 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0.0625 } ]
+searchRank source =  2009  E350 Sports Pkg AMG wheels
+inseq targetText =  E 350 Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 350 Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0.1875 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  2009 , targetWord =  350
+inseq sourceWord =  e350 , targetWord =  350
+sourceWord >  e350 350 0.75
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 350 4MATIC Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 350 4MATIC Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0.1875 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  2009 , targetWord =  350
+inseq sourceWord =  e350 , targetWord =  350
+sourceWord >  e350 350 0.75
+inseq sourceWord =  sports , targetWord =  4matic
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 320 BLUETEC Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 320 BLUETEC Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-320-bluetec-sedan-4d/options/?vehicleid=226867&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0.125 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  2009 , targetWord =  320
+inseq sourceWord =  e350 , targetWord =  320
+sourceWord >  e350 320 0.5
+inseq sourceWord =  e350 , targetWord =  bluetec
+inseq sourceWord =  wheels , targetWord =  bluetec
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 550 Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 550 Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-550-sedan-4d/options/?vehicleid=226869&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0.125 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  2009 , targetWord =  550
+inseq sourceWord =  e350 , targetWord =  550
+sourceWord >  e350 550 0.5
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 550 4MATIC Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 550 4MATIC Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-550-4matic-sedan-4d/options/?vehicleid=226871&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0.125 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  2009 , targetWord =  550
+inseq sourceWord =  e350 , targetWord =  550
+sourceWord >  e350 550 0.5
+inseq sourceWord =  sports , targetWord =  4matic
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 63 AMG Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 63 AMG Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0.0625 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  63
+inseq sourceWord =  pkg , targetWord =  amg
+inseq sourceWord =  amg , targetWord =  amg
+sourceWord >  amg amg 1
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 350 4MATIC Wagon 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 350 4MATIC Wagon 4D',
+     href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+  rank: 0.1875 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  2009 , targetWord =  350
+inseq sourceWord =  e350 , targetWord =  350
+sourceWord >  e350 350 0.75
+inseq sourceWord =  sports , targetWord =  4matic
+inseq sourceWord =  sports , targetWord =  wagon
+inseq sourceWord =  amg , targetWord =  wagon
+inseq targetText =  E 63 AMG Wagon 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 63 AMG Wagon 4D',
+     href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+  rank: 0.0625 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  63
+inseq sourceWord =  pkg , targetWord =  amg
+inseq sourceWord =  amg , targetWord =  amg
+sourceWord >  amg amg 1
+inseq sourceWord =  sports , targetWord =  wagon
+inseq sourceWord =  amg , targetWord =  wagon
+strategy =  insequenceCount , rankedTargets = [ RankedTarget {
+    target: 
+     { text: 'E 350 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 320 BLUETEC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-320-bluetec-sedan-4d/options/?vehicleid=226867&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.1875 },
+  RankedTarget {
+    target: 
+     { text: 'E 550 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-550-sedan-4d/options/?vehicleid=226869&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.1875 },
+  RankedTarget {
+    target: 
+     { text: 'E 550 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-550-4matic-sedan-4d/options/?vehicleid=226871&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.1875 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0.28125 } ]
+rankedTargets = [ RankedTarget {
+    target: 
+     { text: 'E 350 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 320 BLUETEC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-320-bluetec-sedan-4d/options/?vehicleid=226867&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.1875 },
+  RankedTarget {
+    target: 
+     { text: 'E 550 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-550-sedan-4d/options/?vehicleid=226869&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.1875 },
+  RankedTarget {
+    target: 
+     { text: 'E 550 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-550-4matic-sedan-4d/options/?vehicleid=226871&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.1875 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0.28125 } ]
+filterByRank called
+filtered =  [ { text: 'E 350 Sedan 4D',
+    href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  { text: 'E 350 4MATIC Sedan 4D',
+    href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  { text: 'E 63 AMG Sedan 4D',
+    href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  { text: 'E 350 4MATIC Wagon 4D',
+    href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+  { text: 'E 63 AMG Wagon 4D',
+    href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' } ]
+searchRank called
+searchRank source =   E350
+inseq targetText =  E 350 Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 350 Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  350
+sourceWord >  e350 350 0.75
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 350 4MATIC Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 350 4MATIC Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  350
+sourceWord >  e350 350 0.75
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 63 AMG Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 63 AMG Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  63
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 350 4MATIC Wagon 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 350 4MATIC Wagon 4D',
+     href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+  rank: 0 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  350
+sourceWord >  e350 350 0.75
+inseq targetText =  E 63 AMG Wagon 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 63 AMG Wagon 4D',
+     href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+  rank: 0 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  63
+strategy =  insequenceCount , rankedTargets = [ RankedTarget {
+    target: 
+     { text: 'E 350 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.1875 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.1875 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.0625 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0.1875 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0.0625 } ]
+searchRank source =  2009  E350 Sports Pkg AMG wheels
+inseq targetText =  E 350 Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 350 Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0.1875 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  2009 , targetWord =  350
+inseq sourceWord =  e350 , targetWord =  350
+sourceWord >  e350 350 0.75
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 350 4MATIC Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 350 4MATIC Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0.1875 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  2009 , targetWord =  350
+inseq sourceWord =  e350 , targetWord =  350
+sourceWord >  e350 350 0.75
+inseq sourceWord =  sports , targetWord =  4matic
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 63 AMG Sedan 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 63 AMG Sedan 4D',
+     href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  rank: 0.0625 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  63
+inseq sourceWord =  pkg , targetWord =  amg
+inseq sourceWord =  amg , targetWord =  amg
+sourceWord >  amg amg 1
+inseq sourceWord =  e350 , targetWord =  sedan
+inseq targetText =  E 350 4MATIC Wagon 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 350 4MATIC Wagon 4D',
+     href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+  rank: 0.1875 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  2009 , targetWord =  350
+inseq sourceWord =  e350 , targetWord =  350
+sourceWord >  e350 350 0.75
+inseq sourceWord =  sports , targetWord =  4matic
+inseq sourceWord =  sports , targetWord =  wagon
+inseq sourceWord =  amg , targetWord =  wagon
+inseq targetText =  E 63 AMG Wagon 4D
+inseq rankedTarget =  RankedTarget {
+  target: 
+   { text: 'E 63 AMG Wagon 4D',
+     href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+  rank: 0.0625 }
+inseq sourceWord =  e350 , targetWord =  e
+sourceWord >  e350 e 0.25
+inseq sourceWord =  e350 , targetWord =  63
+inseq sourceWord =  pkg , targetWord =  amg
+inseq sourceWord =  amg , targetWord =  amg
+sourceWord >  amg amg 1
+inseq sourceWord =  sports , targetWord =  wagon
+inseq sourceWord =  amg , targetWord =  wagon
+strategy =  insequenceCount , rankedTargets = [ RankedTarget {
+    target: 
+     { text: 'E 350 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0.28125 } ]
+rankedTargets = [ RankedTarget {
+    target: 
+     { text: 'E 350 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0.28125 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0.28125 } ]
+filterByRank called
+filtered =  [ { text: 'E 350 Sedan 4D',
+    href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  { text: 'E 350 4MATIC Sedan 4D',
+    href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  { text: 'E 63 AMG Sedan 4D',
+    href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  { text: 'E 350 4MATIC Wagon 4D',
+    href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+  { text: 'E 63 AMG Wagon 4D',
+    href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' } ]
+searchRank called
+searchRank source =  sedan
+Found match source =  sedan , targetWord =  Sedan
+Found match source =  sedan , targetWord =  Sedan
+Found match source =  sedan , targetWord =  Sedan
+strategy =  word , rankedTargets = [ RankedTarget {
+    target: 
+     { text: 'E 350 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.5 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.5 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.5 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0 } ]
+rankedTargets = [ RankedTarget {
+    target: 
+     { text: 'E 350 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.5 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.5 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.5 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-wagon-4d/options/?vehicleid=226872&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Wagon 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-wagon-4d/options/?vehicleid=226874&intent=buy-used&category=wagon&mileage=113276&modalview=false' },
+    rank: 0 } ]
+filterByRank called
+filtered =  [ { text: 'E 350 Sedan 4D',
+    href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  { text: 'E 350 4MATIC Sedan 4D',
+    href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+  { text: 'E 63 AMG Sedan 4D',
+    href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' } ]
+searchRank called
+searchRank source =  
+        
+            QR Code Link to This Post
+            
+        
+Drive it home today. Call (Or Text) us now !!
+Call (or text) ЬЄвя  show contact info
+
+Iconic Coach
+8650 Miramar Rd, San Diego, CA 92126
+
+Copy & Paste the URL below
+to view more information!
+http://www.iiconiccoach.com
+
+
+Year:2009
+Make:
+Model:E350 * Sports Pkg * AMG Wheels
+Mileage  73,166
+Stock #:P426983
+VIN #:WDBUF56X09B426983
+Trans: Automatic
+Color:Flint gray mettallic
+Interior:Ash leather
+Vehicle Type:Sedan
+Drive Train:RWD
+Engine:3.5L 268.0hp
+
+We are conveniently located at 8650 Miramar Rd, San Diego. We humbly invite you to come in & let us get to know you and what vehicle will suit your needs best. Stop by for a hassle-free test drive & the best car buying experience yet! 
+Iconic Coach    
+Found match source =  
+        
+            QR Code Link to This Post
+            
+        
+Drive it home today. Call (Or Text) us now !!
+Call (or text) ЬЄвя  show contact info
+
+Iconic Coach
+8650 Miramar Rd, San Diego, CA 92126
+
+Copy & Paste the URL below
+to view more information!
+http://www.iiconiccoach.com
+
+
+Year:2009
+Make:
+Model:E350 * Sports Pkg * AMG Wheels
+Mileage  73,166
+Stock #:P426983
+VIN #:WDBUF56X09B426983
+Trans: Automatic
+Color:Flint gray mettallic
+Interior:Ash leather
+Vehicle Type:Sedan
+Drive Train:RWD
+Engine:3.5L 268.0hp
+
+We are conveniently located at 8650 Miramar Rd, San Diego. We humbly invite you to come in & let us get to know you and what vehicle will suit your needs best. Stop by for a hassle-free test drive & the best car buying experience yet! 
+Iconic Coach     , targetWord =  Sedan
+Found match source =  
+        
+            QR Code Link to This Post
+            
+        
+Drive it home today. Call (Or Text) us now !!
+Call (or text) ЬЄвя  show contact info
+
+Iconic Coach
+8650 Miramar Rd, San Diego, CA 92126
+
+Copy & Paste the URL below
+to view more information!
+http://www.iiconiccoach.com
+
+
+Year:2009
+Make:
+Model:E350 * Sports Pkg * AMG Wheels
+Mileage  73,166
+Stock #:P426983
+VIN #:WDBUF56X09B426983
+Trans: Automatic
+Color:Flint gray mettallic
+Interior:Ash leather
+Vehicle Type:Sedan
+Drive Train:RWD
+Engine:3.5L 268.0hp
+
+We are conveniently located at 8650 Miramar Rd, San Diego. We humbly invite you to come in & let us get to know you and what vehicle will suit your needs best. Stop by for a hassle-free test drive & the best car buying experience yet! 
+Iconic Coach     , targetWord =  Sedan
+Found match source =  
+        
+            QR Code Link to This Post
+            
+        
+Drive it home today. Call (Or Text) us now !!
+Call (or text) ЬЄвя  show contact info
+
+Iconic Coach
+8650 Miramar Rd, San Diego, CA 92126
+
+Copy & Paste the URL below
+to view more information!
+http://www.iiconiccoach.com
+
+
+Year:2009
+Make:
+Model:E350 * Sports Pkg * AMG Wheels
+Mileage  73,166
+Stock #:P426983
+VIN #:WDBUF56X09B426983
+Trans: Automatic
+Color:Flint gray mettallic
+Interior:Ash leather
+Vehicle Type:Sedan
+Drive Train:RWD
+Engine:3.5L 268.0hp
+
+We are conveniently located at 8650 Miramar Rd, San Diego. We humbly invite you to come in & let us get to know you and what vehicle will suit your needs best. Stop by for a hassle-free test drive & the best car buying experience yet! 
+Iconic Coach     , targetWord =  AMG
+Found match source =  
+        
+            QR Code Link to This Post
+            
+        
+Drive it home today. Call (Or Text) us now !!
+Call (or text) ЬЄвя  show contact info
+
+Iconic Coach
+8650 Miramar Rd, San Diego, CA 92126
+
+Copy & Paste the URL below
+to view more information!
+http://www.iiconiccoach.com
+
+
+Year:2009
+Make:
+Model:E350 * Sports Pkg * AMG Wheels
+Mileage  73,166
+Stock #:P426983
+VIN #:WDBUF56X09B426983
+Trans: Automatic
+Color:Flint gray mettallic
+Interior:Ash leather
+Vehicle Type:Sedan
+Drive Train:RWD
+Engine:3.5L 268.0hp
+
+We are conveniently located at 8650 Miramar Rd, San Diego. We humbly invite you to come in & let us get to know you and what vehicle will suit your needs best. Stop by for a hassle-free test drive & the best car buying experience yet! 
+Iconic Coach     , targetWord =  Sedan
+strategy =  word , rankedTargets = [ RankedTarget {
+    target: 
+     { text: 'E 350 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.5 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.5 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 1 } ]searchRank source =  Sedan
+Found match source =  Sedan , targetWord =  Sedan
+Found match source =  Sedan , targetWord =  Sedan
+Found match source =  Sedan , targetWord =  Sedan
+strategy =  word , rankedTargets = [ RankedTarget {
+    target: 
+     { text: 'E 350 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.75 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.75 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 1 } ]
+rankedTargets = [ RankedTarget {
+    target: 
+     { text: 'E 350 Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-sedan-4d/options/?vehicleid=226868&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.75 },
+  RankedTarget {
+    target: 
+     { text: 'E 350 4MATIC Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-350-4matic-sedan-4d/options/?vehicleid=226870&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 0.75 },
+  RankedTarget {
+    target: 
+     { text: 'E 63 AMG Sedan 4D',
+       href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' },
+    rank: 1 } ]
+filterByRank called
+filtered =  [ { text: 'E 63 AMG Sedan 4D',
+    href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' } ]
+[ { text: 'E 63 AMG Sedan 4D',
+    href: '/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/options/?vehicleid=226873&intent=buy-used&category=sedan&mileage=113276&modalview=false' } ]
+getKbbStyle res =  https://www.kbb.com/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/?vehicleid=226873&intent=buy-used&category=sedan&modalview=false&pricetype=private-party&condition=good&mileage=73166
+{ price: '10888',
+  title: '2009 Mercedes-Benz E350 Sports Pkg AMG wheels',
+  year: '2009',
+  desc: 'Mercedes-Benz E350',
+  timeago: '2018-11-29T11:37:50-0800',
+  location: '(Miramar Rd San Diego)',
+  thumbnail: 'https://images.craigslist.org/00i0i_3q7lzxQDypM_600x450.jpg',
+  VIN: 'WDBUF56X09B426983',
+  condition: 'excellent',
+  cylinders: '6 cylinders',
+  drive: 'rwd',
+  fuel: 'gas',
+  odometer: '73166',
+  'paint color': 'grey',
+  size: 'mid-size',
+  'title status': 'clean',
+  transmission: 'automatic',
+  type: 'sedan',
+  craigsLink: 'https://sandiego.craigslist.org/csd/cto/d/2009-mercedes-benz-e350/6760705651.html',
+  kbbMake: 'Mercedes-Benz',
+  kbbModel: 'E-Class',
+  kbbLink: 'https://www.kbb.com/mercedes-benz/e-class/2009/e-63-amg-sedan-4d/?vehicleid=226873&intent=buy-used&category=sedan&modalview=false&pricetype=private-party&condition=good&mileage=73166',
+  kbbStyle: 'E 63 AMG Sedan 4D',
+  kbbPrice: '16705',
+  percentAboveKbb: -35 }

@@ -135,6 +135,13 @@ async function getCraigs(href) {
   return res;
 }
 
+function removeKbbData(val, kbb) {
+  if (!val) {
+    return;
+  }
+  return val.replace(new RegExp(kbb.kbbMake, "gi"), "")
+            .replace(new RegExp(kbb.kbbModel, "gi"), "");
+}
 
 function matchStyle(craigs, kbbStyles, kbb) {
   // Match the first word in the craigsStyle, then for subsequent words try to qualify the existing matches unless
@@ -143,17 +150,32 @@ function matchStyle(craigs, kbbStyles, kbb) {
   var res = kbbStyles;
 
   for (var i = 0; i < kbbStyles.length; i++) {
-    res[i].text = res[i].text.replace(new RegExp(kbb.kbbMake, "gi"), "")
-    res[i].text = res[i].text.replace(new RegExp(kbb.kbbModel, "gi"), "")
+    res[i].text = removeKbbData(res[i].text, kbb);
   }
 
-  res = searchRank([craigs.desc, craigs.title, craigs.type], res, ["word", "findLongestPrefix"]);
+  // res = searchRank(
+  //   [craigs.desc, craigs.title].map((val) => removeKbbData(val, kbb)),
+  //   res,
+  //   ["word", "findLongestPrefix"]);
+
+  res = searchRank(
+    [craigs.desc, craigs.title].map((val) => removeKbbData(val, kbb)),
+    res,
+    ["insequenceCount"]);
+
+  if (res.length > 1) {
+    res = searchRank([craigs.type].map((val) => removeKbbData(val, kbb)), res, ["word"]);
+  }
+
   // if (res.length > 1) {
   //     res = searchRank([craigs.desc, craigs.title, craigs.type], res, ["insequenceCount"]);
   // }
   if(res.length > 1) {
     // res = searchRank([craigs.extra ? craigs.extra.body : null, 'Sedan'], res, ["word", "findLongestPrefix"]);
-    res = searchRank([craigs.extra ? craigs.extra.body : null, 'Sedan'], res, ["word"]);
+    res = searchRank(
+      [craigs.extra ? craigs.extra.body : null, 'Sedan'].map((val) => removeKbbData(val, kbb)),
+      res,
+      ["word"]);
   }
 
   console.log(res);
@@ -178,7 +200,7 @@ async function getStyleList(rsp) {
   var styleLinks = $('a.style-link').get();
   var styleList = [];
   for(var style of styleLinks) {
-    styleList.push({'text': $(style).find("div.button-header").text(), 'href': $(style).attr('href')});
+    styleList.push({text: $(style).find("div.button-header").text(), href: $(style).attr('href')});
   }
 
   if(styleList.length < 1) {
@@ -316,10 +338,10 @@ async function handleCar(href, input) {
 
   try {
     // First, check the cache.
-    var cacheRes = await requestCache("get", {key: href});
-    if(cacheRes !== null) {
-      return cacheRes;
-    }
+    // var cacheRes = await requestCache("get", {key: href});
+    // if(cacheRes !== null) {
+    //   return cacheRes;
+    // }
     console.log("Cache miss");
 
     var craigs = await getCraigs(href);
@@ -343,7 +365,13 @@ async function handleCar(href, input) {
   return res;
 }
 
-handleCar("https://sandiego.craigslist.org/csd/cto/d/super-clean-2001-bmw-330-low/6761753365.html", {}).then(console.log)
+
+handleCar("https://sandiego.craigslist.org/csd/cto/d/2009-mercedes-benz-e350/6760705651.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/nsd/cto/d/2013-mercedes-benz-c250-turbo/6753387040.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/2007-toyota-camry-solara/6750597478.html", {}).then(console.log)
+
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/mercedes-benz-ml-350-great/6752257406.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/super-clean-2001-bmw-330-low/6761753365.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/esd/cto/d/2003-bmw-325i-clean-runs-great/6757216852.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/nsd/cto/d/remotestarter-2012-honda/6761403598.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/honda-accord-ex/6747943082.html", {}).then(console.log)

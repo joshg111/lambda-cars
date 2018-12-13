@@ -75,49 +75,91 @@ var STRATEGIES =
   insequenceCount:
   {
     searchStrategy: (source, targetText, rankedTarget) => {
-      console.log("inseq targetText = ", targetText);
       var res = rankedTarget.getRank();
-      var targetSplit = targetText.split(" ");
-      var sourceSplit = source.split(" ");
-      var maxCount = 0;
-      var maxRes = {count: 0, sourceWord: ""};
-
-      for(var targetWord of targetSplit) {
-        for(var sourceWord of sourceSplit) {
-          targetWord = targetWord.toLowerCase();
-          sourceWord = sourceWord.toLowerCase();
-          // Only get insequenceCount if there's a prefix match.
-          if (targetWord[0] == sourceWord[0]) {
-            // maxCount = Math.max(insequenceCount(targetWord, sourceWord), maxCount)
-            var count = insequenceCount(targetWord, sourceWord);
-            if (count > maxRes.count || (count == maxRes.count && sourceWord.length < maxRes.sourceWord)) {
-              maxRes = {count, sourceWord};
-              console.log("inseq sourceWord = ", sourceWord, ", targetWord = ", targetWord);
-            }
-          }
-        }
-        // res is the sum of the max insequence count averaged by the source
-        // and target lengths.
-        res += (maxRes.count / (maxRes.sourceWord.length + targetWord.length - maxRes.count));
-        // res += (maxRes.count / (source.length + targetWord.length - maxRes.count));
-        // maxCount = 0;
-        maxRes = {count: 0, sourceWord: ""};
-      }
-
-      // Return the average of each target word rank.
-      return (res / (targetSplit.length + 1));
-
-
-      // return rankedTarget.getRank() - insequenceCount(source, targetText);
+      return res + insequenceCount(source, targetText);
     }
+    // searchStrategy: (source, targetText, rankedTarget) => {
+    //   // console.log("inseq targetText = ", targetText);
+    //   // console.log("inseq rankedTarget = ", rankedTarget);
+    //   source = source.toLowerCase();
+    //   targetText = targetText.toLowerCase();
+    //
+    //   var res = rankedTarget.getRank();
+    //   var targetSplit = targetText.trim().split(" ");
+    //   var sourceSplit = source.trim().split(" ");
+    //   var maxSource = "";
+    //   var maxTarget = "";
+    //   var maxCount = 0;
+    //   // var maxCount = 0;
+    //   // var maxRes = {count: 0, sourceWord: ""};
+    //   var weightedCount = 0
+    //
+    //   // Just match the whole source and target, that way it represents
+    //   // all of the target in the right sequence.
+    //   // var weightedCount = insequenceCount(targetText, source) / source.length;
+    //
+    //   for(var targetWord of targetSplit) {
+    //     if (!targetWord) {
+    //       continue;
+    //     }
+    //     for(var sourceWord of sourceSplit) {
+    //       if (!sourceWord) {
+    //         continue
+    //       }
+    //       // Target should be a subset of source.
+    //       // if (sourceWord.length >= targetWord.length) {
+    //         // maxCount = Math.max(insequenceCount(targetWord, sourceWord), maxCount)
+    //         var count = insequenceCount(targetWord, sourceWord);
+    //         var tempMax = (count / sourceWord.length);
+    //         if (tempMax > weightedCount) {
+    //           maxSource = sourceWord;
+    //           maxTarget = targetWord;
+    //           maxCount = count;
+    //
+    //         }
+    //         weightedCount = Math.max(tempMax, weightedCount);
+    //       // }
+    //     }
+    //     // res is the sum of the max insequence count averaged by the source
+    //     // and target lengths.
+    //     // var tempMax = (maxRes.count / (maxRes.sourceWord.length))
+    //     // if (tempMax > weightedCount) {
+    //     //   // console.log("sourceWord > ", maxRes.sourceWord, targetWord, tempMax);
+    //     //   weightedCount = Math.max(weightedCount, tempMax);
+    //     // }
+    //
+    //
+    //     // res += (maxRes.count / (maxRes.sourceWord.length + targetWord.length - maxRes.count));
+    //     // res += (maxRes.count / (source.length + targetWord.length - maxRes.count));
+    //     // maxCount = 0;
+    //     // maxRes = {count: 0, sourceWord: ""};
+    //   }
+    //
+    //   // Return the average of each target word rank.
+    //   // Don't return the average here, cuz it penalizes multi word matches.
+    //   // return (res / (targetSplit.length + 1));
+    //   if (weightedCount > 0) {
+    //     console.log("maxSource = ", maxSource, ", maxTarget = ", maxTarget, "maxCount = ", maxCount, "max weight = ", weightedCount);
+    //     // Arbitraily divide by 2, to decrease the weight of this algorithm.
+    //     return (res + weightedCount)
+    //   }
+    //
+    //   return res;
+    //
+    //   // return rankedTarget.getRank() - insequenceCount(source, targetText);
+    // }
   },
 
   findLongestPrefix:
     {
       searchStrategy: (source, targetWord, rankedTarget) => {
         prefixRes = findLongestTargetPrefix(source, targetWord);
-        return (rankedTarget.getRank() + (prefixRes.count /
-          (prefixRes.sourceWord.length)) / 2);
+
+        if (prefixRes.count > 0 && prefixRes.sourceWord.length > 0) {
+          var res = (prefixRes.count / (prefixRes.sourceWord.length));
+          return (rankedTarget.getRank() + res);
+        }
+        return rankedTarget.getRank();
       }
     },
 
@@ -137,9 +179,12 @@ var STRATEGIES =
           // }
         }
 
-        res = (res / (targetSplit.length + 1));
+        // res = res / source.length;
+        if (res > 0) {
+          return (res + rankedTarget.getRank()) / 2;
+        }
 
-        return (res + rankedTarget.getRank()) / 2;
+        return rankedTarget.getRank()
       }
     },
   damerauLevenshteinDistance:
@@ -183,7 +228,7 @@ var STRATEGIES =
 
 // var r1 = new RankedTarget("EXL Coupe 2D")
 // var r2 = new RankedTarget("EXL Sedan 2D")
-// console.log(STRATEGIES.insequenceCount.searchStrategy("RemoteStarter 2012 Honda Accord EX-L Bluetooth", r1.getTarget(), r1))
+// console.log(STRATEGIES.findLongestPrefix.searchStrategy("RemoteStarter 2012 Honda Accord EX-L Bluetooth", r1.getTarget(), r1))
 // console.log(STRATEGIES.insequenceCount.searchStrategy("RemoteStarter 2012 Honda Accord EX-L Bluetooth", r2.getTarget(), r2))
 
 function searchRank(sources, targets, strategies) {

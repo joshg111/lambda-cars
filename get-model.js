@@ -102,17 +102,36 @@ async function getKbbModels(craigs, kbb) {
   return res;
 }
 
+function removeKbbData(val, kbb) {
+  if (!val) {
+    return;
+  }
+  return val.replace(new RegExp(kbb.kbbMake, "gi"), "");
+}
+
 async function matchModels(craigs, kbb) {
   var models = await getKbbModels(craigs, kbb);
   var res = models.map((m) => {
-    return {text: m};
+    return {text: removeKbbData(m, kbb)};
   });
   console.log("models = ", res);
 
-  res = searchRank([craigs.desc, craigs.title], res, ["word", "findLongestPrefix"]);
+  // res = searchRank(
+  //   [craigs.desc, craigs.title].map((val) => removeKbbData(val, kbb)),
+  //   res,
+  //   ["word", "findLongestPrefix"]);
+
+  res = searchRank(
+    [craigs.desc, craigs.title].map((val) => removeKbbData(val, kbb)),
+    res,
+    ["insequenceCount"]);
+
   if(res.length > 1) {
     console.log("Model search using body content");
-    res = searchRank([craigs.extra ? craigs.extra.body : null], res, ["word", "findLongestPrefix"]);
+    res = searchRank(
+      [craigs.extra ? craigs.extra.body : null].map((val) => removeKbbData(val, kbb)),
+      res,
+      ["word"]);
   }
   console.log("match model = ", res[0].text);
   return res[0].text;
