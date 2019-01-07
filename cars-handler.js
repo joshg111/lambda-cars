@@ -366,7 +366,12 @@ async function handleCar(href, input) {
 }
 
 
-handleCar("https://sandiego.craigslist.org/csd/cto/d/2009-mercedes-benz-e350/6760705651.html", {}).then(console.log)
+handleCar("https://sandiego.craigslist.org/csd/cto/d/2014-mercedes-benz-ml-350/6765574113.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/2017-toyota-corolla-le-eco/6772729521.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/nsd/cto/d/2016-mercedes-benz-class-s550/6769107967.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/nsd/cto/d/mercedes-benz-c280-v6/6759093262.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/2015-mercedes-benz-gla-250/6765010052.html", {}).then(console.log)
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/2009-mercedes-benz-e350/6760705651.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/nsd/cto/d/2013-mercedes-benz-c250-turbo/6753387040.html", {}).then(console.log)
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/2007-toyota-camry-solara/6750597478.html", {}).then(console.log)
 

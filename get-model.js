@@ -133,6 +133,9 @@ async function matchModels(craigs, kbb) {
       res,
       ["word"]);
   }
+  if (res.length > 1) {
+    throw new Error("Failed to match model");
+  }
   console.log("match model = ", res[0].text);
   return res[0].text;
 }

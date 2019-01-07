@@ -1,3 +1,5 @@
+var {damerauLevenshteinDistance} = require('./damerau-levenshtein');
+
 
 var WORD_COUNT_THRESHOLD = .6;
 
@@ -13,12 +15,17 @@ function wrapToken(a, b) {
 	var indicies = {source: new Set([...Array(aSplit.length).keys()]), target: new Set([...Array(bSplit.length).keys()])}
 	// I don't want to weight the tokenization rank sum with the number of target tokens.
 	// That would penalize targets with more tokens.
-	return tokenize(aSplit, bSplit, indicies, cache) / bSplit.length;
+	var res = tokenize(aSplit, bSplit, indicies, cache) / bSplit.length;
+	console.log("wrapToken res = ", res, ", source = ", a, ", target = ", b);
+	return res;
 	// return tokenize(aSplit, bSplit, indicies, cache);
 }
 
 function weighMatchCount(count, sWord, tWord) {
-	return ((count / sWord.length) + (count / tWord.length)) / 2;
+	// var res = ((count / sWord.length) + (count / tWord.length)) / 2;
+	var res = count / (Math.max(sWord.length, tWord.length) - count);
+	res = (isNaN(res) ? 0 : res);
+	return res;
 }
 
 /**
@@ -26,9 +33,7 @@ function weighMatchCount(count, sWord, tWord) {
 * target: A list of target words.
 **/
 function tokenize(source, target, indicies, cache) {
-	console.log(indicies);
 	if (indicies.source.size === 0 || indicies.target.size === 0) {
-		console.log("base case")
 		return 0;
 	}
 
@@ -40,7 +45,6 @@ function tokenize(source, target, indicies, cache) {
 
 	var targetI = indicies.target.values().next().value;
 	var targetWord = target[targetI];
-	console.log(targetWord, targetI);
 	var newTargetSet = new Set(indicies.target);
 	newTargetSet.delete(targetI);
 	var newI = {target: newTargetSet, source: indicies.source};
@@ -49,16 +53,10 @@ function tokenize(source, target, indicies, cache) {
 	// The case when no source is consumed for a given target word.
 	// That makes this targetWord 0.
 	maxList.push(tokenize(source, target, newI, cache));
-	console.log(indicies.source);
-	console.log("targetWord = ", targetWord);
 	for (var i of indicies.source) {
-
-
-		var tempMax = weighMatchCount(wrap(source[i], targetWord), source[i], targetWord);
+		var leven = wrap(source[i], targetWord);
+		var tempMax = weighMatchCount(leven, source[i], targetWord);
 		tempMax = (tempMax >= WORD_COUNT_THRESHOLD) ? tempMax : 0;
-		if (tempMax > 0) {
-			console.log("Match targetWord = ", targetWord, ", source = ", source[i], ", tempMax = ", tempMax);
-		}
 
 		var newSourceI = new Set(indicies.source)
 		newSourceI.delete(i);
@@ -68,11 +66,14 @@ function tokenize(source, target, indicies, cache) {
 
 	var maxCount = Math.max(...maxList);
 	cache[indicies] = maxCount;
-	maxCount > 0 ? console.log("maxCount = ", maxCount) : null;
+
 	return maxCount;
 }
 
-console.log(wrapToken("c 250 sport sedan 4d", "c250 turbo navy fed"));
+// console.log(wrapToken("c 250 sport sedan 4d", "c250 turbo navy fed"));
+
+// console.log(wrapToken("2016 Mercedes-Benz S-Class S550", "S 550 Sedan 4D"));
+// console.log(wrapToken("2016 Mercedes-Benz S-Class S550", "S 550e Plug Hybrid Sedan 4D"), "\rn\rn **********************");
 
 
 function wrap(a, b) {
