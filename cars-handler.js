@@ -5,8 +5,8 @@ var cheerio = require('cheerio'); // Basically jQuery for node.js
 var rp = require('request-promise');
 var {requestCache} = require('./redis-client');
 const pConfig = require("./public-config");
-const {matchKbbModels, matchKbbMake, getApi} = require("./get-model");
-var {searchRank, filterByRank} = require('./src/utils/rank-actions');
+const {matchModelsAndStyle, matchKbbMake} = require("./get-model");
+var {searchRank} = require('./src/utils/rank-actions');
 
 const USER_AGENT = pConfig.rp.USER_AGENT
 const OPTIONS = pConfig.rp.OPTIONS;
@@ -274,9 +274,9 @@ async function getKbbStyle(craigs, kbb) {
 // getKbbStyle({'year': '2017', 'style': 'limited'}, {'kbbMake': 'lexus', 'kbbModel': 'lx'}).then(console.log);
 // getKbbStyle({'year': '1998', 'style': 'ex'}, {'kbbMake': 'Honda', 'kbbModel': 'Civic'}).then(console.log);
 // getKbbStyle({'year': '2010', 'style': 'ex-l'}, {'make': 'Honda', 'model': 'Accord'}).then(console.log);
-
-async function getKbbPrice(link) {
-  // console.log(link);
+var RETRYCOUNT = 3;
+async function getKbbPrice(link, retryCount=0) {
+  console.log("getKbbPrice retry = ", retryCount);
 
   var kbbPrice = null;
 
@@ -296,8 +296,12 @@ async function getKbbPrice(link) {
 
   }
   catch(err) {
+    if (retryCount < RETRYCOUNT) {
+        return await getKbbPrice(link, retryCount + 1);
+    }
     console.log("getKbbPrice err = ", err);
-    throw new Error(err);
+    // throw new Error(err);
+    return Promise.reject(err);
   }
 
   return kbbPrice;
@@ -305,32 +309,63 @@ async function getKbbPrice(link) {
 
 // getKbbPrice('https://www.kbb.com/nissan/xterra/2003/se-sport-utility-4d/?vehicleid=2984&intent=buy-used&modalview=false&pricetype=private-party&condition=good&mileage=130027').then(console.log);
 
+// For some `data` with `key`, remove `match` from data.
+function removeMatch(keys, data, matches) {
+  if (keys.length === 0) {
+    return;
+  }
+
+  for (var i = 0; i < (keys.length -1); i++) {
+      data = data[keys[i]];
+  }
+  let key = keys[i];
+  for (let match of matches) {
+      data[key] = data[key].replace(new RegExp(match + "\\s?", "gi"), "");
+  }
+}
+
+// let data = {extra: {desc: "this is my asdfdesc"}};
+// removeMatch(["extra", "desc"], data, "asdf");
+// console.log(data);
+
 async function getKbb(craigs) {
-  var kbb = {extra:{}};
+  var kbb = {extra:{desc: craigs.desc, title: craigs.title}};
+  removeMatch(["extra", "desc"], kbb, [craigs.year]);
+  removeMatch(["extra", "title"], kbb, [craigs.year]);
   try {
-    kbb.extra["api"] = await getApi();
-    assert(kbb.extra.api);
+    // kbb.extra["api"] = await getApi();
+    // assert(kbb.extra.api);
     var kbbMake = await matchKbbMake(craigs, kbb);
+    console.log("after matchKbbMake");
     assert(kbbMake.make);
     assert(kbbMake.id);
+    console.log("kbbMake.match = ", kbbMake.match);
+    console.log("before kbb extra desc = ", kbb.extra.desc, ", title = ", kbb.extra.title);
+    removeMatch(["extra", "desc"], kbb, kbbMake.match);
+    // Need to reverse so we try to remove the appropriate match first, it's in the same order as the source list.
+    removeMatch(["extra", "title"], kbb, kbbMake.match.reverse());
+    console.log("kbb extra desc = ", kbb.extra.desc, ", title = ", kbb.extra.title);
     kbb["kbbMake"] = kbbMake.make;
     kbb.extra["kbbMakeId"] = kbbMake.id;
-    console.log("reached");
-    kbb["kbbModel"] = await matchKbbModels(craigs, kbb);
+    var match = await matchModelsAndStyle(craigs, kbb);
+    console.log("after matchModelsAndStyle");
+    kbb["kbbModel"] = match.model;
     assert(kbb.kbbModel);
-    var kbbStyleRes = await getKbbStyle(craigs, kbb);
-    kbb["kbbLink"] = kbbStyleRes.href;
-    kbb["kbbStyle"] = kbbStyleRes.style;
+    // var kbbStyleRes = await getKbbStyle(craigs, kbb);
+    kbb["kbbLink"] = match.href;
+    kbb["kbbStyle"] = match.isStyleMatch ? match.styleText : '';
     assert(kbb.kbbLink);
-    kbb["kbbPrice"] = await getKbbPrice(kbb.kbbLink)
+    kbb["kbbPrice"] = await getKbbPrice(kbb.kbbLink);
     assert(kbb.kbbPrice);
   }
   catch(err) {
     console.log("getKbb = ", err);
-    throw new Error(err);
+    // throw new Error(err);
+    return Promise.reject(err);
   }
 
-  delete kbb.extra
+  delete kbb.extra;
+
   return kbb
 }
 
@@ -346,19 +381,20 @@ async function handleCar(href, input) {
 
     var craigs = await getCraigs(href);
     var kbb = await getKbb(craigs);
+    console.log("after kbb");
 
     // Calc percentage difference.
     var craigsPrice = parseInt(craigs.price);
     var kbbPrice = parseInt(kbb.kbbPrice);
     var percentAboveKbb = Math.round(((craigsPrice / kbbPrice) - 1) * 100);
     delete craigs.extra;
-    var res = {...craigs, ...kbb, percentAboveKbb, ...input}
+    var res = {...craigs, ...kbb, percentAboveKbb, ...input};
 
     // Set the result in the cache.
     await requestCache("set", {key: href, value: res});
   }
   catch(e) {
-    console.log("handleCar err = ", e, "craigs href = ", href);
+    console.log("handleCar err = ", e, "craigs href = ", href, ", craigs year = ", craigs.year);
     return null;
   }
 
@@ -366,44 +402,6 @@ async function handleCar(href, input) {
 }
 
 
-handleCar("https://sandiego.craigslist.org/csd/cto/d/2014-mercedes-benz-ml-350/6765574113.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/2017-toyota-corolla-le-eco/6772729521.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/nsd/cto/d/2016-mercedes-benz-class-s550/6769107967.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/nsd/cto/d/mercedes-benz-c280-v6/6759093262.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/2015-mercedes-benz-gla-250/6765010052.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/2009-mercedes-benz-e350/6760705651.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/nsd/cto/d/2013-mercedes-benz-c250-turbo/6753387040.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/2007-toyota-camry-solara/6750597478.html", {}).then(console.log)
-
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/mercedes-benz-ml-350-great/6752257406.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/super-clean-2001-bmw-330-low/6761753365.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/esd/cto/d/2003-bmw-325i-clean-runs-great/6757216852.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/nsd/cto/d/remotestarter-2012-honda/6761403598.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/honda-accord-ex/6747943082.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/nsd/cto/d/2003-honda-accord-super/6760093735.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/2011-honda-accord-exl-low/6749156351.html", {}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/low-mileshonda-accord-exl/6752360209.html", {"make": "Honda", "model": "civic"}).then(console.log)
-
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/2000-mercedes-ml-320-awd-suv/6690082591.html", {"make": "Honda", "model": "civic"}).then(console.log)
-
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/mercedes-benz-gl-450-4matic/6700998207.html", {"make": "Honda", "model": "civic"}).then(console.log)
-
-// handleCar("https://sandiego.craigslist.org/nsd/cto/d/clean-title-2004-nissan/6700899238.html", {"make": "Honda", "model": "civic"}).then(console.log)
-
-// handleCar("https://sandiego.craigslist.org/nsd/cto/d/2010-vw-touareg-v6-64k-miles/6700873819.html", {"make": "Honda", "model": "civic"}).then(console.log)
-
-// handleCar("https://sandiego.craigslist.org/nsd/cto/d/2008-toyota-highlander-hybrid/6676572664.html", {"make": "Honda", "model": "civic"}).then(console.log)
-
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/2000-mercedes-ml-320-awd-suv/6690082591.html", {"make": "Honda", "model": "civic"}).then(console.log)
-
-// handleCar("https://sandiego.craigslist.org/nsd/cto/d/great-suv-1999-chevy-blazer/6693052382.html", {"make": "Honda", "model": "civic"}).then(console.log)
-
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/mercedes-benz-gl-450-awd-suv/6700169350.html", {"make": "Honda", "model": "civic"}).then(console.log)
-
-// handleCar("https://sandiego.craigslist.org/nsd/cto/d/1999-chevy-suburban-suv-low/6699388146.html", {"make": "Honda", "model": "civic"}).then(console.log)
-// handleCar("https://inlandempire.craigslist.org/cto/d/2016-honda-civic-ex-4dr-sedan/6665090723.html", {"make": "Honda", "model": "civic"}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/2004-honda-civic-ex-coupe/6644109706.html", {"make": "Honda", "model": "civic"}).then(console.log)
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/2006-ford-150-super-cab-low/6680394811.html", {}).then(console.log)
 
 
 function msleep(n) {
@@ -448,7 +446,11 @@ module.exports.cars = async (event, context, callback) => {
     cars.push(handleCar(carHrefs[i], input));
   }
 
+  console.log("before carsResolved");
+
+  // There seems to be some cars that hang here. Can we force a timeout in Promise.all(..)?
   var carsResolved = await Promise.all(cars);
+  console.log("after carsResolved");
 
   carsResolved = carsResolved.filter((element, index) => {
     return element !== null;
@@ -480,10 +482,21 @@ module.exports.cars = async (event, context, callback) => {
 
 };
 
-// var input = {query: "suv", city: "sandiego"};
+// var input = {query: "mercedes-benz", city: "sandiego"};
 // module.exports.cars({body: JSON.stringify(input)}, {callbackWaitsForEmptyEventLoop: false}, null);
 
-// handleCar('https://sandiego.craigslist.org/csd/cto/d/2012-toyota-camry-xle-1-owner/6606439928.html', input);
-// getCraigs('https://sandiego.craigslist.org/csd/cto/d/2012-toyota-camry-xle-1-owner/6606439928.html', input);
-// getKbbPrice('https://www.kbb.com/toyota/camry/2009/sedan-4d/?vehicleid=227104&intent=buy-used&mileage=113350&pricetype=private-party&condition=good')
-// getKbb({year: '2009'}, input);
+
+handleCar("https://sandiego.craigslist.org/nsd/cto/d/vista-2012-mercedes-benz-c250/6800515646.html", {}).then(console.log);
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-mercedes-benz-class-500/6798491481.html", {}).then(console.log);
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-2003-mercedes-benz-sl500/6810211475.html", {}).then(console.log);
+// handleCar("https://sandiego.craigslist.org/nsd/cto/d/san-luis-rey-2008-mercedes-benz-clk550/6796103378.html", {}).then(console.log);
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/rancho-santa-fe-2006-dodge-sprinterwb/6804150219.html", {}).then(console.log);
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/2010-mercedes-benz-e350-sport-coupe-65k/6803936754.html", {}).then(console.log);
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-2013-mercedes-benz-sl63/6794057461.html", {}).then(console.log);
+
+
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/1993-mercedes-benz-300-ce/6799840767.html", {}).then(console.log);
+
+
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-2006-mercedes-benz-slr-mclaren/6799954428.html", {}).then(console.log);
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-2004-mercedes-benz-ml500/6808517821.html", {}).then(console.log);

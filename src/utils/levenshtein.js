@@ -38,8 +38,8 @@ function levenshteinDistance(a, b) {
 }
 
 
-levenshteinDistance("Mercedes Benz GL 450 awd suv 7 passenger/ BEST OFFER .", "GLClass")
-levenshteinDistance("Using lcs, found match source =  Mercedes Benz GL 450 awd suv 7 passenger/ BEST OFFER .", "CClass");
+// levenshteinDistance("Mercedes Benz GL 450 awd suv 7 passenger/ BEST OFFER .", "GLClass")
+// levenshteinDistance("Using lcs, found match source =  Mercedes Benz GL 450 awd suv 7 passenger/ BEST OFFER .", "CClass");
 
 
 module.exports = {levenshteinDistance};

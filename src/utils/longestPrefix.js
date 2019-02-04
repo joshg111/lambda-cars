@@ -37,15 +37,15 @@ function findLongestTargetPrefix(sourceText, target) {
 
   }
 
-  console.log("findLongestPrefix = ", res);
+  // console.log("findLongestPrefix = ", res);
   return res;
 }
 
-findLongestTargetPrefix('Mercedes-Benz ML 350; Great Condition!', 'M-Class')
-findLongestTargetPrefix("asdf aszf faszz", "aszz");
-findLongestTargetPrefix("asdf", "jk;l");
-findLongestTargetPrefix("c250", "C 250 Coupe 2D")
-findLongestTargetPrefix("c250", "C 250 Sport Sedan 4D")
+// findLongestTargetPrefix('Mercedes-Benz ML 350; Great Condition!', 'M-Class')
+// findLongestTargetPrefix("asdf aszf faszz", "aszz");
+// findLongestTargetPrefix("asdf", "jk;l");
+// findLongestTargetPrefix("c250", "C 250 Coupe 2D")
+// findLongestTargetPrefix("c250", "C 250 Sport Sedan 4D")
 
 
 module.exports = {findLongestTargetPrefix};

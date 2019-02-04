@@ -28,6 +28,10 @@ class RankedTarget {
     this.rank -= rank;
   }
 
+  addMatched(match) {
+      this.getTarget()["match"] ? this.getTarget()["match"].push(match) : this.getTarget()["match"] = [match];
+  }
+
 }
 
 

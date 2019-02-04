@@ -41,6 +41,8 @@ function distance(source, target) {
     return res
 }
 
-distance('Pathfinder', 'Nissan Armada');
+// distance('Pathfinder', 'Nissan Armada');
+// console.log(distance("2012 ml350 sport utility 4matic suv white", "ML 350 4MATIC Sport Utility 4D"));
+// console.log(distance("2012 ml350 sport utility 4matic suv white", "GLK 350 4MATIC Sport Utility 4D"));
 
 module.exports = {damerauLevenshteinDistance: distance};

@@ -36,7 +36,7 @@ function findLcsDpNew(a, b) {
 
 // findLcsDpNew("abcdzefg", "abcdxefg");
 // findLcsDpNew('1999 Chevy Suburban Suv, Low Miles, New Tires, 3rd Row, Just Smog\'d', 'chevrolet');
-findLcsDpNew('Volvo', 'mercedes benz gl450');
+// findLcsDpNew('Volvo', 'mercedes benz gl450');
 
 
 module.exports = {lcs: findLcsDpNew};
