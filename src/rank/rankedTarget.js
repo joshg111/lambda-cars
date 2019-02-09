@@ -5,6 +5,7 @@ class RankedTarget {
 
   constructor(target) {
     this.target = target;
+    this.target["match"] = [];
     this.rank = 0;
   }
 

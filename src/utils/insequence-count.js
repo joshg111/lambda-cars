@@ -124,6 +124,69 @@ function insequenceMatch(a, b, i, j, cache) {
 	return [count, match]
 }
 
+function wrapSrcTokenize(src, inChars) {
+    return srcTokenize(src.toLowerCase().trim().split(/\s+/gi), inChars.toLowerCase().trim(/\s+/gi));
+}
+
+/*
+* Match `src` tokens given `inChars`.
+* If some chars are consumed by a source token/word, but don't match given weight, then try to consume the
+* target inChars, and try by not consuming.
+* parameter src: The source string.
+* parameter inChars: The insequence chars match.
+* */
+const SRC_TOKEN_MATCH_THRESHOLD = .65;
+function srcTokenize(src, inChars, iSrc=0, iChar=0) {
+
+    let res = [];
+
+    if (iSrc >= src.length || iChar >= inChars.length) {
+        return res;
+    }
+
+    let srcWord = src[iSrc];
+    let iSrcWord = 0;
+    let beforeIChar = iChar;
+    let matchCount = 0;
+    // What about the case we don't want to match a given source even if it's a token match?
+    // I think we can ignore this case.
+    while(iSrcWord < srcWord.length && iChar < inChars.length) {
+        if (inChars[iChar] === srcWord[iSrcWord]) {
+            iChar += 1;
+            iSrcWord += 1;
+            matchCount += 1;
+        }
+        else {
+            // Skip the src char in this case since we know the inChar is somewhere else in the src.
+            iSrcWord += 1
+        }
+    }
+
+    // With consuming inChars.
+    let consumeChar = srcTokenize(src, inChars, iSrc + 1, iChar);
+
+    if ((matchCount / srcWord.length) < SRC_TOKEN_MATCH_THRESHOLD) {
+        // Without consuming inChars.
+        let a = srcTokenize(src, inChars, iSrc+1, beforeIChar);
+
+        if (a.length > consumeChar.length) {
+            consumeChar = a;
+        }
+    } else {
+        res.push(srcWord);
+    }
+
+    // return consumeChar.concat(res);
+    return res.concat(consumeChar);
+}
+
+console.log(wrapSrcTokenize("abc def ghi", "acfghi"));
+// Edge case, when there's overlap of 'a', but it's not used for second word :(
+// This case should prolly not happen, because if adef matched some target with 'a', then insequenceMatch would be abadfgi.
+console.log(wrapSrcTokenize("abcx adef ghi", "abdfgi"));
+// Edge case, there's 'a' overlap, and is able to match
+console.log(wrapSrcTokenize("abcx adef ghi", "adfgi"));
+
 function weighMatchCount(count, match, sWord, tWord) {
     // var res = ((count / sWord.length) + (count / tWord.length)) / 2;
     // var res = count / (Math.max(sWord.length, tWord.length) - count);
@@ -193,4 +256,4 @@ function weighMatchCount(count, match, sWord, tWord) {
 // console.log(wrap("amg", "2009  E350 Sports Pkg AMG wheels"));
 
 
-module.exports = {tokenizeInsequenceCount: wrapToken, insequenceCount: wrap};
+module.exports = {tokenizeInsequenceCount: wrapToken, insequenceCount: wrap, srcTokenize: wrapSrcTokenize};

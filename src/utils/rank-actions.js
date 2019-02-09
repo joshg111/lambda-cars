@@ -18,12 +18,13 @@ var STRATEGIES =
       var threshold = .1;
       var a = insequenceCount(source, targetText);
       a = a.weight;
-      var b = tokenizeInsequenceCount(source, targetText);
-      if (b.sources.length > 0) {
-          rankedTarget.addMatched(...b.sources);
-      }
+      // Add it back in when i can run in parallel.
+      // var b = tokenizeInsequenceCount(source, targetText);
+      // if (b.sources.length > 0) {
+      //     rankedTarget.addMatched(...b.sources);
+      // }
 
-      b = b.weight;
+      // b = b.weight;
       // let res = (a > threshold ? a : 0) + (b > threshold ? b : 0);
       let res = (a > threshold ? a : 0);
       return res;
@@ -121,27 +122,31 @@ function searchRank(sources, targets, strategies, keys=['text']) {
             for(var rankedTarget of rankedTargets) {
 
                 var resRank = rankedTarget.getRank();
+                var targetText = "";
                 // var countKeys = 0;
                 for (var key of keys) {
-                    var targetText = key in rankedTarget.getTarget() ? rankedTarget.getTarget()[key] : null;
-                    if (!targetText) {
-                      continue;
+                    if (targetText && !targetText.endsWith(" ")) {
+                        targetText += " ";
                     }
-
-                    var rank1 = STRATEGIES[strategy].searchStrategy(source, targetText, rankedTarget);
-                    if(getRelations(targetText)) {
-                        for(var relation of getRelations(targetText)) {
-                            var rank2 = STRATEGIES[strategy].searchStrategy(source, relation, rankedTarget);
-                            rank1 = Math.max(rank1, rank2);
-                        }
-                    }
-
-                    // if (rank1 > 0) {
-                    //     countKeys += 1;
-                    // }
-                    // rankedTarget.setRank(rank1);
-                    resRank += rank1;
+                    targetText += key in rankedTarget.getTarget() ? rankedTarget.getTarget()[key]: "";
                 }
+                if (!targetText) {
+                  continue;
+                }
+
+                var rank1 = STRATEGIES[strategy].searchStrategy(source, targetText, rankedTarget);
+                if(getRelations(targetText)) {
+                    for(var relation of getRelations(targetText)) {
+                        var rank2 = STRATEGIES[strategy].searchStrategy(source, relation, rankedTarget);
+                        rank1 = Math.max(rank1, rank2);
+                    }
+                }
+
+                // if (rank1 > 0) {
+                //     countKeys += 1;
+                // }
+                // rankedTarget.setRank(rank1);
+                resRank += rank1;
 
                 // No longer use key length to average the rank since we do this anyway for all targets regardless.
                 // Also, there's an issue when using multiple sources, averaging the rank for each source will

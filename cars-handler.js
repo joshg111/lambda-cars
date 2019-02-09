@@ -8,11 +8,12 @@ const pConfig = require("./public-config");
 const {matchModelsAndStyle, matchKbbMake} = require("./get-model");
 var {searchRank} = require('./src/utils/rank-actions');
 
-const USER_AGENT = pConfig.rp.USER_AGENT
+const USER_AGENT = pConfig.rp.USER_AGENT;
 const OPTIONS = pConfig.rp.OPTIONS;
+const RETRYCOUNT = 2;
 
 
-async function scrapeHrefs(uri) {
+async function scrapeHrefs(uri, retryCount=0) {
   var cars = [];
 
   try {
@@ -24,8 +25,11 @@ async function scrapeHrefs(uri) {
 
   }
   catch(err) {
+    if (retryCount < RETRYCOUNT) {
+      return await scrapeHrefs(uri, retryCount + 1);
+    }
     console.log("getCarHrefs = ", err);
-    throw new Error(err);
+    return Promise.reject(err);
   }
 
   return cars;
@@ -89,7 +93,7 @@ async function matchCraigsAttrs(attrs) {
   return res;
 }
 
-async function getCraigs(href) {
+async function getCraigs(href, retryCount=0) {
 
   var res = {};
 
@@ -128,8 +132,11 @@ async function getCraigs(href) {
     })
   }
   catch(err) {
+    if (retryCount < RETRYCOUNT) {
+        return await getCraigs(href, retryCount+1)
+    }
     console.log("getCraigs = ", err);
-    throw new Error(err);
+    return Promise.reject(err);
   }
   console.log("getCraigs res = ", res);
   return res;
@@ -274,7 +281,7 @@ async function getKbbStyle(craigs, kbb) {
 // getKbbStyle({'year': '2017', 'style': 'limited'}, {'kbbMake': 'lexus', 'kbbModel': 'lx'}).then(console.log);
 // getKbbStyle({'year': '1998', 'style': 'ex'}, {'kbbMake': 'Honda', 'kbbModel': 'Civic'}).then(console.log);
 // getKbbStyle({'year': '2010', 'style': 'ex-l'}, {'make': 'Honda', 'model': 'Accord'}).then(console.log);
-var RETRYCOUNT = 3;
+
 async function getKbbPrice(link, retryCount=0) {
   console.log("getKbbPrice retry = ", retryCount);
 
@@ -311,7 +318,7 @@ async function getKbbPrice(link, retryCount=0) {
 
 // For some `data` with `key`, remove `match` from data.
 function removeMatch(keys, data, matches) {
-  if (keys.length === 0) {
+  if (keys.length === 0 || !matches || !data) {
     return;
   }
 
@@ -414,79 +421,89 @@ function sleep(n) {
 
 module.exports.cars = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
+  try {
+      var startTime = new Date();
 
-  var startTime = new Date();
+      console.log("event", event);
+      var input = JSON.parse(event.body);
+      console.log("input = ", input);
 
-  console.log("event", event);
-  var input = JSON.parse(event.body);
-  console.log("input = ", input);
+      var hrefPromises = [];
+      if ("make" in input && "model" in input) {
+          hrefPromises.push(getCarHrefs(input));
+          hrefPromises.push(getCarHrefsWithSearch({
+              ...input,
+              query: '"' + input.make + '"' + '+' + '"' + input.model + '"'
+          }));
+      }
 
-  var hrefPromises = [];
-  if("make" in input && "model" in input) {
-    hrefPromises.push(getCarHrefs(input));
-    hrefPromises.push(getCarHrefsWithSearch({...input, query: '"' + input.make + '"' + '+' + '"' + input.model + '"'}));
+      else {
+          hrefPromises.push(getCarHrefsWithSearch(input));
+      }
+
+      var carHrefs = (await Promise.all(hrefPromises)).reduce((acc, cur) => {
+          // return new Set([...acc, ...cur]);
+          return acc.concat(cur);
+      }, []);
+
+      var seen = {};
+      carHrefs = carHrefs.filter((item) => {
+          return seen.hasOwnProperty(item) ? false : (seen[item] = true);
+      });
+
+      var cars = [];
+      for (var i = 0; i < 50 && i < carHrefs.length; i++) {
+          cars.push(handleCar(carHrefs[i], input));
+      }
+
+      console.log("before carsResolved");
+
+      // There seems to be some cars that hang here. Can we force a timeout in Promise.all(..)?
+      var carsResolved = await Promise.all(cars);
+      console.log("after carsResolved");
+
+      carsResolved = carsResolved.filter((element, index) => {
+          return element !== null;
+      });
+
+      // Sort
+      carsResolved.sort((a, b) => {
+          return (a.percentAboveKbb - b.percentAboveKbb);
+      })
+
+      console.log("carsResolved = ", carsResolved);
+      console.log("result length = ", carsResolved.length);
+      console.log("expected length = ", cars.length);
+
+      var endTime = new Date();
+      var timeDiff = endTime - startTime; //in ms
+      // strip the ms
+      timeDiff /= 1000;
+      console.log("time = ", timeDiff);
+
+      var rr = {
+          statusCode: 200,
+          body: JSON.stringify({
+              cars: carsResolved
+          }),
+      };
   }
-
-  else {
-    hrefPromises.push(getCarHrefsWithSearch(input));
+  catch(err) {
+    console.log("Caught global exception, err = ", err);
   }
-
-  var carHrefs = (await Promise.all(hrefPromises)).reduce((acc, cur) => {
-  	// return new Set([...acc, ...cur]);
-    return acc.concat(cur);
-  }, []);
-
-  var seen = {};
-  carHrefs = carHrefs.filter((item) => {
-      return seen.hasOwnProperty(item) ? false : (seen[item] = true);
-  });
-
-  var cars = [];
-  for(var i = 0; i < 50 && i < carHrefs.length; i++) {
-    cars.push(handleCar(carHrefs[i], input));
-  }
-
-  console.log("before carsResolved");
-
-  // There seems to be some cars that hang here. Can we force a timeout in Promise.all(..)?
-  var carsResolved = await Promise.all(cars);
-  console.log("after carsResolved");
-
-  carsResolved = carsResolved.filter((element, index) => {
-    return element !== null;
-  });
-
-  // Sort
-  carsResolved.sort((a,b) => {
-    return (a.percentAboveKbb - b.percentAboveKbb);
-  })
-
-  console.log("carsResolved = ", carsResolved);
-  console.log("result length = ", carsResolved.length);
-  console.log("expected length = ", cars.length);
-
-  var endTime = new Date();
-  var timeDiff = endTime - startTime; //in ms
-  // strip the ms
-  timeDiff /= 1000;
-  console.log("time = ", timeDiff);
-
-  const rr = {
-    statusCode: 200,
-    body: JSON.stringify({
-      cars: carsResolved
-    }),
-  };
 
   callback(null, rr);
 
 };
 
 // var input = {query: "mercedes-benz", city: "sandiego"};
+// var input = {query: "honda accord", city: "sandiego"};
 // module.exports.cars({body: JSON.stringify(input)}, {callbackWaitsForEmptyEventLoop: false}, null);
 
 
-handleCar("https://sandiego.craigslist.org/nsd/cto/d/vista-2012-mercedes-benz-c250/6800515646.html", {}).then(console.log);
+handleCar("https://sandiego.craigslist.org/nsd/cto/d/san-diego-honda-accord-2005/6811042675.html", {}).then(console.log);
+
+// handleCar("https://sandiego.craigslist.org/nsd/cto/d/vista-2012-mercedes-benz-c250/6800515646.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-mercedes-benz-class-500/6798491481.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-2003-mercedes-benz-sl500/6810211475.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/nsd/cto/d/san-luis-rey-2008-mercedes-benz-clk550/6796103378.html", {}).then(console.log);
