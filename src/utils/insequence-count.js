@@ -125,7 +125,10 @@ function insequenceMatch(a, b, i, j, cache) {
 }
 
 function wrapSrcTokenize(src, inChars) {
-    return srcTokenize(src.toLowerCase().trim().split(/\s+/gi), inChars.toLowerCase().trim(/\s+/gi));
+    let srcTokens = src.toLowerCase().trim().split(/\s+/gi);
+    let matchWords = srcTokenize(srcTokens, inChars.toLowerCase().trim(/\s+/gi));
+    let weight = matchWords.length / srcTokens.length;
+    return {weight, matchWords};
 }
 
 /*
@@ -135,7 +138,7 @@ function wrapSrcTokenize(src, inChars) {
 * parameter src: The source string.
 * parameter inChars: The insequence chars match.
 * */
-const SRC_TOKEN_MATCH_THRESHOLD = .65;
+const SRC_TOKEN_MATCH_THRESHOLD = .7;
 function srcTokenize(src, inChars, iSrc=0, iChar=0) {
 
     let res = [];
@@ -180,12 +183,33 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0) {
     return res.concat(consumeChar);
 }
 
-console.log(wrapSrcTokenize("abc def ghi", "acfghi"));
+// console.log(wrapSrcTokenize("abc def ghi", "acfghi"));
 // Edge case, when there's overlap of 'a', but it's not used for second word :(
 // This case should prolly not happen, because if adef matched some target with 'a', then insequenceMatch would be abadfgi.
-console.log(wrapSrcTokenize("abcx adef ghi", "abdfgi"));
+// console.log(wrapSrcTokenize("abcx adef ghi", "abdfgi"));
 // Edge case, there's 'a' overlap, and is able to match
-console.log(wrapSrcTokenize("abcx adef ghi", "adfgi"));
+// console.log(wrapSrcTokenize("abcx adef ghi", "adfgi"));
+
+function triWayTokenMerge(source, target) {
+    console.log();
+    console.log("source = ", source, ", target = ", target);
+    let mymatch = wrap(source, target).match;
+    console.log("mymatch = ", mymatch);
+    let sourceTokens = wrapSrcTokenize(source, mymatch);
+    console.log("sourceTokens = ", sourceTokens);
+    let targetTokens = wrapSrcTokenize(target, mymatch);
+    console.log("targetTokens = ", targetTokens);
+    let tokenMatch = wrap(sourceTokens.matchWords.join(''), targetTokens.matchWords.join(''));
+    console.log("tokenMatch = ", tokenMatch);
+    let sourceByTokenMerge = wrapSrcTokenize(source, tokenMatch.match);
+    console.log("merged = ", sourceByTokenMerge);
+    return sourceByTokenMerge;
+}
+
+console.log(triWayTokenMerge("Accord LX", "Accord LX-P Sedan 4D"));
+// console.log(triWayTokenMerge("Accord LX", "Accord LX Sedan 4D"));
+// console.log(triWayTokenMerge("abcd", "ab cd"));
+// console.log(triWayTokenMerge("axcd", "abc d"));
 
 function weighMatchCount(count, match, sWord, tWord) {
     // var res = ((count / sWord.length) + (count / tWord.length)) / 2;
@@ -256,4 +280,4 @@ function weighMatchCount(count, match, sWord, tWord) {
 // console.log(wrap("amg", "2009  E350 Sports Pkg AMG wheels"));
 
 
-module.exports = {tokenizeInsequenceCount: wrapToken, insequenceCount: wrap, srcTokenize: wrapSrcTokenize};
+module.exports = {tokenizeInsequenceCount: wrapToken, insequenceCount: wrap, srcTokenize: wrapSrcTokenize, triWayTokenMerge};

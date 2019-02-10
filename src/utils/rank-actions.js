@@ -1,9 +1,9 @@
 var {lcs} = require('./lcs');
 var {levenshteinDistance} = require('./levenshtein');
 var {damerauLevenshteinDistance} = require('./damerau-levenshtein');
-var {tokenizeInsequenceCount, insequenceCount} = require('./insequence-count');
+var {tokenizeInsequenceCount, insequenceCount, srcTokenize, triWayTokenMerge} = require('./insequence-count');
 var {findLongestTargetPrefix} = require('./longestPrefix');
-var {RankedTarget} = require('../rank/rankedTarget')
+var {RankedTarget} = require('../rank/rankedTarget');
 var {getRelations} = require('./relations');
 var Fuse = require('fuse.js');
 
@@ -16,7 +16,7 @@ var STRATEGIES =
   {
     searchStrategy: (source, targetText, rankedTarget) => {
       var threshold = .1;
-      var a = insequenceCount(source, targetText);
+      var a = triWayTokenMerge(source, targetText);
       a = a.weight;
       // Add it back in when i can run in parallel.
       // var b = tokenizeInsequenceCount(source, targetText);
@@ -155,7 +155,7 @@ function searchRank(sources, targets, strategies, keys=['text']) {
                 // We could divide by key length after all sources have been processed, but this is not necessary.
                 // rankedTarget.setRank(resRank === 0 ? 0 : (resRank / keys.length));
                 rankedTarget.setRank(resRank <= 0 ? 0 : (resRank));
-                console.log("weight = ", rankedTarget.getRank(), ", targetText = ", rankedTarget.getTarget());
+                console.log("source = ", source, ", weight = ", rankedTarget.getRank(), ", targetText = ", rankedTarget.getTarget());
             }
             // console.log("strategy = ", strategy, ", rankedTargets =", rankedTargets);
         }

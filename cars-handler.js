@@ -501,7 +501,8 @@ module.exports.cars = async (event, context, callback) => {
 // module.exports.cars({body: JSON.stringify(input)}, {callbackWaitsForEmptyEventLoop: false}, null);
 
 
-handleCar("https://sandiego.craigslist.org/nsd/cto/d/san-diego-honda-accord-2005/6811042675.html", {}).then(console.log);
+handleCar("https://sandiego.craigslist.org/csd/cto/d/rancho-santa-fe-2008-honda-accord-low/6814870003.html", {}).then(console.log);
+// handleCar("https://sandiego.craigslist.org/nsd/cto/d/san-diego-honda-accord-2005/6811042675.html", {}).then(console.log);
 
 // handleCar("https://sandiego.craigslist.org/nsd/cto/d/vista-2012-mercedes-benz-c250/6800515646.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-mercedes-benz-class-500/6798491481.html", {}).then(console.log);
