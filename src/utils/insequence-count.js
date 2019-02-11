@@ -1,4 +1,5 @@
 var {damerauLevenshteinDistance} = require('./damerau-levenshtein');
+var {makeLogger} = require('./logger');
 
 
 var WORD_COUNT_THRESHOLD = .6;
@@ -125,7 +126,7 @@ function insequenceMatch(a, b, i, j, cache) {
 }
 
 function wrapSrcTokenize(src, inChars) {
-    let srcTokens = src.toLowerCase().trim().split(/\s+/gi);
+    let srcTokens = src.toLowerCase().trim().replace(/-/gi, '').split(/\s+/gi);
     let matchWords = srcTokenize(srcTokens, inChars.toLowerCase().trim(/\s+/gi));
     let weight = matchWords.length / srcTokens.length;
     return {weight, matchWords};
@@ -138,9 +139,10 @@ function wrapSrcTokenize(src, inChars) {
 * parameter src: The source string.
 * parameter inChars: The insequence chars match.
 * */
-const SRC_TOKEN_MATCH_THRESHOLD = .7;
+const SRC_TOKEN_MATCH_THRESHOLD = .9;
+let logger = makeLogger(false);
 function srcTokenize(src, inChars, iSrc=0, iChar=0) {
-
+    logger.log("Comparing inChars = ", inChars.slice(iChar));
     let res = [];
 
     if (iSrc >= src.length || iChar >= inChars.length) {
@@ -148,41 +150,51 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0) {
     }
 
     let srcWord = src[iSrc];
-    let iSrcWord = 0;
+    // let iSrcWord = 0;
     let beforeIChar = iChar;
-    let matchCount = 0;
+    // let matchCount = 0;
     // What about the case we don't want to match a given source even if it's a token match?
     // I think we can ignore this case.
-    while(iSrcWord < srcWord.length && iChar < inChars.length) {
-        if (inChars[iChar] === srcWord[iSrcWord]) {
-            iChar += 1;
-            iSrcWord += 1;
-            matchCount += 1;
-        }
-        else {
-            // Skip the src char in this case since we know the inChar is somewhere else in the src.
-            iSrcWord += 1
-        }
-    }
+    // while(iSrcWord < srcWord.length && iChar < inChars.length) {
+    //     if (inChars[iChar] === srcWord[iSrcWord]) {
+    //         iChar += 1;
+    //         iSrcWord += 1;
+    //         matchCount += 1;
+    //     }
+    //     else {
+    //         // Skip the src char in this case since we know the inChar is somewhere else in the src.
+    //         iSrcWord += 1
+    //     }
+    // }
+
+    let subMatch = wrap(srcWord, inChars.slice(iChar));
+    logger.log("subMatch = ", subMatch.match);
+    let matchCount = subMatch.match.length;
+    iChar += matchCount;
 
     // With consuming inChars.
     let consumeChar = srcTokenize(src, inChars, iSrc + 1, iChar);
 
     if ((matchCount / srcWord.length) < SRC_TOKEN_MATCH_THRESHOLD) {
+        logger.log("Compared with inChars = ", inChars.slice(beforeIChar));
+        logger.log("Not a match for srcWord = ", srcWord, ", matchCount = ", matchCount);
         // Without consuming inChars.
         let a = srcTokenize(src, inChars, iSrc+1, beforeIChar);
 
         if (a.length > consumeChar.length) {
+            logger.log("Larger when not comsuming iChar's, non consuming = ", a, ", consuming = ", consumeChar);
             consumeChar = a;
         }
     } else {
         res.push(srcWord);
     }
 
-    // return consumeChar.concat(res);
+    logger.log(consumeChar);
     return res.concat(consumeChar);
 }
 
+
+// console.log(wrapSrcTokenize("SL-Class SL 550 Roadster 2D ", "cssl550"));
 // console.log(wrapSrcTokenize("abc def ghi", "acfghi"));
 // Edge case, when there's overlap of 'a', but it's not used for second word :(
 // This case should prolly not happen, because if adef matched some target with 'a', then insequenceMatch would be abadfgi.
@@ -191,22 +203,27 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0) {
 // console.log(wrapSrcTokenize("abcx adef ghi", "adfgi"));
 
 function triWayTokenMerge(source, target) {
-    console.log();
-    console.log("source = ", source, ", target = ", target);
+    let logger = makeLogger(false);
+    logger.log();
+    logger.log("source = ", source, ", target = ", target);
     let mymatch = wrap(source, target).match;
-    console.log("mymatch = ", mymatch);
+    logger.log("mymatch = ", mymatch);
     let sourceTokens = wrapSrcTokenize(source, mymatch);
-    console.log("sourceTokens = ", sourceTokens);
+    logger.log("sourceTokens = ", sourceTokens);
     let targetTokens = wrapSrcTokenize(target, mymatch);
-    console.log("targetTokens = ", targetTokens);
+    logger.log("targetTokens = ", targetTokens);
     let tokenMatch = wrap(sourceTokens.matchWords.join(''), targetTokens.matchWords.join(''));
-    console.log("tokenMatch = ", tokenMatch);
+    logger.log("tokenMatch = ", tokenMatch);
     let sourceByTokenMerge = wrapSrcTokenize(source, tokenMatch.match);
-    console.log("merged = ", sourceByTokenMerge);
+    logger.log("merged = ", sourceByTokenMerge);
     return sourceByTokenMerge;
 }
 
-console.log(triWayTokenMerge("Accord LX", "Accord LX-P Sedan 4D"));
+
+console.log(triWayTokenMerge("GLK-350", "GLK 350 4MATIC Sport Utility 4D"));
+// console.log(triWayTokenMerge("mercedes sl 550", "SL-Class SL 550 Roadster 2D"));
+// console.log(triWayTokenMerge("e320", "C 320 Sedan 4D"));
+// console.log(triWayTokenMerge("Accord LX", "Accord LX-P Sedan 4D"));
 // console.log(triWayTokenMerge("Accord LX", "Accord LX Sedan 4D"));
 // console.log(triWayTokenMerge("abcd", "ab cd"));
 // console.log(triWayTokenMerge("axcd", "abc d"));

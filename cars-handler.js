@@ -501,7 +501,9 @@ module.exports.cars = async (event, context, callback) => {
 // module.exports.cars({body: JSON.stringify(input)}, {callbackWaitsForEmptyEventLoop: false}, null);
 
 
-handleCar("https://sandiego.craigslist.org/csd/cto/d/rancho-santa-fe-2008-honda-accord-low/6814870003.html", {}).then(console.log);
+// handleCar("https://sandiego.craigslist.org/nsd/cto/d/san-diego-mercedes-benz-glk-350/6802530724.html", {}).then(console.log);
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-2007-mercedes-benz-sl550/6795086570.html", {}).then(console.log);
+// handleCar("https://sandiego.craigslist.org/nsd/cto/d/fallbrook-mercedes-benz-e320/6804671458.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/nsd/cto/d/san-diego-honda-accord-2005/6811042675.html", {}).then(console.log);
 
 // handleCar("https://sandiego.craigslist.org/nsd/cto/d/vista-2012-mercedes-benz-c250/6800515646.html", {}).then(console.log);
@@ -509,7 +511,7 @@ handleCar("https://sandiego.craigslist.org/csd/cto/d/rancho-santa-fe-2008-honda-
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-2003-mercedes-benz-sl500/6810211475.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/nsd/cto/d/san-luis-rey-2008-mercedes-benz-clk550/6796103378.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/rancho-santa-fe-2006-dodge-sprinterwb/6804150219.html", {}).then(console.log);
-// handleCar("https://sandiego.craigslist.org/csd/cto/d/2010-mercedes-benz-e350-sport-coupe-65k/6803936754.html", {}).then(console.log);
+handleCar("https://sandiego.craigslist.org/csd/cto/d/2010-mercedes-benz-e350-sport-coupe-65k/6803936754.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-2013-mercedes-benz-sl63/6794057461.html", {}).then(console.log);
 
 

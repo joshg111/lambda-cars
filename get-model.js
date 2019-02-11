@@ -128,7 +128,7 @@ function removeKbbData(val, kbb) {
   if (!val) {
     return;
   }
-  return val.replace(new RegExp(kbb.kbbMake, "gi"), "");
+  return val.replace(new RegExp('\\s*' + kbb.kbbMake + '\\s*', "gi"), "");
 }
 
 // async function matchModels(craigs, kbb) {
@@ -169,7 +169,9 @@ async function matchModelsAndStyle(craigs, kbb) {
 
     // let res = fuseSearch([craigs.desc, craigs.title].map((val) => removeKbbData(val, kbb)), models);
     let res = searchRank(
-        [kbb.extra.desc, kbb.extra.title + " " + craigs.type].map((val) => removeKbbData(val, kbb)),
+        [kbb.extra.desc,
+            kbb.extra.title + (craigs.type ? " " + craigs.type : "")]
+            .map((val) => removeKbbData(val, kbb)),
         models,
         ["insequenceCount"],
         ["model", "styleText"]);

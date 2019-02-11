@@ -17,6 +17,7 @@ var STRATEGIES =
     searchStrategy: (source, targetText, rankedTarget) => {
       var threshold = .1;
       var a = triWayTokenMerge(source, targetText);
+      rankedTarget.addMatched(a.matchWords);
       a = a.weight;
       // Add it back in when i can run in parallel.
       // var b = tokenizeInsequenceCount(source, targetText);
