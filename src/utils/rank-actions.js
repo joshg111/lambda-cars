@@ -6,6 +6,7 @@ var {findLongestTargetPrefix} = require('./longestPrefix');
 var {RankedTarget} = require('../rank/rankedTarget');
 var {getRelations} = require('./relations');
 var Fuse = require('fuse.js');
+var {Match} = require('../rank/match');
 
 
 
@@ -15,9 +16,14 @@ var STRATEGIES =
   insequenceCount:
   {
     searchStrategy: (source, targetText, rankedTarget) => {
-      var threshold = .1;
-      var a = triWayTokenMerge(source, targetText);
-      rankedTarget.addMatched(a.matchWords);
+      // var threshold = .05;
+      var a = triWayTokenMerge(source.data, targetText);
+      var match = new Match(source, a.matchWords);
+      if (match.matches.length > 0) {
+          rankedTarget.addMatched(match);
+          // console.log("Adding match = ", match, ", target = ", targetText, ", weight = ", a.weight);
+      }
+
       a = a.weight;
       // Add it back in when i can run in parallel.
       // var b = tokenizeInsequenceCount(source, targetText);
@@ -27,8 +33,8 @@ var STRATEGIES =
 
       // b = b.weight;
       // let res = (a > threshold ? a : 0) + (b > threshold ? b : 0);
-      let res = (a > threshold ? a : 0);
-      return res;
+      // let res = (a > threshold ? a : 0);
+      return a;
       // return res + insequenceCount(source, targetText);
     }
   },
@@ -36,37 +42,32 @@ var STRATEGIES =
   findLongestPrefix:
     {
       searchStrategy: (source, targetWord, rankedTarget) => {
-        prefixRes = findLongestTargetPrefix(source, targetWord);
+        prefixRes = findLongestTargetPrefix(source.data, targetWord);
 
         if (prefixRes.count > 0 && prefixRes.sourceWord.length > 0) {
           var res = (prefixRes.count / (prefixRes.sourceWord.length));
           return (rankedTarget.getRank() + res);
         }
-        return rankedTarget.getRank();
+        return 0;
       }
     },
 
   word:
     {
       searchStrategy: (source, targetText, rankedTarget) => {
-        // var res = rankedTarget.getRank();
         var res = 0;
         var targetSplit = targetText.split(" ");
         for(var targetWord of targetSplit) {
-          if((source.match(new RegExp("([^\\w-]|^)" + targetWord + "([^\\w-]|$)", "gi"))) !== null) {
+          if((source.data.match(new RegExp("([^\\w-]|^)" + targetWord + "([^\\w-]|$)", "gi"))) !== null) {
             res += 1;
           }
-          // else {
-          //   res -= 1;
-          // }
         }
 
-        // res = res / source.length;
         if (res > 0) {
           return (res + rankedTarget.getRank()) / 2;
         }
 
-        return rankedTarget.getRank()
+        return 0;
       }
     },
   damerauLevenshteinDistance:
@@ -156,7 +157,7 @@ function searchRank(sources, targets, strategies, keys=['text']) {
                 // We could divide by key length after all sources have been processed, but this is not necessary.
                 // rankedTarget.setRank(resRank === 0 ? 0 : (resRank / keys.length));
                 rankedTarget.setRank(resRank <= 0 ? 0 : (resRank));
-                console.log("source = ", source, ", weight = ", rankedTarget.getRank(), ", targetText = ", rankedTarget.getTarget());
+                // console.log("source = ", source, ", weight = ", rankedTarget.getRank(), ", targetText = ", rankedTarget.getTarget().match.toString());
             }
             // console.log("strategy = ", strategy, ", rankedTargets =", rankedTargets);
         }

@@ -30,14 +30,7 @@ class RankedTarget {
   }
 
   addMatched(match) {
-
-      if (!this.getTarget()["match"]) {
-          this.getTarget()["match"] = [];
-      }
-
-      for (const m of match) {
-          this.getTarget()["match"].push(m);
-      }
+      this.getTarget()["match"].push(match);
   }
 
 }

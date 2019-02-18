@@ -125,10 +125,13 @@ function insequenceMatch(a, b, i, j, cache) {
 	return [count, match]
 }
 
-function wrapSrcTokenize(src, inChars) {
+function wrapSrcTokenize(src, inChars, outputWords=true) {
+    let logger = makeLogger(false);
     let srcTokens = src.toLowerCase().trim().replace(/-/gi, '').split(/\s+/gi);
-    let matchWords = srcTokenize(srcTokens, inChars.toLowerCase().trim(/\s+/gi));
-    let weight = matchWords.length / srcTokens.length;
+    // resIChar, is the number of matched inChars.
+    let {matches: matchWords, resIChar} = srcTokenize(srcTokens, inChars.toLowerCase().trim(/\s+/gi), 0, 0, outputWords);
+    logger.log("resIChar = ", resIChar);
+    let weight = matchWords.length / (srcTokens.length + (inChars.length - resIChar));
     return {weight, matchWords};
 }
 
@@ -141,59 +144,49 @@ function wrapSrcTokenize(src, inChars) {
 * */
 const SRC_TOKEN_MATCH_THRESHOLD = .9;
 let logger = makeLogger(false);
-function srcTokenize(src, inChars, iSrc=0, iChar=0) {
+function srcTokenize(src, inChars, iSrc=0, iChar=0, outputWords=true) {
     logger.log("Comparing inChars = ", inChars.slice(iChar));
     let res = [];
 
     if (iSrc >= src.length || iChar >= inChars.length) {
-        return res;
+        return {matches: res, resIChar: iChar};
     }
 
     let srcWord = src[iSrc];
-    // let iSrcWord = 0;
     let beforeIChar = iChar;
-    // let matchCount = 0;
-    // What about the case we don't want to match a given source even if it's a token match?
-    // I think we can ignore this case.
-    // while(iSrcWord < srcWord.length && iChar < inChars.length) {
-    //     if (inChars[iChar] === srcWord[iSrcWord]) {
-    //         iChar += 1;
-    //         iSrcWord += 1;
-    //         matchCount += 1;
-    //     }
-    //     else {
-    //         // Skip the src char in this case since we know the inChar is somewhere else in the src.
-    //         iSrcWord += 1
-    //     }
-    // }
-
     let subMatch = wrap(srcWord, inChars.slice(iChar));
     logger.log("subMatch = ", subMatch.match);
     let matchCount = subMatch.match.length;
     iChar += matchCount;
 
     // With consuming inChars.
-    let consumeChar = srcTokenize(src, inChars, iSrc + 1, iChar);
+    var {matches: consumeChar, resIChar} = srcTokenize(src, inChars, iSrc + 1, iChar, outputWords);
 
     if ((matchCount / srcWord.length) < SRC_TOKEN_MATCH_THRESHOLD) {
         logger.log("Compared with inChars = ", inChars.slice(beforeIChar));
         logger.log("Not a match for srcWord = ", srcWord, ", matchCount = ", matchCount);
         // Without consuming inChars.
-        let a = srcTokenize(src, inChars, iSrc+1, beforeIChar);
+        var {matches: a, resIChar: resICharA} = srcTokenize(src, inChars, iSrc+1, beforeIChar, outputWords);
 
         if (a.length > consumeChar.length) {
             logger.log("Larger when not comsuming iChar's, non consuming = ", a, ", consuming = ", consumeChar);
             consumeChar = a;
+            resIChar = resICharA;
         }
     } else {
-        res.push(srcWord);
+        if (outputWords) {
+            res.push(srcWord);
+        }
+        else {
+            res.push(iSrc);
+        }
     }
 
     logger.log(consumeChar);
-    return res.concat(consumeChar);
+    return {matches: res.concat(consumeChar), resIChar}
 }
 
-
+// console.log(wrapSrcTokenize("C", "Scion"));
 // console.log(wrapSrcTokenize("SL-Class SL 550 Roadster 2D ", "cssl550"));
 // console.log(wrapSrcTokenize("abc def ghi", "acfghi"));
 // Edge case, when there's overlap of 'a', but it's not used for second word :(
@@ -214,13 +207,17 @@ function triWayTokenMerge(source, target) {
     logger.log("targetTokens = ", targetTokens);
     let tokenMatch = wrap(sourceTokens.matchWords.join(''), targetTokens.matchWords.join(''));
     logger.log("tokenMatch = ", tokenMatch);
-    let sourceByTokenMerge = wrapSrcTokenize(source, tokenMatch.match);
+    let sourceByTokenMerge = wrapSrcTokenize(source, tokenMatch.match, false);
+    let weight = sourceByTokenMerge.weight;
+    let diff = mymatch.length - tokenMatch.match.length;
+    weight /= (diff > 0 ? diff : 1);
     logger.log("merged = ", sourceByTokenMerge);
-    return sourceByTokenMerge;
+    return {weight, matchWords: sourceByTokenMerge.matchWords};
 }
 
 
-console.log(triWayTokenMerge("GLK-350", "GLK 350 4MATIC Sport Utility 4D"));
+console.log(triWayTokenMerge("Mercedes-Benz C 63 AMG 507 Edition* Coupe, RARE VEHICLE!! coupe", "Scion"));
+// console.log(triWayTokenMerge("GLK-350", "GLK 350 4MATIC Sport Utility 4D"));
 // console.log(triWayTokenMerge("mercedes sl 550", "SL-Class SL 550 Roadster 2D"));
 // console.log(triWayTokenMerge("e320", "C 320 Sedan 4D"));
 // console.log(triWayTokenMerge("Accord LX", "Accord LX-P Sedan 4D"));

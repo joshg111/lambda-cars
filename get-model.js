@@ -5,6 +5,7 @@ const pConfig = require("./public-config");
 var {hgetAsync, hsetAsync} = require('./redis-client');
 var {searchRank, filterByRank, fuseSearch} = require('./src/utils/rank-actions');
 var {getRelations} = require('./src/utils/relations');
+var {Source} = require('./src/rank/source');
 
 
 const OPTIONS = pConfig.rp.OPTIONS;
@@ -39,50 +40,18 @@ async function getApi() {
   return ({api, version});
 }
 
-
-// async function matchKbbMakeId(craigs, kbb) {
-//   var link = 'https://www.kbb.com/Api/'+ kbb.extra.api.api + '/' + kbb.extra.api.version + '/vehicle/v1/Makes?vehicleClass=UsedCar&yearid='+craigs.year;
-//
-//   var options = {
-//       uri: link,
-//       headers: {
-//         'User-Agent': USER_AGENT
-//     },
-//     timeout: 6000
-//   };
-//
-//   var body = await rp(options);
-//   var makes = JSON.parse(body);
-//   var res = makes.map((m) => {
-//     return {text: m.name, id: m.id};
-//   });
-//
-//   res = searchRank([craigs.desc, craigs.title], res, ["word", "findLongestPrefix"]);
-//   if(res.length > 1) {
-//     res = searchRank([craigs.extra ? craigs.extra.body : null], res, ["word", "findLongestPrefix"]);
-//   }
-//
-//   if(res.length > 1) {
-//     console.log("Can't determine which make, return null");
-//     return null;
-//   }
-//
-//   var {text: make, id} = res[0];
-//   return {make, id}
-// }
-
-async function matchKbbMakeId(craigs, kbb) {
+async function matchKbbMakeId(craigs, sources) {
     var cacheRes = await hgetAsync("kbbMakes", craigs.year);
     var makes = JSON.parse(cacheRes);
-    // console.log("get makes for year = ", craigs.year, ", makes = ", makes);
     var res = makes.map((m) => {
         return {text: m.name, id: m.id};
     });
 
     // res = searchRank([kbb.extra.desc, kbb.extra.title], res, ["word", "findLongestPrefix"]);
-    res = searchRank([kbb.extra.desc, kbb.extra.title], res, ["insequenceCount"]);
-    if (res.length > 1) {
-        res = searchRank([craigs.extra ? craigs.extra.body : null], res, ["word", "findLongestPrefix"]);
+    res = searchRank(sources, res, ["insequenceCount"]);
+    if (res.length > 1 && craigs.extra) {
+        throw new Error("Failed to find single make");
+        res = searchRank([new Source(craigs.extra.body)], res, ["word", "findLongestPrefix"]);
     }
 
     if (res.length > 1) {
@@ -101,27 +70,7 @@ async function getKbbModels(craigs, kbb) {
     return JSON.parse(cacheRes);
   }
 
-  // var link = 'https://www.kbb.com/Api/'+ kbb.extra.api.api + '/' + kbb.extra.api.version + '/vehicle/v1/Models?makeid=' + kbb.extra.kbbMakeId + '&vehicleClass=UsedCar&yearid=' + craigs.year;
-  // var options = {
-  //     uri: link,
-  //     headers: {
-  //       'User-Agent': USER_AGENT
-  //   },
-  //   timeout: 6000
-  // };
-  //
-  // var body = await rp(options);
-  // var models = JSON.parse(body);
-  // var res = models.map((model) => model.name);
-  //
-  // if(res.length > 0) {
-  //   // Set cache.
-  //
-  //   await hsetAsync("kbbModels", kbb.kbbMake + "." + craigs.year, JSON.stringify(res));
-  // }
-
-  // return res;
-    return null;
+  return null;
 }
 
 function removeKbbData(val, kbb) {
@@ -131,68 +80,23 @@ function removeKbbData(val, kbb) {
   return val.replace(new RegExp('\\s*' + kbb.kbbMake + '\\s*', "gi"), "");
 }
 
-// async function matchModels(craigs, kbb) {
-//   var models = await getKbbModels(craigs, kbb);
-//   var res = models.map((m) => {
-//     return {text: removeKbbData(m, kbb)};
-//   });
-//   console.log("models = ", res);
-//
-//   // res = searchRank(
-//   //   [craigs.desc, craigs.title].map((val) => removeKbbData(val, kbb)),
-//   //   res,
-//   //   ["word", "findLongestPrefix"]);
-//
-//   res = searchRank(
-//     [craigs.desc, craigs.title].map((val) => removeKbbData(val, kbb)),
-//     res,
-//     ["insequenceCount"]);
-//
-//   if(res.length > 1) {
-//     console.log("Model search using body content");
-//     res = searchRank(
-//       [craigs.extra ? craigs.extra.body : null].map((val) => removeKbbData(val, kbb)),
-//       res,
-//       ["word"]);
-//   }
-//   if (res.length > 1) {
-//     throw new Error("Failed to match model");
-//   }
-//   console.log("match model = ", res[0].text);
-//   return res[0].text;
-// }
-
-async function matchModelsAndStyle(craigs, kbb) {
+async function matchModelsAndStyle(craigs, kbb, sources) {
     var models = await getKbbModels(craigs, kbb);
-    console.log("after getKbbModels");
-    // console.log("models = ", models);
 
-    // let res = fuseSearch([craigs.desc, craigs.title].map((val) => removeKbbData(val, kbb)), models);
     let res = searchRank(
-        [kbb.extra.desc,
-            kbb.extra.title + (craigs.type ? " " + craigs.type : "")]
-            .map((val) => removeKbbData(val, kbb)),
+        sources,
         models,
         ["insequenceCount"],
         ["model", "styleText"]);
 
     if(res.length > 1) {
         res = searchRank(
-            ['Sedan'].map((val) => removeKbbData(val, kbb)),
+            [new Source('Sedan')],
             res,
             ["insequenceCount"],
             ["styleText"]);
     }
-    // if(res.length > 1) {
-    //     console.log("Model search using body content");
-    //     res = searchRank(
-    //         [craigs.extra ? craigs.extra.body : null].map((val) => removeKbbData(val, kbb)),
-    //         res,
-    //         ["word"]);
-    // }
-    // if (res.length > 1) {
-    //     throw new Error("Failed to match model");
-    // }
+
     if (res.length > 1) {
         res[0]["isStyleMatch"] = false;
     }

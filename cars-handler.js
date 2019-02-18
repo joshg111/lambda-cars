@@ -7,6 +7,8 @@ var {requestCache} = require('./redis-client');
 const pConfig = require("./public-config");
 const {matchModelsAndStyle, matchKbbMake} = require("./get-model");
 var {searchRank} = require('./src/utils/rank-actions');
+var {Source} = require('./src/rank/source');
+var {Match} = require('./src/rank/match');
 
 const USER_AGENT = pConfig.rp.USER_AGENT;
 const OPTIONS = pConfig.rp.OPTIONS;
@@ -327,7 +329,8 @@ function removeMatch(keys, data, matches) {
   }
   let key = keys[i];
   for (let match of matches) {
-      data[key] = data[key].replace(new RegExp(match + "\\s?", "gi"), "");
+      // Replace match with a single space so we don't smush words together.
+      data[key] = data[key].replace(new RegExp("\\s?" + match + "\\s?", "gi"), " ");
   }
 }
 
@@ -335,27 +338,39 @@ function removeMatch(keys, data, matches) {
 // removeMatch(["extra", "desc"], data, "asdf");
 // console.log(data);
 
+function removeMatchFromSources(matches) {
+    for (const match of matches) {
+        let sourceArr = match.source.data.split(/\s+/gi);
+        for (const matchIndex of match.matches.reverse()) {
+            console.log("Removing index = ", matchIndex);
+            sourceArr.splice(matchIndex, 1);
+        }
+        match.source.data = sourceArr.join(' ');
+    }
+}
+
 async function getKbb(craigs) {
   var kbb = {extra:{desc: craigs.desc, title: craigs.title}};
-  removeMatch(["extra", "desc"], kbb, [craigs.year]);
-  removeMatch(["extra", "title"], kbb, [craigs.year]);
+  let sources = [new Source(craigs.desc), new Source(craigs.title + (craigs.type ? " " + craigs.type : ""))];
+  removeMatchFromSources([new Match(sources[0], [0]), new Match(sources[1], [0])]);
+    // removeMatch(["extra", "desc"], kbb, [craigs.year]);
+    // removeMatch(["extra", "title"], kbb, [craigs.year]);
   try {
-    // kbb.extra["api"] = await getApi();
-    // assert(kbb.extra.api);
-    var kbbMake = await matchKbbMake(craigs, kbb);
+    var kbbMake = await matchKbbMake(craigs, sources);
     console.log("after matchKbbMake");
     assert(kbbMake.make);
     assert(kbbMake.id);
-    console.log("kbbMake.match = ", kbbMake.match);
-    console.log("before kbb extra desc = ", kbb.extra.desc, ", title = ", kbb.extra.title);
-    removeMatch(["extra", "desc"], kbb, kbbMake.match);
+    // console.log("kbbMake.match = ", kbbMake.match);
+    // console.log("before sources = ", sources.toString());
+    // removeMatch(["extra", "desc"], kbb, kbbMake.match);
+    removeMatchFromSources(kbbMake.match);
+    // console.log("after sources = ", sources.toString());
     // Need to reverse so we try to remove the appropriate match first, it's in the same order as the source list.
-    removeMatch(["extra", "title"], kbb, kbbMake.match.reverse());
-    console.log("kbb extra desc = ", kbb.extra.desc, ", title = ", kbb.extra.title);
+    // removeMatch(["extra", "title"], kbb, kbbMake.match.reverse());
     kbb["kbbMake"] = kbbMake.make;
     kbb.extra["kbbMakeId"] = kbbMake.id;
-    var match = await matchModelsAndStyle(craigs, kbb);
-    console.log("after matchModelsAndStyle");
+    var match = await matchModelsAndStyle(craigs, kbb, sources);
+    // console.log("after matchModelsAndStyle");
     kbb["kbbModel"] = match.model;
     assert(kbb.kbbModel);
     // var kbbStyleRes = await getKbbStyle(craigs, kbb);
@@ -367,7 +382,6 @@ async function getKbb(craigs) {
   }
   catch(err) {
     console.log("getKbb = ", err);
-    // throw new Error(err);
     return Promise.reject(err);
   }
 
@@ -501,6 +515,9 @@ module.exports.cars = async (event, context, callback) => {
 // module.exports.cars({body: JSON.stringify(input)}, {callbackWaitsForEmptyEventLoop: false}, null);
 
 
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/sacramento-2004-mercedes-benz-sprinter/6820532634.html", {}).then(console.log);
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-2014-mercedes-benz-63-amg-507/6791106958.html", {}).then(console.log);
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/2010-mercedes-benz-e350-sport-coupe-65k/6803936754.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/nsd/cto/d/san-diego-mercedes-benz-glk-350/6802530724.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-2007-mercedes-benz-sl550/6795086570.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/nsd/cto/d/fallbrook-mercedes-benz-e320/6804671458.html", {}).then(console.log);
@@ -511,7 +528,6 @@ module.exports.cars = async (event, context, callback) => {
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-2003-mercedes-benz-sl500/6810211475.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/nsd/cto/d/san-luis-rey-2008-mercedes-benz-clk550/6796103378.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/rancho-santa-fe-2006-dodge-sprinterwb/6804150219.html", {}).then(console.log);
-handleCar("https://sandiego.craigslist.org/csd/cto/d/2010-mercedes-benz-e350-sport-coupe-65k/6803936754.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-2013-mercedes-benz-sl63/6794057461.html", {}).then(console.log);
 
 
