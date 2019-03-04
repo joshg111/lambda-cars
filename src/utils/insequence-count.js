@@ -125,6 +125,45 @@ function insequenceMatch(a, b, i, j, cache) {
 	return [count, match]
 }
 
+function wrapSrcInsequenceMatch(a, b) {
+	var cache = {};
+	a = a.toLowerCase().replace(/\s|-/g, '');
+	b = b.toLowerCase().replace(/\s|-/g, '');
+	// console.log("source = ", a, "target = ", b);
+	var res =  srcInsequenceMatch(a, b, 0,0, cache, null);
+	var weight = weighMatchCount(res[0], res[1], a, b);
+    // console.log("weight = ", weight, ", count = ", res[0], ", match = ", res[1]);
+    return {weight, match: res[1]};
+}
+
+function srcInsequenceMatch(a, b, i, j, cache) {
+
+	if (i >= a.length || j >= b.length) {
+		return [0, ""]
+	}
+
+	if ([i,j] in cache) {
+		return cache[[i,j]]
+	}
+
+	if (a[i] == b[j]) {
+		var [count, match] = srcInsequenceMatch(a, b, i+1, j+1, cache)
+		count += 1
+		match = a[i] + match
+	}
+
+	else {
+        // Don't skip the target characters in this time. 
+        // var first = insequenceMatch(a, b, i, j+1, cache);
+        var [count, match] = srcInsequenceMatch(a, b, i+1, j, cache);	;
+		
+	}
+
+	cache[[i,j]] = [count, match]
+	// console.log([count, match, i, j])
+	return [count, match]
+}
+
 function wrapSrcTokenize(src, inChars, outputWords=true) {
     let logger = makeLogger(false);
     let srcTokens = src.toLowerCase().trim().replace(/-/gi, '').split(/\s+/gi);
@@ -154,7 +193,7 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0, outputWords=true) {
 
     let srcWord = src[iSrc];
     let beforeIChar = iChar;
-    let subMatch = wrap(srcWord, inChars.slice(iChar));
+    let subMatch = wrapSrcInsequenceMatch(srcWord, inChars.slice(iChar));
     logger.log("subMatch = ", subMatch.match);
     let matchCount = subMatch.match.length;
     iChar += matchCount;
@@ -186,6 +225,9 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0, outputWords=true) {
     return {matches: res.concat(consumeChar), resIChar}
 }
 
+
+// Test inchar has misplaced middle char. 
+// console.log(wrapSrcTokenize("ab c de", "abcde"));
 // console.log(wrapSrcTokenize("C", "Scion"));
 // console.log(wrapSrcTokenize("SL-Class SL 550 Roadster 2D ", "cssl550"));
 // console.log(wrapSrcTokenize("abc def ghi", "acfghi"));
@@ -218,7 +260,7 @@ function triWayTokenMerge(source, target) {
 }
 
 
-console.log(triWayTokenMerge("Mercedes-Benz C 63 AMG 507 Edition* Coupe, RARE VEHICLE!! coupe", "Scion"));
+// console.log(triWayTokenMerge("Mercedes-Benz C 63 AMG 507 Edition* Coupe, RARE VEHICLE!! coupe", "Scion"));
 // console.log(triWayTokenMerge("GLK-350", "GLK 350 4MATIC Sport Utility 4D"));
 // console.log(triWayTokenMerge("mercedes sl 550", "SL-Class SL 550 Roadster 2D"));
 // console.log(triWayTokenMerge("e320", "C 320 Sedan 4D"));
