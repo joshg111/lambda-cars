@@ -196,6 +196,7 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0, outputWords=true) {
 // console.log(wrapSrcTokenize("abcx adef ghi", "adfgi"));
 
 function triWayTokenMerge(source, target) {
+    // let startTime = new Date();
     let logger = makeLogger(false);
     logger.log();
     logger.log("source = ", source, ", target = ", target);
@@ -212,6 +213,7 @@ function triWayTokenMerge(source, target) {
     let diff = mymatch.length - tokenMatch.match.length;
     weight /= (diff > 0 ? diff : 1);
     logger.log("merged = ", sourceByTokenMerge);
+    // console.log("triWayTokenMerge: ", new Date() - startTime);
     return {weight, matchWords: sourceByTokenMerge.matchWords};
 }
 

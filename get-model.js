@@ -41,6 +41,7 @@ async function getApi() {
 }
 
 async function matchKbbMakeId(craigs, sources) {
+    let startTime = new Date();
     var cacheRes = await hgetAsync("kbbMakes", craigs.year);
     var makes = JSON.parse(cacheRes);
     var res = makes.map((m) => {
@@ -50,7 +51,6 @@ async function matchKbbMakeId(craigs, sources) {
     // res = searchRank([kbb.extra.desc, kbb.extra.title], res, ["word", "findLongestPrefix"]);
     res = searchRank(sources, res, ["insequenceCount"]);
     if (res.length > 1 && craigs.extra) {
-        throw new Error("Failed to find single make");
         res = searchRank([new Source(craigs.extra.body)], res, ["word", "findLongestPrefix"]);
     }
 
@@ -60,6 +60,7 @@ async function matchKbbMakeId(craigs, sources) {
     }
 
     var {text: make, id, match} = res[0];
+    console.log("matchKbbMakeId: ", new Date() - startTime);
     return {make, id, match}
 }
 
@@ -73,14 +74,8 @@ async function getKbbModels(craigs, kbb) {
   return null;
 }
 
-function removeKbbData(val, kbb) {
-  if (!val) {
-    return;
-  }
-  return val.replace(new RegExp('\\s*' + kbb.kbbMake + '\\s*', "gi"), "");
-}
-
 async function matchModelsAndStyle(craigs, kbb, sources) {
+    let startTime = new Date();
     var models = await getKbbModels(craigs, kbb);
 
     let res = searchRank(
@@ -105,6 +100,7 @@ async function matchModelsAndStyle(craigs, kbb, sources) {
     }
     console.log("after model result");
     // console.log("match model = ", res[0]);
+    console.log("matchModelsAndStyle: ", new Date() - startTime);
     return res[0];
 }
 

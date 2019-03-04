@@ -19,9 +19,10 @@ var STRATEGIES =
       // var threshold = .05;
       var a = triWayTokenMerge(source.data, targetText);
       var match = new Match(source, a.matchWords);
+      // console.log("Adding match = ", match, ", target = ", targetText, ", weight = ", a.weight);
       if (match.matches.length > 0) {
           rankedTarget.addMatched(match);
-          // console.log("Adding match = ", match, ", target = ", targetText, ", weight = ", a.weight);
+
       }
 
       a = a.weight;
@@ -106,8 +107,6 @@ var STRATEGIES =
 
 function searchRank(sources, targets, strategies, keys=['text']) {
 
-    // console.log("searchRank called");
-
     var rankedTargets = [];
     for(var target of targets) {
         rankedTargets.push(new RankedTarget(target));
@@ -177,7 +176,7 @@ function filterByRank(items, strategy = Math.max) {
   }
   var filtered = items.filter((item) => item.getRank() === curr).map((item) => item.getTarget());
 
-  console.log("filtered = ", filtered);
+  // console.log("filtered = ", filtered);
   return filtered;
 }
 

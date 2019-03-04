@@ -144,146 +144,10 @@ async function getCraigs(href, retryCount=0) {
   return res;
 }
 
-function removeKbbData(val, kbb) {
-  if (!val) {
-    return;
-  }
-  return val.replace(new RegExp(kbb.kbbMake, "gi"), "")
-            .replace(new RegExp(kbb.kbbModel, "gi"), "");
-}
-
-function matchStyle(craigs, kbbStyles, kbb) {
-  // Match the first word in the craigsStyle, then for subsequent words try to qualify the existing matches unless
-  // there are no existing matches.
-
-  var res = kbbStyles;
-
-  for (var i = 0; i < kbbStyles.length; i++) {
-    res[i].text = removeKbbData(res[i].text, kbb);
-  }
-
-  // res = searchRank(
-  //   [craigs.desc, craigs.title].map((val) => removeKbbData(val, kbb)),
-  //   res,
-  //   ["word", "findLongestPrefix"]);
-
-  res = searchRank(
-    [craigs.desc, craigs.title].map((val) => removeKbbData(val, kbb)),
-    res,
-    ["insequenceCount"]);
-
-  if (res.length > 1) {
-    res = searchRank([craigs.type].map((val) => removeKbbData(val, kbb)), res, ["word"]);
-  }
-
-  // if (res.length > 1) {
-  //     res = searchRank([craigs.desc, craigs.title, craigs.type], res, ["insequenceCount"]);
-  // }
-  if(res.length > 1) {
-    // res = searchRank([craigs.extra ? craigs.extra.body : null, 'Sedan'], res, ["word", "findLongestPrefix"]);
-    res = searchRank(
-      [craigs.extra ? craigs.extra.body : null, 'Sedan'].map((val) => removeKbbData(val, kbb)),
-      res,
-      ["word"]);
-  }
-
-  console.log(res);
-  // return res[0].href;
-  if (res.length > 1) {
-    // If we're not sure about which style, then don't set the text.
-    // The text is displayed to the user.
-    res[0].text = "";
-  }
-  return res[0];
-}
-
-// console.log(matchStyle("abc", [{'text': "abc", 'href': 'habc'}, {'text': "ghi sedan", 'href': 'hghi'}, {'text': "abc", 'href': 'habc'}]));
-// console.log(matchStyle("abc", [{'text': "abc sedan", 'href': 'habc'}, {'text': "ghi sedan", 'href': 'hghi'}, {'text': "abc sedan", 'href': 'habc2'}]));
-// console.log(matchStyle(null, [{'text': "abc sedan", 'href': 'habc'}, {'text': "ghi sedan", 'href': 'hghi'}, {'text': "abc sedan", 'href': 'habc2'}]));
-
-async function getStyleList(rsp) {
-
-
-  var $ = cheerio.load(rsp.body);
-
-  var styleLinks = $('a.style-link').get();
-  var styleList = [];
-  for(var style of styleLinks) {
-    styleList.push({text: $(style).find("div.button-header").text(), href: $(style).attr('href')});
-  }
-
-  if(styleList.length < 1) {
-    console.log("Cant find style for kbb link = ", link);
-  }
-
-  return styleList;
-}
-
-// getStyleList({'year': '2017'}, {'kbbMake': 'lexus', 'kbbModel': 'lx'}).then(console.log);
-
-/**
-* Match the style if there is one, then get the options link.
-* Then, construct the price link and return it.
-**/
-async function getKbbStyle(craigs, kbb) {
-  // Return - A link to the next kbb page after choosing the style.
-  var res = null;
-  var matchedStyle = null;
-
-  try {
-
-    var link = 'https://www.kbb.com/' +
-      kbb.kbbMake.toLowerCase().replace(/ /gi, '-') +
-      '/' + kbb.kbbModel.toLowerCase().replace(/ /gi, '-').replace('/[\(|\)]/g', '') +
-      '/' + craigs.year + '/styles/?intent=buy-used';
-
-    var options = {
-      uri: link,
-      resolveWithFullResponse: true,
-      headers: {
-        'User-Agent': pConfig.rp.USER_AGENT
-      },
-      timeout: 6000
-    };
-
-    var rsp = await rp(options);
-    console.log(rsp.request.uri.path);
-    var requestUri = rsp.request.uri.path;
-
-    if(!requestUri.includes("styles")) {
-      // In this case, there is no style to match. Kbb redirected us to the
-      // options page which is where the style links take us. At the end of the
-      // function we construct the price link.
-      res = requestUri
-    }
-    else {
-      var styleList = await getStyleList(rsp);
-
-      // Match style.
-      var matchedStyleRes = await matchStyle(craigs, styleList, kbb);
-      res = matchedStyleRes.href;
-      matchedStyle = matchedStyleRes.text;
-    }
-
-    res = res.replace(/\/options/g, "");
-    res = 'https://www.kbb.com' + res + '&pricetype=private-party&condition=good';
-    res = res.replace(/&mileage=\d*/g, "");
-    res += craigs.odometer ? '&mileage=' + craigs.odometer : "";
-
-    // console.log("styleLinks = ", styleLinks);
-  }
-  catch(err) {
-    console.log("getKbbStyle = ", err);
-    throw new Error(err);
-  }
-  console.log("getKbbStyle res = ", res);
-  return {href: res, style: matchedStyle};
-}
-
 // getKbbStyle({'year': '2017', 'style': 'limited'}, {'kbbMake': 'lexus', 'kbbModel': 'lx'}).then(console.log);
 // getKbbStyle({'year': '1998', 'style': 'ex'}, {'kbbMake': 'Honda', 'kbbModel': 'Civic'}).then(console.log);
 // getKbbStyle({'year': '2010', 'style': 'ex-l'}, {'make': 'Honda', 'model': 'Accord'}).then(console.log);
-
+const KBB_PRICE_RETRY_COUNT = 2;
 async function getKbbPrice(link, retryCount=0) {
   console.log("getKbbPrice retry = ", retryCount);
 
@@ -305,7 +169,7 @@ async function getKbbPrice(link, retryCount=0) {
 
   }
   catch(err) {
-    if (retryCount < RETRYCOUNT) {
+    if (retryCount < KBB_PRICE_RETRY_COUNT) {
         return await getKbbPrice(link, retryCount + 1);
     }
     console.log("getKbbPrice err = ", err);
@@ -319,18 +183,10 @@ async function getKbbPrice(link, retryCount=0) {
 // getKbbPrice('https://www.kbb.com/nissan/xterra/2003/se-sport-utility-4d/?vehicleid=2984&intent=buy-used&modalview=false&pricetype=private-party&condition=good&mileage=130027').then(console.log);
 
 // For some `data` with `key`, remove `match` from data.
-function removeMatch(keys, data, matches) {
-  if (keys.length === 0 || !matches || !data) {
-    return;
-  }
-
-  for (var i = 0; i < (keys.length -1); i++) {
-      data = data[keys[i]];
-  }
-  let key = keys[i];
-  for (let match of matches) {
+function removeMatch(source, matchWords) {
+  for (let match of matchWords) {
       // Replace match with a single space so we don't smush words together.
-      data[key] = data[key].replace(new RegExp("\\s?" + match + "\\s?", "gi"), " ");
+      source.data = source.data.replace(new RegExp("\\s?" + match + "\\s?", "gi"), " ");
   }
 }
 
@@ -342,7 +198,6 @@ function removeMatchFromSources(matches) {
     for (const match of matches) {
         let sourceArr = match.source.data.split(/\s+/gi);
         for (const matchIndex of match.matches.reverse()) {
-            console.log("Removing index = ", matchIndex);
             sourceArr.splice(matchIndex, 1);
         }
         match.source.data = sourceArr.join(' ');
@@ -352,8 +207,8 @@ function removeMatchFromSources(matches) {
 async function getKbb(craigs) {
   var kbb = {extra:{desc: craigs.desc, title: craigs.title}};
   let sources = [new Source(craigs.desc), new Source(craigs.title + (craigs.type ? " " + craigs.type : ""))];
-  removeMatchFromSources([new Match(sources[0], [0]), new Match(sources[1], [0])]);
-    // removeMatch(["extra", "desc"], kbb, [craigs.year]);
+  removeMatch(sources[0], [craigs.year]);
+  removeMatch(sources[1], [craigs.year]);
     // removeMatch(["extra", "title"], kbb, [craigs.year]);
   try {
     var kbbMake = await matchKbbMake(craigs, sources);
@@ -391,7 +246,7 @@ async function getKbb(craigs) {
 }
 
 async function handleCar(href, input) {
-
+  let startTime = new Date();
   try {
     // First, check the cache.
     // var cacheRes = await requestCache("get", {key: href});
@@ -409,7 +264,8 @@ async function handleCar(href, input) {
     var kbbPrice = parseInt(kbb.kbbPrice);
     var percentAboveKbb = Math.round(((craigsPrice / kbbPrice) - 1) * 100);
     delete craigs.extra;
-    var res = {...craigs, ...kbb, percentAboveKbb, ...input};
+    let endTime = new Date();
+    var res = {...craigs, ...kbb, percentAboveKbb, ...input, timeDiff: endTime - startTime};
 
     // Set the result in the cache.
     await requestCache("set", {key: href, value: res});
@@ -422,16 +278,6 @@ async function handleCar(href, input) {
   return res;
 }
 
-
-
-
-function msleep(n) {
-  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, n);
-}
-
-function sleep(n) {
-  msleep(n*1000);
-}
 
 module.exports.cars = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
@@ -510,11 +356,12 @@ module.exports.cars = async (event, context, callback) => {
 
 };
 
-// var input = {query: "mercedes-benz", city: "sandiego"};
+var input = {query: "mercedes-benz", city: "sandiego"};
 // var input = {query: "honda accord", city: "sandiego"};
-// module.exports.cars({body: JSON.stringify(input)}, {callbackWaitsForEmptyEventLoop: false}, null);
+module.exports.cars({body: JSON.stringify(input)}, {callbackWaitsForEmptyEventLoop: false}, null);
 
 
+// handleCar("https://sandiego.craigslist.org/csd/cto/d/sacramento-2004-mercedes-benz-sprinter/6820532634.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/sacramento-2004-mercedes-benz-sprinter/6820532634.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/san-diego-2014-mercedes-benz-63-amg-507/6791106958.html", {}).then(console.log);
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/2010-mercedes-benz-e350-sport-coupe-65k/6803936754.html", {}).then(console.log);
