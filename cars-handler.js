@@ -245,7 +245,7 @@ async function getKbb(craigs) {
   return kbb
 }
 
-async function handleCar(href, input) {
+async function handleCar(href) {
   let startTime = new Date();
   try {
     // First, check the cache.
@@ -265,7 +265,7 @@ async function handleCar(href, input) {
     var percentAboveKbb = Math.round(((craigsPrice / kbbPrice) - 1) * 100);
     delete craigs.extra;
     let endTime = new Date();
-    var res = {...craigs, ...kbb, percentAboveKbb, ...input, timeDiff: endTime - startTime};
+    var res = {...craigs, ...kbb, percentAboveKbb, timeDiff: endTime - startTime};
 
     // Set the result in the cache.
     await requestCache("set", {key: href, value: res});
@@ -278,11 +278,55 @@ async function handleCar(href, input) {
   return res;
 }
 
+async function getCars(carHrefs) {
+  try {
+    var startTime = new Date();
+
+    var cars = [];
+    for (var i = 0; i < 50 && i < carHrefs.length; i++) {
+        cars.push(handleCar(carHrefs[i]));
+    }
+
+    console.log("before carsResolved");
+
+    // There seems to be some cars that hang here. Can we force a timeout in Promise.all(..)?
+    var carsResolved = await Promise.all(cars);
+    console.log("after carsResolved");
+
+    carsResolved = carsResolved.filter((element, index) => {
+        return element !== null;
+    });
+
+    // Sort
+    carsResolved.sort((a, b) => {
+        return (a.percentAboveKbb - b.percentAboveKbb);
+    })
+
+    console.log("carsResolved = ", carsResolved);
+    console.log("result length = ", carsResolved.length);
+    console.log("expected length = ", cars.length);
+
+    var endTime = new Date();
+    var timeDiff = endTime - startTime; //in ms
+    // strip the ms
+    timeDiff /= 1000;
+    console.log("time = ", timeDiff);
+
+    return {
+        statusCode: 200,
+        body: JSON.stringify({
+            cars: carsResolved
+        }),
+    };
+  }
+  catch(err) {
+    console.log("Caught exception getCars, err = ", err);
+  }
+}
 
 module.exports.cars = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
   try {
-      var startTime = new Date();
 
       console.log("event", event);
       var input = JSON.parse(event.body);
@@ -311,54 +355,38 @@ module.exports.cars = async (event, context, callback) => {
           return seen.hasOwnProperty(item) ? false : (seen[item] = true);
       });
 
-      var cars = [];
-      for (var i = 0; i < 50 && i < carHrefs.length; i++) {
-          cars.push(handleCar(carHrefs[i], input));
-      }
-
-      console.log("before carsResolved");
-
-      // There seems to be some cars that hang here. Can we force a timeout in Promise.all(..)?
-      var carsResolved = await Promise.all(cars);
-      console.log("after carsResolved");
-
-      carsResolved = carsResolved.filter((element, index) => {
-          return element !== null;
-      });
-
-      // Sort
-      carsResolved.sort((a, b) => {
-          return (a.percentAboveKbb - b.percentAboveKbb);
-      })
-
-      console.log("carsResolved = ", carsResolved);
-      console.log("result length = ", carsResolved.length);
-      console.log("expected length = ", cars.length);
-
-      var endTime = new Date();
-      var timeDiff = endTime - startTime; //in ms
-      // strip the ms
-      timeDiff /= 1000;
-      console.log("time = ", timeDiff);
-
-      var rr = {
-          statusCode: 200,
-          body: JSON.stringify({
-              cars: carsResolved
-          }),
-      };
+      return await getCars(carHrefs);
   }
   catch(err) {
     console.log("Caught global exception, err = ", err);
   }
-
-  callback(null, rr);
-
 };
 
-var input = {query: "mercedes-benz", city: "sandiego"};
+module.exports.getCarsFromHrefs = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+  // return {
+  //   statusCode: 200,
+  //   body: JSON.stringify({
+  //       cars: "hi"
+  //   }),
+  // };
+  try {
+    console.log("event", event);
+    var input = JSON.parse(event.body);
+    console.log("input = ", input);
+  
+    var carHrefs = JSON.parse(event.body).urls;
+  
+    return await getCars(carHrefs);
+  } catch(err) {
+    console.log("Caught global exception, err = ", err);
+  }
+};
+
+// var input = {urls: ['https://orangecounty.craigslist.org/cto/d/mission-viejo-1999-mercedes-benz-ml-320/6879393986.html']};
+// var input = {query: "mercedes-benz", city: "sandiego"};
 // var input = {query: "honda accord", city: "sandiego"};
-module.exports.cars({body: JSON.stringify(input)}, {callbackWaitsForEmptyEventLoop: false}, null);
+// module.exports.getCarsFromHrefs({body: JSON.stringify(input)}, {callbackWaitsForEmptyEventLoop: false});
 
 
 // handleCar("https://sandiego.craigslist.org/csd/cto/d/sacramento-2004-mercedes-benz-sprinter/6820532634.html", {}).then(console.log);

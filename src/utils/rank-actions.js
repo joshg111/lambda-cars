@@ -152,7 +152,7 @@ function searchRank(sources, targets, strategies, keys=['text']) {
                 // No longer use key length to average the rank since we do this anyway for all targets regardless.
                 // Also, there's an issue when using multiple sources, averaging the rank for each source will
                 // unnecessarily decrease the rank when a given source does not help a given target, but for
-                // ranks that are 0, no penalty is incurred, therefore dividing buy key length is not good.
+                // ranks that are 0, no penalty is incurred, therefore dividing by key length is not good.
                 // We could divide by key length after all sources have been processed, but this is not necessary.
                 // rankedTarget.setRank(resRank === 0 ? 0 : (resRank / keys.length));
                 rankedTarget.setRank(resRank <= 0 ? 0 : (resRank));
