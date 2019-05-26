@@ -177,28 +177,41 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0, outputWords=true) {
     var consumeChar = [];
     var resIChar = 0;
 
-    if ((matchCount / srcWord.length) < SRC_TOKEN_MATCH_THRESHOLD) {
-        logger.log("Compared with inChars = ", inChars.slice(beforeIChar));
-        logger.log("Not a match for srcWord = ", srcWord, ", matchCount = ", matchCount, ", percentage = ", matchCount / srcWord.length);
-        // Without consuming inChars.
-        var {matches: consumeChar, resIChar} = srcTokenize(src, inChars, iSrc+1, beforeIChar, outputWords);
-    } else {
-
+    if ((matchCount / srcWord.length) > SRC_TOKEN_MATCH_THRESHOLD) {
+        logger.log("Found a match for srcWord = ", srcWord, ", matchCount = ", matchCount, ", percentage = ", matchCount / srcWord.length);
+    
         // With consuming inChars.
-        var {matches: consumeChar, resIChar} = srcTokenize(src, inChars, iSrc + 1, iChar, outputWords);
+        var {matches: consumeCharA, resIChar: resICharA} = srcTokenize(src, inChars, iSrc + 1, iChar, outputWords);
+        logger.log(consumeCharA);
+    }
 
+    // The case when we want to skip this match all together, and not consume anything.
+    var {matches: consumeCharB, resIChar: resICharB} = srcTokenize(src, inChars, iSrc + 1, beforeIChar, outputWords);
+    logger.log("resICharA = ", resICharA, ", resICharB = ", resICharB);
+    logger.log("consumeCharA = ", consumeCharA, ", consumeCharB = ", consumeCharB);
+    if (consumeCharA && consumeCharA.join('').length + srcWord.length > consumeCharB.join('').length) {
+        consumeChar = consumeCharA;
+        resIChar = resICharA;
+
+        // If we decide to consume inChars, then save the token according to strategy eg. word or index.
         if (outputWords) {
             res.push(srcWord);
         }
         else {
             res.push(iSrc);
         }
+    } else {
+        consumeChar = consumeCharB;
+        resIChar = resICharB;
     }
 
-    logger.log(consumeChar);
+    logger.log("consumeChar = ", consumeChar);
+    logger.log("res = ", res);
     return {matches: res.concat(consumeChar), resIChar}
 }
 
+// console.log(wrapSrcTokenize('7 Series 750Li Sedan 4D', '750lisedan'));
+// console.log(wrapSrcTokenize('3 Series 335d Sedan 4D', '335d'));
 // console.log(wrapSrcTokenize("mercedez benz s63", "mercedebenz"));
 
 // console.log(wrapSrcTokenize("2014 Honda Accord 21k miles - 1 Owner - Clean Title - Back-up Camera - Well Kept Sedan", "hondaaccord"));
@@ -229,12 +242,15 @@ function triWayTokenMerge(source, target) {
     logger.log("tokenMatch = ", tokenMatch);
     let sourceByTokenMerge = wrapSrcTokenize(source, tokenMatch.match, false);
     let weight = sourceByTokenMerge.weight;
-    let diff = mymatch.length - tokenMatch.match.length;
+    
     // Doing the following calculation helps us weigh in favor of either higher token match or lower mymatch.
     // Both of which favor matches with less noise. 
     // However, it's not clear how less noise translates to a better rank, and it's causing the algorithm 
     // to favor certain matches over others arbitrarily when there's no real distinction, therefore removing for now.
+    // let diff = mymatch.length - tokenMatch.match.length;
     // weight /= (diff > 0 ? diff : 1);
+    // We could try tokenMatch.match.length / (source.length + target.length)
+
     logger.log("weight = ", weight, ", merged = ", sourceByTokenMerge.matchWords);
     logger.log("triWayTokenMerge Time: ", new Date() - startTime);
     return {weight, matchWords: sourceByTokenMerge.matchWords};

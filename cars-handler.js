@@ -282,7 +282,7 @@ async function handleCar(href) {
 }
 
 // TESTING 
-// handleCar('https://sandiego.craigslist.org/csd/cto/d/san-diego-2003-toyota-camry-124k-miles/6896645177.html').then(console.log);
+handleCar('https://sandiego.craigslist.org/csd/cto/d/san-diego-li-bmw/6896730929.html').then(console.log);
 
 
 
