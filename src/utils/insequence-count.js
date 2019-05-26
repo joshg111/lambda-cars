@@ -1,6 +1,7 @@
 var {damerauLevenshteinDistance} = require('./damerau-levenshtein');
 var {makeLogger} = require('./logger');
-
+var {Queue} = require('./Queue');
+var {lcsNaive} = require('./lcs');
 
 var WORD_COUNT_THRESHOLD = .6;
 
@@ -126,42 +127,13 @@ function insequenceMatch(a, b, i, j, cache) {
 }
 
 function wrapSrcInsequenceMatch(a, b) {
-	var cache = {};
 	a = a.toLowerCase().replace(/\s|-/g, '');
 	b = b.toLowerCase().replace(/\s|-/g, '');
-	// console.log("source = ", a, "target = ", b);
-	var res =  srcInsequenceMatch(a, b, 0,0, cache, null);
-	var weight = weighMatchCount(res[0], res[1], a, b);
-    // console.log("weight = ", weight, ", count = ", res[0], ", match = ", res[1]);
-    return {weight, match: res[1]};
-}
-
-function srcInsequenceMatch(a, b, i, j, cache) {
-
-	if (i >= a.length || j >= b.length) {
-		return [0, ""]
-	}
-
-	if ([i,j] in cache) {
-		return cache[[i,j]]
-	}
-
-	if (a[i] == b[j]) {
-		var [count, match] = srcInsequenceMatch(a, b, i+1, j+1, cache)
-		count += 1
-		match = a[i] + match
-	}
-
-	else {
-        // Don't skip the target characters in this time. 
-        // var first = insequenceMatch(a, b, i, j+1, cache);
-        var [count, match] = srcInsequenceMatch(a, b, i+1, j, cache);	;
-		
-	}
-
-	cache[[i,j]] = [count, match]
-	// console.log([count, match, i, j])
-	return [count, match]
+	
+	var res =  lcsNaive(a, b, SRC_TOKEN_MATCH_THRESHOLD);
+	var weight = weightForTokenize(res.count, a, b);
+    
+    return {weight, ...res};
 }
 
 function wrapSrcTokenize(src, inChars, outputWords=true) {
@@ -170,6 +142,8 @@ function wrapSrcTokenize(src, inChars, outputWords=true) {
     // resIChar, is the number of matched inChars.
     let {matches: matchWords, resIChar} = srcTokenize(srcTokens, inChars.toLowerCase().trim(/\s+/gi), 0, 0, outputWords);
     logger.log("resIChar = ", resIChar);
+
+    // Weight is the matched words by the source words plus the number of inChars not matched.
     let weight = matchWords.length / (srcTokens.length + (inChars.length - resIChar));
     return {weight, matchWords};
 }
@@ -181,10 +155,9 @@ function wrapSrcTokenize(src, inChars, outputWords=true) {
 * parameter src: The source string.
 * parameter inChars: The insequence chars match.
 * */
-const SRC_TOKEN_MATCH_THRESHOLD = .9;
+const SRC_TOKEN_MATCH_THRESHOLD = .85;
 let logger = makeLogger(false);
 function srcTokenize(src, inChars, iSrc=0, iChar=0, outputWords=true) {
-    logger.log("Comparing inChars = ", inChars.slice(iChar));
     let res = [];
 
     if (iSrc >= src.length || iChar >= inChars.length) {
@@ -193,26 +166,27 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0, outputWords=true) {
 
     let srcWord = src[iSrc];
     let beforeIChar = iChar;
-    let subMatch = wrapSrcInsequenceMatch(srcWord, inChars.slice(iChar));
-    logger.log("subMatch = ", subMatch.match);
-    let matchCount = subMatch.match.length;
-    iChar += matchCount;
+    var sliceInChars = inChars.slice(iChar);
+    logger.log("Comparing inChars = ", sliceInChars);
+    let subMatch = wrapSrcInsequenceMatch(srcWord, sliceInChars);
+    logger.log("subMatch count = ", subMatch.count);
+    let matchCount = subMatch.count;
+    // End, is the last matching index for sliceInChars
+    iChar += subMatch.end;
 
-    // With consuming inChars.
-    var {matches: consumeChar, resIChar} = srcTokenize(src, inChars, iSrc + 1, iChar, outputWords);
+    var consumeChar = [];
+    var resIChar = 0;
 
     if ((matchCount / srcWord.length) < SRC_TOKEN_MATCH_THRESHOLD) {
         logger.log("Compared with inChars = ", inChars.slice(beforeIChar));
-        logger.log("Not a match for srcWord = ", srcWord, ", matchCount = ", matchCount);
+        logger.log("Not a match for srcWord = ", srcWord, ", matchCount = ", matchCount, ", percentage = ", matchCount / srcWord.length);
         // Without consuming inChars.
-        var {matches: a, resIChar: resICharA} = srcTokenize(src, inChars, iSrc+1, beforeIChar, outputWords);
-
-        if (a.length > consumeChar.length) {
-            logger.log("Larger when not comsuming iChar's, non consuming = ", a, ", consuming = ", consumeChar);
-            consumeChar = a;
-            resIChar = resICharA;
-        }
+        var {matches: consumeChar, resIChar} = srcTokenize(src, inChars, iSrc+1, beforeIChar, outputWords);
     } else {
+
+        // With consuming inChars.
+        var {matches: consumeChar, resIChar} = srcTokenize(src, inChars, iSrc + 1, iChar, outputWords);
+
         if (outputWords) {
             res.push(srcWord);
         }
@@ -225,6 +199,9 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0, outputWords=true) {
     return {matches: res.concat(consumeChar), resIChar}
 }
 
+// console.log(wrapSrcTokenize("mercedez benz s63", "mercedebenz"));
+
+// console.log(wrapSrcTokenize("2014 Honda Accord 21k miles - 1 Owner - Clean Title - Back-up Camera - Well Kept Sedan", "hondaaccord"));
 
 // Test inchar has misplaced middle char. 
 // console.log(wrapSrcTokenize("ab c de", "abcde"));
@@ -238,8 +215,8 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0, outputWords=true) {
 // console.log(wrapSrcTokenize("abcx adef ghi", "adfgi"));
 
 function triWayTokenMerge(source, target) {
-    // let startTime = new Date();
-    let logger = makeLogger(false);
+    let startTime = new Date();
+    let logger = makeLogger(true);
     logger.log();
     logger.log("source = ", source, ", target = ", target);
     let mymatch = wrap(source, target).match;
@@ -255,10 +232,13 @@ function triWayTokenMerge(source, target) {
     let diff = mymatch.length - tokenMatch.match.length;
     weight /= (diff > 0 ? diff : 1);
     logger.log("merged = ", sourceByTokenMerge);
-    // console.log("triWayTokenMerge: ", new Date() - startTime);
+    console.log("triWayTokenMerge Time: ", new Date() - startTime);
     return {weight, matchWords: sourceByTokenMerge.matchWords};
 }
 
+// console.log(triWayTokenMerge("mercedez benz s63", "Mercedes-Benz"));
+
+// console.log(triWayTokenMerge("2014 Honda Accord 21k miles - 1 Owner - Clean Title - Back-up Camera - Well Kept Sedan", "Honda Accord"));
 
 // console.log(triWayTokenMerge("Mercedes-Benz C 63 AMG 507 Edition* Coupe, RARE VEHICLE!! coupe", "Scion"));
 // console.log(triWayTokenMerge("GLK-350", "GLK 350 4MATIC Sport Utility 4D"));
@@ -269,6 +249,7 @@ function triWayTokenMerge(source, target) {
 // console.log(triWayTokenMerge("abcd", "ab cd"));
 // console.log(triWayTokenMerge("axcd", "abc d"));
 
+// This function doesn't make sense for tokenize weights.
 function weighMatchCount(count, match, sWord, tWord) {
     // var res = ((count / sWord.length) + (count / tWord.length)) / 2;
     // var res = count / (Math.max(sWord.length, tWord.length) - count);
@@ -292,6 +273,7 @@ function weighMatchCount(count, match, sWord, tWord) {
         // console.log("adjust for prefix, count = ", count);
     }
 
+    // Penalizes the distance between non matches.
     let startIndex = 0;
     for (let c of [...match]) {
         let fromIndex = tWord.indexOf(c, startIndex);
@@ -318,6 +300,17 @@ function weighMatchCount(count, match, sWord, tWord) {
         console.log("Found inifinity: sWord = ", sWord, ", tWord = ", tWord, ", count = ", count);
     }
     // console.log("sWord = ", sWord, ", tWord = ", tWord, ", count = ", count, ", res = ", res);
+    res = (isNaN(res) || res === Infinity || res < 0 ? 0 : res);
+    return res;
+}
+
+function weightForTokenize(count, sWord, tWord) {
+    let res = (count*2) / (tWord.length + sWord.length);
+
+    if (res === Infinity) {
+        console.log("Found inifinity: sWord = ", sWord, ", tWord = ", tWord, ", count = ", count);
+    }
+
     res = (isNaN(res) || res === Infinity || res < 0 ? 0 : res);
     return res;
 }

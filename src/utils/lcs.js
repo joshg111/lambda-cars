@@ -1,4 +1,36 @@
 
+/**
+ * 
+ * @param {source} a 
+ * @param {target} b 
+ * @param {percentage of source to be a match} matchingPercentage 
+ * @returns {count: the number of matching characters, start: the target index, end: target index}
+ */
+function lcsNaive(a, b, matchingPercentage) {
+  a = a.toLowerCase();
+  b = b.toLowerCase();
+  var res = {count: 0, start: 0, end: 0};
+  
+  for(var i = 0; i < a.length; i++) {
+    for(var j = 0; j < b.length; j++) {
+      for(var k = 0; (i+k) < a.length && (j+k) < b.length && a[i+k] === b[j+k]; k++) {
+        var newCount = k + 1;
+        if(newCount > res.count) {
+          res = {count: newCount, start: j, end: j+newCount};
+        }
+      }
+      if((res.count / a.length) >= matchingPercentage) {
+        // Short circuit
+        break;
+      }
+    }
+  }
+
+  return res;
+}
+
+// console.log(lcsNaive("accord", "aaccord", .9));
+
 
 function findLcsDpNew(a, b) {
   a = a.toLowerCase();
@@ -39,4 +71,4 @@ function findLcsDpNew(a, b) {
 // findLcsDpNew('Volvo', 'mercedes benz gl450');
 
 
-module.exports = {lcs: findLcsDpNew};
+module.exports = {lcs: findLcsDpNew, lcsNaive};

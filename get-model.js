@@ -77,12 +77,15 @@ async function getKbbModels(craigs, kbb) {
 async function matchModelsAndStyle(craigs, kbb, sources) {
     let startTime = new Date();
     var models = await getKbbModels(craigs, kbb);
+    console.log("matchModelsAndStyle after getKbbModels: ", startTime, new Date() - startTime);
 
     let res = searchRank(
         sources,
         models,
         ["insequenceCount"],
         ["model", "styleText"]);
+
+    console.log("matchModelsAndStyle after searchRank: ", startTime, new Date() - startTime);
 
     if(res.length > 1) {
         res = searchRank(
@@ -100,7 +103,11 @@ async function matchModelsAndStyle(craigs, kbb, sources) {
     }
     console.log("after model result");
     // console.log("match model = ", res[0]);
-    console.log("matchModelsAndStyle: ", new Date() - startTime);
+    var time = new Date() - startTime;
+    console.log("matchModelsAndStyle: ", startTime, new Date() - startTime);
+    if (time > 5000) {
+      console.log("craigs", craigs);
+    }
     return res[0];
 }
 

@@ -186,7 +186,7 @@ async function getKbbPrice(link, retryCount=0) {
 function removeMatch(source, matchWords) {
   for (let match of matchWords) {
       // Replace match with a single space so we don't smush words together.
-      source.data = source.data.replace(new RegExp("\\s?" + match + "\\s?", "gi"), " ");
+      source.data = source.data.replace(new RegExp("\\s?" + match + "\\s?", "gi"), " ").trim();
   }
 }
 
@@ -195,6 +195,7 @@ function removeMatch(source, matchWords) {
 // console.log(data);
 
 function removeMatchFromSources(matches) {
+    console.log("removeMatchFromSources = ", matches);
     for (const match of matches) {
         let sourceArr = match.source.data.split(/\s+/gi);
         for (const matchIndex of match.matches.reverse()) {
@@ -277,6 +278,12 @@ async function handleCar(href) {
 
   return res;
 }
+
+// TESTING 
+handleCar('https://sandiego.craigslist.org/nsd/cto/d/del-mar-2015-make-mercedes-benz-model/6883498699.html').then(console.log);
+
+
+
 
 async function getCars(carHrefs) {
   try {
