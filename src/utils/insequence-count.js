@@ -216,7 +216,7 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0, outputWords=true) {
 
 function triWayTokenMerge(source, target) {
     let startTime = new Date();
-    let logger = makeLogger(true);
+    let logger = makeLogger(false);
     logger.log();
     logger.log("source = ", source, ", target = ", target);
     let mymatch = wrap(source, target).match;
@@ -230,9 +230,13 @@ function triWayTokenMerge(source, target) {
     let sourceByTokenMerge = wrapSrcTokenize(source, tokenMatch.match, false);
     let weight = sourceByTokenMerge.weight;
     let diff = mymatch.length - tokenMatch.match.length;
-    weight /= (diff > 0 ? diff : 1);
-    logger.log("merged = ", sourceByTokenMerge);
-    console.log("triWayTokenMerge Time: ", new Date() - startTime);
+    // Doing the following calculation helps us weigh in favor of either higher token match or lower mymatch.
+    // Both of which favor matches with less noise. 
+    // However, it's not clear how less noise translates to a better rank, and it's causing the algorithm 
+    // to favor certain matches over others arbitrarily when there's no real distinction, therefore removing for now.
+    // weight /= (diff > 0 ? diff : 1);
+    logger.log("weight = ", weight, ", merged = ", sourceByTokenMerge.matchWords);
+    logger.log("triWayTokenMerge Time: ", new Date() - startTime);
     return {weight, matchWords: sourceByTokenMerge.matchWords};
 }
 

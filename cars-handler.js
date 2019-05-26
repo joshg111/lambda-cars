@@ -195,7 +195,6 @@ function removeMatch(source, matchWords) {
 // console.log(data);
 
 function removeMatchFromSources(matches) {
-    console.log("removeMatchFromSources = ", matches);
     for (const match of matches) {
         let sourceArr = match.source.data.split(/\s+/gi);
         for (const matchIndex of match.matches.reverse()) {
@@ -229,8 +228,11 @@ async function getKbb(craigs) {
     // console.log("after matchModelsAndStyle");
     kbb["kbbModel"] = match.model;
     assert(kbb.kbbModel);
-    // var kbbStyleRes = await getKbbStyle(craigs, kbb);
-    kbb["kbbLink"] = match.href;
+    
+    var kbbLink = match.href;
+    kbbLink = kbbLink.replace(/&mileage=\d*/g, "");
+    kbbLink += craigs.odometer ? '&mileage=' + craigs.odometer : "";
+    kbb["kbbLink"] = kbbLink;
     kbb["kbbStyle"] = match.isStyleMatch ? match.styleText : '';
     assert(kbb.kbbLink);
     kbb["kbbPrice"] = await getKbbPrice(kbb.kbbLink);
@@ -280,7 +282,7 @@ async function handleCar(href) {
 }
 
 // TESTING 
-handleCar('https://sandiego.craigslist.org/nsd/cto/d/del-mar-2015-make-mercedes-benz-model/6883498699.html').then(console.log);
+// handleCar('https://sandiego.craigslist.org/csd/cto/d/san-diego-2003-toyota-camry-124k-miles/6896645177.html').then(console.log);
 
 
 
