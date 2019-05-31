@@ -68,7 +68,13 @@ async function matchKbbMakeId(craigs, sources) {
 async function getKbbModels(craigs, kbb) {
   var cacheRes = await hgetAsync("kbbCarData", craigs.year + "." + kbb.kbbMake.toLowerCase());
   if(cacheRes !== null) {
-    return JSON.parse(cacheRes);
+    var models = JSON.parse(cacheRes);
+    for(var model of models) {
+      model.model = model.model.replace(/-/, ' ');
+      model.styleText = model.styleText.replace(/-/, ' ');
+    }
+
+    return models;
   }
 
   return null;

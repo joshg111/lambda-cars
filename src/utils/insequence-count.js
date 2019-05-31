@@ -87,16 +87,18 @@ function wrap(a, b) {
 	a = a.toLowerCase().replace(/\s|-/g, '');
 	b = b.toLowerCase().replace(/\s|-/g, '');
 	// console.log("source = ", a, "target = ", b);
-	var res =  insequenceMatch(a, b, 0,0, cache, null);
-	var weight = weighMatchCount(res[0], res[1], a, b);
+	var res =  insequenceMatch(a, b, 0,0, cache);
+	var weight = weighMatchCount(res.count, res.match, a, b);
     // console.log("weight = ", weight, ", count = ", res[0], ", match = ", res[1]);
-    return {weight, match: res[1]};
+    return {weight, ...res};
 }
 
 function insequenceMatch(a, b, i, j, cache) {
 
+    var res = {count: 0, match: "", start: 0, end: 0};
+
 	if (i >= a.length || j >= b.length) {
-		return [0, ""]
+        return {count: 0, match: "", start: 0, end: 0};
 	}
 
 	if ([i,j] in cache) {
@@ -104,26 +106,26 @@ function insequenceMatch(a, b, i, j, cache) {
 	}
 
 	if (a[i] == b[j]) {
-		var [count, match] = insequenceMatch(a, b, i+1, j+1, cache)
-		count += 1
-		match = a[i] + match
-	}
-
-	else {
-
+        res = insequenceMatch(a, b, i+1, j+1, cache);
+        if (res.count == 0) {
+            res.end = i;
+        } else {
+            res.start = i;
+        }
+		res.count += 1;
+		res.match = a[i] + res.match;
+	} else {
 		var first = insequenceMatch(a, b, i, j+1, cache);
 		var second = insequenceMatch(a, b, i+1, j, cache);
-		if (first[0] > second[0]) {
-			var [count, match] = first
-		}
-		else {
-			var [count, match] = second
+		if (first.count > second.count) {
+			res = first;
+		} else {
+			res = second;
 		}
 	}
 
-	cache[[i,j]] = [count, match]
-	// console.log([count, match, i, j])
-	return [count, match]
+	cache[[i,j]] = res;
+	return Object.assign({}, res);
 }
 
 function wrapSrcInsequenceMatch(a, b) {
@@ -136,16 +138,27 @@ function wrapSrcInsequenceMatch(a, b) {
     return {weight, ...res};
 }
 
-function wrapSrcTokenize(src, inChars, outputWords=true) {
+class TokenMatch {
+    constructor(words=[], indexes=[]) {
+        this.words = words;
+        this.indexes = indexes;
+    }
+    
+    toString() {
+        return "words = " + this.words.toString() + ", indexes = " + this.indexes.toString();
+    }
+}
+
+function wrapSrcTokenize(src, inChars) {
     let logger = makeLogger(false);
     let srcTokens = src.toLowerCase().trim().replace(/-/gi, '').split(/\s+/gi);
     // resIChar, is the number of matched inChars.
-    let {matches: matchWords, resIChar} = srcTokenize(srcTokens, inChars.toLowerCase().trim(/\s+/gi), 0, 0, outputWords);
-    logger.log("resIChar = ", resIChar);
+    let res = srcTokenize(srcTokens, inChars.toLowerCase().trim(/\s+/gi), 0, 0);
+    res.words.reverse();
+    res.indexes.reverse();
+    logger.log("res = ", res);
 
-    // Weight is the matched words by the source words plus the number of inChars not matched.
-    let weight = matchWords.length / (srcTokens.length + (inChars.length - resIChar));
-    return {weight, matchWords};
+    return res;
 }
 
 /*
@@ -157,11 +170,11 @@ function wrapSrcTokenize(src, inChars, outputWords=true) {
 * */
 const SRC_TOKEN_MATCH_THRESHOLD = .85;
 let logger = makeLogger(false);
-function srcTokenize(src, inChars, iSrc=0, iChar=0, outputWords=true) {
-    let res = [];
+function srcTokenize(src, inChars, iSrc=0, iChar=0) {
+    let res;
 
     if (iSrc >= src.length || iChar >= inChars.length) {
-        return {matches: res, resIChar: iChar};
+        return new TokenMatch();
     }
 
     let srcWord = src[iSrc];
@@ -174,40 +187,27 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0, outputWords=true) {
     // End, is the last matching index for sliceInChars
     iChar += subMatch.end;
 
-    var consumeChar = [];
-    var resIChar = 0;
-
     if ((matchCount / srcWord.length) > SRC_TOKEN_MATCH_THRESHOLD) {
         logger.log("Found a match for srcWord = ", srcWord, ", matchCount = ", matchCount, ", percentage = ", matchCount / srcWord.length);
     
         // With consuming inChars.
-        var {matches: consumeCharA, resIChar: resICharA} = srcTokenize(src, inChars, iSrc + 1, iChar, outputWords);
-        logger.log(consumeCharA);
+        var resA = srcTokenize(src, inChars, iSrc + 1, iChar);
+        logger.log("resA = ", resA);
     }
 
     // The case when we want to skip this match all together, and not consume anything.
-    var {matches: consumeCharB, resIChar: resICharB} = srcTokenize(src, inChars, iSrc + 1, beforeIChar, outputWords);
-    logger.log("resICharA = ", resICharA, ", resICharB = ", resICharB);
-    logger.log("consumeCharA = ", consumeCharA, ", consumeCharB = ", consumeCharB);
-    if (consumeCharA && consumeCharA.join('').length + srcWord.length > consumeCharB.join('').length) {
-        consumeChar = consumeCharA;
-        resIChar = resICharA;
-
-        // If we decide to consume inChars, then save the token according to strategy eg. word or index.
-        if (outputWords) {
-            res.push(srcWord);
-        }
-        else {
-            res.push(iSrc);
-        }
+    var resB = srcTokenize(src, inChars, iSrc + 1, beforeIChar);
+    logger.log("resB = ", resB);
+    if (resA && (resA.words.join('').length + srcWord.length) > resB.words.join('').length) {
+        res = resA;
+        res.words.push(srcWord);
+        res.indexes.push(iSrc);
     } else {
-        consumeChar = consumeCharB;
-        resIChar = resICharB;
+        res = resB;
     }
 
-    logger.log("consumeChar = ", consumeChar);
     logger.log("res = ", res);
-    return {matches: res.concat(consumeChar), resIChar}
+    return res;
 }
 
 // console.log(wrapSrcTokenize('7 Series 750Li Sedan 4D', '750lisedan'));
@@ -227,21 +227,33 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0, outputWords=true) {
 // Edge case, there's 'a' overlap, and is able to match
 // console.log(wrapSrcTokenize("abcx adef ghi", "adfgi"));
 
+
 function triWayTokenMerge(source, target) {
     let startTime = new Date();
     let logger = makeLogger(false);
     logger.log();
     logger.log("source = ", source, ", target = ", target);
+    var res = {weight: 0, sourceTokenMatch: new TokenMatch(), targetTokenMatch: new TokenMatch()};
     let mymatch = wrap(source, target).match;
     logger.log("mymatch = ", mymatch);
     let sourceTokens = wrapSrcTokenize(source, mymatch);
     logger.log("sourceTokens = ", sourceTokens);
+    // Break early
+    if (sourceTokens.words.length === 0) {
+        return res;
+    }
     let targetTokens = wrapSrcTokenize(target, mymatch);
+    // Break early
+    if (targetTokens.words.length === 0) {
+        return res;
+    }
     logger.log("targetTokens = ", targetTokens);
-    let tokenMatch = wrap(sourceTokens.matchWords.join(''), targetTokens.matchWords.join(''));
+    let tokenMatch = wrap(sourceTokens.words.join(''), targetTokens.words.join(''));
     logger.log("tokenMatch = ", tokenMatch);
-    let sourceByTokenMerge = wrapSrcTokenize(source, tokenMatch.match, false);
-    let weight = sourceByTokenMerge.weight;
+    let sourceTokenMatch = wrapSrcTokenize(source, tokenMatch.match);
+    // let targetTokenMatch = wrapSrcTokenize(target, tokenMatch.match);
+    // let weight = (sourceTokenMatch.words.join(" ").length + targetTokenMatch.words.join(" ").length) / (source.length + target.length);
+    let weight = (sourceTokenMatch.words.join(" ").length * 2) / (source.length + target.length);
     
     // Doing the following calculation helps us weigh in favor of either higher token match or lower mymatch.
     // Both of which favor matches with less noise. 
@@ -251,10 +263,13 @@ function triWayTokenMerge(source, target) {
     // weight /= (diff > 0 ? diff : 1);
     // We could try tokenMatch.match.length / (source.length + target.length)
 
-    logger.log("weight = ", weight, ", merged = ", sourceByTokenMerge.matchWords);
+    logger.log("weight = ", weight, ", merged = ", sourceTokenMatch.indexes);
     logger.log("triWayTokenMerge Time: ", new Date() - startTime);
-    return {weight, matchWords: sourceByTokenMerge.matchWords};
+    // return {weight, sourceTokenMatch, targetTokenMatch};
+    return {weight, sourceTokenMatch};
 }
+
+// console.log(triWayTokenMerge('7 Series 750Li Sedan 4D', '750lisedan'));
 
 // console.log(triWayTokenMerge("mercedez benz s63", "Mercedes-Benz"));
 

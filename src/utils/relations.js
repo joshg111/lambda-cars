@@ -20,15 +20,6 @@ function getRelations(s) {
     }
   }
 
-  // hyphen = s.search(/-/g);
-  // if (hyphen > -1) {
-    // First smush the hyphenated word.
-    // res.push(s.replace(/-/g, ''))
-    // Second, split the hyphentated word.
-    // res.push(s.replace(/-/g, ' '))
-    // res.push(s.replace(/-\w*/g, ''))
-  // }
-
   return res;
 }
 

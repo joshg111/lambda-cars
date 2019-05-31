@@ -2,6 +2,7 @@ var {lcs} = require('./lcs');
 var {levenshteinDistance} = require('./levenshtein');
 var {damerauLevenshteinDistance} = require('./damerau-levenshtein');
 var {tokenizeInsequenceCount, insequenceCount, srcTokenize, triWayTokenMerge} = require('./insequence-count');
+var {tokenMatchMerge} = require('./tokenMatcher');
 var {findLongestTargetPrefix} = require('./longestPrefix');
 var {RankedTarget} = require('../rank/rankedTarget');
 var {getRelations} = require('./relations');
@@ -17,9 +18,8 @@ var STRATEGIES =
   insequenceCount:
   {
     searchStrategy: (source, targetText, rankedTarget) => {
-      // var threshold = .05;
-      var a = triWayTokenMerge(source.data, targetText);
-      var match = new Match(source, a.matchWords);
+      var res = triWayTokenMerge(source.data, targetText);
+      var match = new Match(source, res.sourceTokenMatch.words);
       // console.log("Adding match = ", match, ", target = ", targetText, ", weight = ", a.weight);
       if (match.matches.length > 0) {
           // console.log("Adding match = ", match);
@@ -27,18 +27,7 @@ var STRATEGIES =
 
       }
 
-      a = a.weight;
-      // Add it back in when i can run in parallel.
-      // var b = tokenizeInsequenceCount(source, targetText);
-      // if (b.sources.length > 0) {
-      //     rankedTarget.addMatched(...b.sources);
-      // }
-
-      // b = b.weight;
-      // let res = (a > threshold ? a : 0) + (b > threshold ? b : 0);
-      // let res = (a > threshold ? a : 0);
-      return a;
-      // return res + insequenceCount(source, targetText);
+      return res.weight;
     }
   },
 

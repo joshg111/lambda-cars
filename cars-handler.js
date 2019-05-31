@@ -103,7 +103,7 @@ async function getCraigs(href, retryCount=0) {
     var $ = await rp({...OPTIONS, uri: href});
     res["price"] = $('span.postingtitletext span.price').text().trim().replace('$', '');
 
-    res["title"] = $('span.postingtitletext span#titletextonly').text().trim();
+    res["title"] = $('span.postingtitletext span#titletextonly').text().replace(/-/, ' ').trim();
 
     res["extra"] = {"body": $('section#postingbody').text()}
 
@@ -113,6 +113,7 @@ async function getCraigs(href, retryCount=0) {
     console.log(splitMainAttrs);
     res["year"] = splitMainAttrs[1];
     res["desc"] = splitMainAttrs[2] ? splitMainAttrs[2] : "";
+    res.desc = res.desc.replace(/-/, ' ');
     // var re = new RegExp(model+" (.*)", "i");
     // var styleMatch = mainAttrs.match(re);
     // res["style"] = styleMatch ? styleMatch[1] : "";
@@ -282,7 +283,13 @@ async function handleCar(href) {
 }
 
 // TESTING 
-handleCar('https://sandiego.craigslist.org/csd/cto/d/san-diego-li-bmw/6896730929.html').then(console.log);
+
+handleCar('https://sandiego.craigslist.org/esd/cto/d/lakeside-subaru-forester-used/6892934925.html').then(console.log);
+
+// handleCar('https://sandiego.craigslist.org/csd/cto/d/fontana-2017-mercedes-benz-amg-gle-43/6890065771.html').then(console.log);
+// handleCar('https://sandiego.craigslist.org/nsd/cto/d/san-diego-babied-2004-mercedes-benz-clk/6896550181.html').then(console.log);
+
+// handleCar('https://sandiego.craigslist.org/csd/cto/d/san-diego-li-bmw/6896730929.html').then(console.log);
 
 
 
