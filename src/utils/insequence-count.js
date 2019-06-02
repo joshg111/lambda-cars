@@ -2,6 +2,7 @@ var {damerauLevenshteinDistance} = require('./damerau-levenshtein');
 var {makeLogger} = require('./logger');
 var {Queue} = require('./Queue');
 var {lcsNaive} = require('./lcs');
+var {newInsequence} = require('./newInsequence');
 
 var WORD_COUNT_THRESHOLD = .6;
 
@@ -71,6 +72,9 @@ function tokenize(source, target, indicies, cache) {
 	return maxRes;
 }
 
+// console.log(wrap('CLS500 MILITARY 0 DOWN NAVY FED', 'CLS 500 Coupe 4D'));
+// console.log(wrap('CLS CLS500 MILITARY 0 DOWN NAVY FED', 'CLS Class CLS 500 Coupe 4D'));
+
 // console.log(wrap("2012 ml350 sport utility 4matic suv white", "ML 350 4MATIC Sport Utility 4D"));
 // console.log(wrap("2012 ml350 sport utility 4matic suv white", "GLK 350 4MATIC Sport Utility 4D"));
 // console.log(wrapToken("c 250 sport sedan 4d", "c250 turbo navy fed"));
@@ -86,9 +90,10 @@ function wrap(a, b) {
 	var cache = {};
 	a = a.toLowerCase().replace(/\s|-/g, '');
 	b = b.toLowerCase().replace(/\s|-/g, '');
-	// console.log("source = ", a, "target = ", b);
+	console.log("source = ", a, "target = ", b);
 	var res =  insequenceMatch(a, b, 0,0, cache);
-	var weight = weighMatchCount(res.count, res.match, a, b);
+    var weight = weighMatchCount(res.count, res.match, a, b);
+    res.sourcePath.sort((i,j) => (i-j));
     // console.log("weight = ", weight, ", count = ", res[0], ", match = ", res[1]);
     return {weight, ...res};
 }
@@ -98,12 +103,12 @@ function insequenceMatch(a, b, i, j, cache) {
     var res = {count: 0, match: "", start: 0, end: 0};
 
 	if (i >= a.length || j >= b.length) {
-        return {count: 0, match: "", start: 0, end: 0};
+        return {count: 0, match: "", start: 0, end: 0, sourcePath: []};
 	}
 
-	if ([i,j] in cache) {
-		return cache[[i,j]]
-	}
+	// if ([i,j] in cache) {
+	// 	return cache[[i,j]]
+	// }
 
 	if (a[i] == b[j]) {
         res = insequenceMatch(a, b, i+1, j+1, cache);
@@ -113,19 +118,25 @@ function insequenceMatch(a, b, i, j, cache) {
             res.start = i;
         }
 		res.count += 1;
-		res.match = a[i] + res.match;
+        res.match = a[i] + res.match;
+        res.sourcePath.push(i);
+        console.log("match = ", res.match, ", i = ", i, ", j = ", j);
+        console.log("sourcePath = ", res.sourcePath);
 	} else {
+        console.log("other = ", res.match, ", i = ", i, ", j = ", j);
 		var first = insequenceMatch(a, b, i, j+1, cache);
 		var second = insequenceMatch(a, b, i+1, j, cache);
 		if (first.count > second.count) {
 			res = first;
 		} else {
 			res = second;
-		}
+        }
+        
 	}
 
-	cache[[i,j]] = res;
-	return Object.assign({}, res);
+    // res = Object.assign({}, res);
+	cache[[i,j]] = {...res};
+	return {...res};
 }
 
 function wrapSrcInsequenceMatch(a, b) {
@@ -142,6 +153,12 @@ class TokenMatch {
     constructor(words=[], indexes=[]) {
         this.words = words;
         this.indexes = indexes;
+    }
+
+    merge(otherTokenMatch) {
+        this.indexes = this.indexes.concat(otherTokenMatch.indexes);
+        this.indexes.sort();
+        this.words = this.words.concat(otherTokenMatch.words);
     }
     
     toString() {
@@ -210,6 +227,9 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0) {
     return res;
 }
 
+// console.log(wrapSrcTokenize('CLS CLS500 MILITARY 0 DOWN NAVY FED', 'clscls500oed'));
+// console.log(wrapSrcTokenize('CLS Class CLS 500 Coupe 4D', 'clscls500oed'));
+
 // console.log(wrapSrcTokenize('7 Series 750Li Sedan 4D', '750lisedan'));
 // console.log(wrapSrcTokenize('3 Series 335d Sedan 4D', '335d'));
 // console.log(wrapSrcTokenize("mercedez benz s63", "mercedebenz"));
@@ -227,33 +247,34 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0) {
 // Edge case, there's 'a' overlap, and is able to match
 // console.log(wrapSrcTokenize("abcx adef ghi", "adfgi"));
 
+function removeMatchFromSources(s, matchIndexes) {
+    let sArr = s.split(/\s+/gi);
+    for (const matchIndex of matchIndexes.reverse()) {
+        sArr.splice(matchIndex, 1);
+    }
+    return sArr.join(' ');
+}
 
 function triWayTokenMerge(source, target) {
     let startTime = new Date();
     let logger = makeLogger(false);
-    logger.log();
-    logger.log("source = ", source, ", target = ", target);
-    var res = {weight: 0, sourceTokenMatch: new TokenMatch(), targetTokenMatch: new TokenMatch()};
-    let mymatch = wrap(source, target).match;
-    logger.log("mymatch = ", mymatch);
-    let sourceTokens = wrapSrcTokenize(source, mymatch);
-    logger.log("sourceTokens = ", sourceTokens);
-    // Break early
-    if (sourceTokens.words.length === 0) {
+    var res = {weight: 0, sourceTokenMatch: new TokenMatch()};
+
+    var tokenMerge1 = _triWayTokenMerge(source, target);
+    if (tokenMerge1.length === 0) {
         return res;
     }
-    let targetTokens = wrapSrcTokenize(target, mymatch);
-    // Break early
-    if (targetTokens.words.length === 0) {
-        return res;
+    let sourceTokenMatch = wrapSrcTokenize(source, tokenMerge1);
+    let targetTokenMatch = wrapSrcTokenize(target, tokenMerge1);
+
+    if (sourceTokenMatch.indexes.length > 0) {
+        var tokenMerge2 = _triWayTokenMerge(removeMatchFromSources(source, sourceTokenMatch.indexes),
+                                            removeMatchFromSources(target, targetTokenMatch.indexes));
+        let sourceTokenMatch2 = wrapSrcTokenize(source, tokenMerge2);
+        sourceTokenMatch.merge(sourceTokenMatch2);
     }
-    logger.log("targetTokens = ", targetTokens);
-    let tokenMatch = wrap(sourceTokens.words.join(''), targetTokens.words.join(''));
-    logger.log("tokenMatch = ", tokenMatch);
-    let sourceTokenMatch = wrapSrcTokenize(source, tokenMatch.match);
-    // let targetTokenMatch = wrapSrcTokenize(target, tokenMatch.match);
-    // let weight = (sourceTokenMatch.words.join(" ").length + targetTokenMatch.words.join(" ").length) / (source.length + target.length);
-    let weight = (sourceTokenMatch.words.join(" ").length * 2) / (source.length + target.length);
+    
+    let weight = (sourceTokenMatch.words.join(" ").length) / (source.length);
     
     // Doing the following calculation helps us weigh in favor of either higher token match or lower mymatch.
     // Both of which favor matches with less noise. 
@@ -263,11 +284,49 @@ function triWayTokenMerge(source, target) {
     // weight /= (diff > 0 ? diff : 1);
     // We could try tokenMatch.match.length / (source.length + target.length)
 
+    logger.log();
+    logger.log("source = ", source, ", target = ", target);
+    logger.log("sourceTokenMatch = ", sourceTokenMatch);
     logger.log("weight = ", weight, ", merged = ", sourceTokenMatch.indexes);
     logger.log("triWayTokenMerge Time: ", new Date() - startTime);
     // return {weight, sourceTokenMatch, targetTokenMatch};
     return {weight, sourceTokenMatch};
 }
+
+function _triWayTokenMerge(source, target) {
+    let logger = makeLogger(false);
+
+    var res = "";
+    let mymatch = newInsequence(source, target).match;
+    
+    let sourceTokens = wrapSrcTokenize(source, mymatch);
+    
+    // Break early
+    if (sourceTokens.words.length === 0) {
+        return res;
+    }
+    let targetTokens = wrapSrcTokenize(target, mymatch);
+    // Break early
+    if (targetTokens.words.length === 0) {
+        return res;
+    }
+
+    logger.log("source = ", source, ", target = ", target);
+    logger.log("mymatch = ", mymatch);
+    logger.log("sourceTokens = ", sourceTokens);
+    logger.log("targetTokens = ", targetTokens);
+
+    let tokenMerge = newInsequence(sourceTokens.words.join(''), targetTokens.words.join(''));
+    logger.log("tokenMerge = ", tokenMerge);
+    
+    return tokenMerge.match;
+}
+
+
+// console.log(triWayTokenMerge('CLS CLS500 MILITARY 0 DOWN NAVY FED', 'CLS Class CLS 500 Coupe 4D'));
+
+// Coupe is out of order.
+// console.log(triWayTokenMerge('AMG GLE 43 4MATIC Coupe', 'Mercedes AMG GLE Coupe GLE 43 Sport Utility 4D'));
 
 // console.log(triWayTokenMerge('7 Series 750Li Sedan 4D', '750lisedan'));
 

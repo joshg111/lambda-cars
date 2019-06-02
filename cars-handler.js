@@ -284,7 +284,9 @@ async function handleCar(href) {
 
 // TESTING 
 
-handleCar('https://sandiego.craigslist.org/esd/cto/d/lakeside-subaru-forester-used/6892934925.html').then(console.log);
+// handleCar('https://sandiego.craigslist.org/nsd/cto/d/coronado-2006-mercedes-benz-cls-cls500/6885551987.html').then(console.log);
+// handleCar('https://sandiego.craigslist.org/csd/cto/d/san-diego-sweet-toyota-camry-leather/6901864078.html').then(console.log);
+// handleCar('https://sandiego.craigslist.org/esd/cto/d/lakeside-subaru-forester-used/6892934925.html').then(console.log);
 
 // handleCar('https://sandiego.craigslist.org/csd/cto/d/fontana-2017-mercedes-benz-amg-gle-43/6890065771.html').then(console.log);
 // handleCar('https://sandiego.craigslist.org/nsd/cto/d/san-diego-babied-2004-mercedes-benz-clk/6896550181.html').then(console.log);
