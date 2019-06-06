@@ -1,8 +1,12 @@
 
 
 function newInsequence(a, b) {
-    a = a.toLowerCase().replace(/\s|-/g, '');
-	b = b.toLowerCase().replace(/\s|-/g, '');
+    // a = a.toLowerCase().replace(/\s|-/g, '');
+    // b = b.toLowerCase().replace(/\s|-/g, '');
+    
+    // Try to use a single space between words
+    a = a.toLowerCase().replace(/\s|-/g, ' ');
+    b = b.toLowerCase().replace(/\s|-/g, ' ');
     // Create empty edit distance matrix for all possible modifications of
     // substrings of a to substrings of b.
     const distanceMatrix = Array(b.length + 1).fill({count: 0, match: ""})

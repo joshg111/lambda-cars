@@ -19,7 +19,7 @@ var STRATEGIES =
   {
     searchStrategy: (source, targetText, rankedTarget) => {
       var res = triWayTokenMerge(source.data, targetText);
-      var match = new Match(source, res.sourceTokenMatch.words);
+      var match = new Match(source, res.sourceTokens.indexes);
       // console.log("Adding match = ", match, ", target = ", targetText, ", weight = ", a.weight);
       if (match.matches.length > 0) {
           // console.log("Adding match = ", match);

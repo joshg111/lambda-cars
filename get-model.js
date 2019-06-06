@@ -73,7 +73,7 @@ async function getKbbModels(craigs, kbb) {
       model.model = model.model.replace(/-/, ' ');
       model.styleText = model.styleText.replace(/-/, ' ');
     }
-
+    // console.log("models = ", models);
     return models;
   }
 

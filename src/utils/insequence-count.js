@@ -143,7 +143,8 @@ function wrapSrcInsequenceMatch(a, b) {
 	a = a.toLowerCase().replace(/\s|-/g, '');
 	b = b.toLowerCase().replace(/\s|-/g, '');
 	
-	var res =  lcsNaive(a, b, SRC_TOKEN_MATCH_THRESHOLD);
+    // var res =  lcsNaive(a, b, SRC_TOKEN_MATCH_THRESHOLD);
+    var res =  newInsequence(a, b);
 	var weight = weightForTokenize(res.count, a, b);
     
     return {weight, ...res};
@@ -185,7 +186,7 @@ function wrapSrcTokenize(src, inChars) {
 * parameter src: The source string.
 * parameter inChars: The insequence chars match.
 * */
-const SRC_TOKEN_MATCH_THRESHOLD = .85;
+const SRC_TOKEN_MATCH_THRESHOLD = .79;
 let logger = makeLogger(false);
 function srcTokenize(src, inChars, iSrc=0, iChar=0) {
     let res;
@@ -201,10 +202,14 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0) {
     let subMatch = wrapSrcInsequenceMatch(srcWord, sliceInChars);
     logger.log("subMatch count = ", subMatch.count);
     let matchCount = subMatch.count;
+    // let subWeight = (matchCount * 2) / (srcWord.length + sliceInChars.length);
+    // logger.log('subWeight = ', subWeight);
     // End, is the last matching index for sliceInChars
-    iChar += subMatch.end;
+    // iChar += subMatch.end;
+    iChar += matchCount;
 
     if ((matchCount / srcWord.length) > SRC_TOKEN_MATCH_THRESHOLD) {
+    // if (subWeight > SRC_TOKEN_MATCH_THRESHOLD) {
         logger.log("Found a match for srcWord = ", srcWord, ", matchCount = ", matchCount, ", percentage = ", matchCount / srcWord.length);
     
         // With consuming inChars.
@@ -226,6 +231,7 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0) {
     logger.log("res = ", res);
     return res;
 }
+
 
 // console.log(wrapSrcTokenize('CLS CLS500 MILITARY 0 DOWN NAVY FED', 'clscls500oed'));
 // console.log(wrapSrcTokenize('CLS Class CLS 500 Coupe 4D', 'clscls500oed'));
@@ -249,7 +255,9 @@ function srcTokenize(src, inChars, iSrc=0, iChar=0) {
 
 function removeMatchFromSources(s, matchIndexes) {
     let sArr = s.split(/\s+/gi);
-    for (const matchIndex of matchIndexes.reverse()) {
+    // Reverse sort so we can remove from back of array first.
+    matchIndexes.sort((a, b) => b - a);
+    for (const matchIndex of matchIndexes) {
         sArr.splice(matchIndex, 1);
     }
     return sArr.join(' ');
@@ -257,24 +265,23 @@ function removeMatchFromSources(s, matchIndexes) {
 
 function triWayTokenMerge(source, target) {
     let startTime = new Date();
-    let logger = makeLogger(false);
-    var res = {weight: 0, sourceTokenMatch: new TokenMatch()};
+    let logger = makeLogger(true);
+    let weight = 0;
 
-    var tokenMerge1 = _triWayTokenMerge(source, target);
-    if (tokenMerge1.length === 0) {
-        return res;
-    }
-    let sourceTokenMatch = wrapSrcTokenize(source, tokenMerge1);
-    let targetTokenMatch = wrapSrcTokenize(target, tokenMerge1);
-
-    if (sourceTokenMatch.indexes.length > 0) {
-        var tokenMerge2 = _triWayTokenMerge(removeMatchFromSources(source, sourceTokenMatch.indexes),
-                                            removeMatchFromSources(target, targetTokenMatch.indexes));
-        let sourceTokenMatch2 = wrapSrcTokenize(source, tokenMerge2);
-        sourceTokenMatch.merge(sourceTokenMatch2);
-    }
+    var {tokenMerge, sourceTokens, targetTokens} = _triWayTokenMerge(source, target);
     
-    let weight = (sourceTokenMatch.words.join(" ").length) / (source.length);
+    // Weight is calculated by the "source token's" characters with some penalty for the distance
+    // between source and target tokens. 
+    // Eg. Tokens "abcd" and "abd" match with common characters "abd", but there's a distance of 1 edit between them.
+    // Therefore, the weight is 
+    // (3 - (<token's edit distance>)) / source.length 
+    // OR
+    // (3 / (source.length + <target token's length>))
+    // On second thought, let's not do this here, because we can just rerun the rank algorithm if there's more than one result.
+    // weight = ((tokenMerge.length) * 2) / (source.length + targetTokens.words.join('').length)
+    weight = sourceTokens.words.join(' ').length / source.length;
+    
+    // let weight = (sourceTokenMatch.words.join(" ").length) / (source.length);
     
     // Doing the following calculation helps us weigh in favor of either higher token match or lower mymatch.
     // Both of which favor matches with less noise. 
@@ -286,42 +293,87 @@ function triWayTokenMerge(source, target) {
 
     logger.log();
     logger.log("source = ", source, ", target = ", target);
-    logger.log("sourceTokenMatch = ", sourceTokenMatch);
-    logger.log("weight = ", weight, ", merged = ", sourceTokenMatch.indexes);
-    logger.log("triWayTokenMerge Time: ", new Date() - startTime);
-    // return {weight, sourceTokenMatch, targetTokenMatch};
-    return {weight, sourceTokenMatch};
-}
-
-function _triWayTokenMerge(source, target) {
-    let logger = makeLogger(false);
-
-    var res = "";
-    let mymatch = newInsequence(source, target).match;
-    
-    let sourceTokens = wrapSrcTokenize(source, mymatch);
-    
-    // Break early
-    if (sourceTokens.words.length === 0) {
-        return res;
-    }
-    let targetTokens = wrapSrcTokenize(target, mymatch);
-    // Break early
-    if (targetTokens.words.length === 0) {
-        return res;
-    }
-
-    logger.log("source = ", source, ", target = ", target);
-    logger.log("mymatch = ", mymatch);
     logger.log("sourceTokens = ", sourceTokens);
     logger.log("targetTokens = ", targetTokens);
-
-    let tokenMerge = newInsequence(sourceTokens.words.join(''), targetTokens.words.join(''));
-    logger.log("tokenMerge = ", tokenMerge);
-    
-    return tokenMerge.match;
+    logger.log("weight = ", weight);
+    logger.log("triWayTokenMerge Time: ", new Date() - startTime);
+    // return {weight, sourceTokenMatch, targetTokenMatch};
+    return {weight, sourceTokens};
 }
 
+function _reduceTokens(source, target, prevMerge) {
+    let logger = makeLogger(true);
+
+    logger.log("prevMerge = ", prevMerge);
+    var sourceTokens = wrapSrcTokenize(source, prevMerge);
+    logger.log("sourceTokens = ", sourceTokens);
+    var targetTokens = wrapSrcTokenize(target, prevMerge);
+    logger.log("targetTokens = ", targetTokens);
+    merge = newInsequence(sourceTokens.words.join(''), targetTokens.words.join('')).match;
+    logger.log("tokenMerge = ", merge);
+
+    return {merge, sourceTokens, targetTokens};
+}
+
+/**
+ * Repeatedly finds tokens and merges them until the merges match ie. the tokens are unchanged.
+ * Need a way to remove noisy tokens. When tokens are found, but later they do not persist after reducing, 
+ * then we know those are noisy tokens. Save the tokens that are found eg. the TokenMatch object.
+ * Could continuously save the previous TokenMatch objects, then take the set difference of the previous and 
+ * remove the resulting indexes from the string. Then, rerun until there's no more set difference.
+ * @param {Source string} source 
+ * @param {Target string} target 
+ */
+function _triWayTokenMerge(source, target) {
+    let logger = makeLogger(true);
+    logger.log();
+    logger.log("_triWayTokenMerge");
+
+    let finalSourceTokens = new TokenMatch();
+    let finalTargetTokens = new TokenMatch();
+
+    let prevSource = "";
+    let prevTarget = "";
+
+    while (prevSource !== source || prevTarget !== target) {
+        prevSource = source;
+        prevTarget = target;
+
+        var prevMerge = newInsequence(source, target).match;
+        logger.log("source = ", source, ", target = ", target);
+        let prevSourceTokens = new TokenMatch();
+        let prevTargetTokens = new TokenMatch();
+
+        var {merge, sourceTokens, targetTokens} = _reduceTokens(source, target, prevMerge);
+
+        while (prevMerge !== merge) {
+            prevMerge = merge;
+            prevSourceTokens.merge(sourceTokens);
+            prevTargetTokens.merge(targetTokens);
+            var {merge, sourceTokens, targetTokens} = _reduceTokens(source, target, prevMerge);
+        }
+
+        finalSourceTokens.merge(sourceTokens);
+        finalTargetTokens.merge(targetTokens);
+        prevSourceTokens.merge(sourceTokens);
+        prevTargetTokens.merge(targetTokens);
+    
+        // Remove noisy tokens and final tokens so we can try again with less noise, and out of order tokens.
+        source = removeMatchFromSources(source, finalSourceTokens.indexes);
+        target = removeMatchFromSources(target, finalTargetTokens.indexes);
+    }
+    
+    return {sourceTokens: finalSourceTokens, targetTokens: finalTargetTokens};
+}
+
+
+// console.log(triWayTokenMerge('x3 35i', 'X3 xDrive35i Sport Utility 4D'));
+// console.log(triWayTokenMerge('x3 35i', '3 Series 335i Convertible 2D'));
+
+console.log(triWayTokenMerge('335is Convertible convertible', '3 Series 335is'));
+// console.log(triWayTokenMerge('335is Convertible convertible', '3 Series 335is Convertible 2D'));
+
+// console.log(triWayTokenMerge('x3 3.0i', 'X3 3.0si Sport Utility 4D'));
 
 // console.log(triWayTokenMerge('CLS CLS500 MILITARY 0 DOWN NAVY FED', 'CLS Class CLS 500 Coupe 4D'));
 

@@ -205,11 +205,35 @@ function removeMatchFromSources(matches) {
     }
 }
 
+function removeDuplicates(source) {
+  var words = source.data.toLowerCase().split(/\s+/gi);
+  var hash = {};
+  var indexes = [];
+  for ( var i = 0; i < words.length; i++ ) {
+    var word = words[i];
+    if (word in hash) {
+      indexes.push(i);
+    } else {
+      hash[word] = 1;
+    }
+  }
+  for (var i of indexes.reverse()) {
+    words.splice(i, 1);
+  }
+  source.data = words.join(' ');
+}
+
+// var s = new Source('aa bb cc bb');
+// removeDuplicates(s);
+// console.log(s.data);
+
 async function getKbb(craigs) {
   var kbb = {extra:{desc: craigs.desc, title: craigs.title}};
   let sources = [new Source(craigs.desc), new Source(craigs.title + (craigs.type ? " " + craigs.type : ""))];
   removeMatch(sources[0], [craigs.year]);
   removeMatch(sources[1], [craigs.year]);
+  // removeDuplicates(sources[0]);
+  // removeDuplicates(sources[1]);
     // removeMatch(["extra", "title"], kbb, [craigs.year]);
   try {
     var kbbMake = await matchKbbMake(craigs, sources);
@@ -283,6 +307,15 @@ async function handleCar(href) {
 }
 
 // TESTING 
+
+handleCar('https://sandiego.craigslist.org/nsd/cto/d/encinitas-bmw-2013-x3-35i/6903733458.html').then(console.log);
+
+// handleCar('https://sandiego.craigslist.org/csd/cto/d/el-cajon-2006-bmw-325i-clean-title/6904100824.html').then(console.log);
+
+// handleCar('https://sandiego.craigslist.org/nsd/cto/d/oceanside-2011-bmw-335is-convertible/6902461308.html').then(console.log);
+// handleCar('https://sandiego.craigslist.org/csd/cto/d/2008-bmw-x3-30-si-premium-package/6901799340.html').then(console.log);
+
+// handleCar('https://sandiego.craigslist.org/csd/cto/d/escondido-2017-bmw-x6-xdrive35i-awd/6902101361.html').then(console.log);
 
 // handleCar('https://sandiego.craigslist.org/nsd/cto/d/coronado-2006-mercedes-benz-cls-cls500/6885551987.html').then(console.log);
 // handleCar('https://sandiego.craigslist.org/csd/cto/d/san-diego-sweet-toyota-camry-leather/6901864078.html').then(console.log);

@@ -23,5 +23,7 @@ function getRelations(s) {
   return res;
 }
 
+console.log(getRelations('335is Convertible'));
+
 
 module.exports = {getRelations}
