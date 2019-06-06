@@ -3,6 +3,8 @@ var {makeLogger} = require('./logger');
 var {Queue} = require('./Queue');
 var {lcsNaive} = require('./lcs');
 var {newInsequence} = require('./newInsequence');
+var {findSourceTokens} = require('./tokenMatcher');
+var {TokenMatch} = require('../model/TokenMatch');
 
 var WORD_COUNT_THRESHOLD = .6;
 
@@ -150,30 +152,14 @@ function wrapSrcInsequenceMatch(a, b) {
     return {weight, ...res};
 }
 
-class TokenMatch {
-    constructor(words=[], indexes=[]) {
-        this.words = words;
-        this.indexes = indexes;
-    }
-
-    merge(otherTokenMatch) {
-        this.indexes = this.indexes.concat(otherTokenMatch.indexes);
-        this.indexes.sort();
-        this.words = this.words.concat(otherTokenMatch.words);
-    }
-    
-    toString() {
-        return "words = " + this.words.toString() + ", indexes = " + this.indexes.toString();
-    }
-}
-
 function wrapSrcTokenize(src, inChars) {
     let logger = makeLogger(false);
-    let srcTokens = src.toLowerCase().trim().replace(/-/gi, '').split(/\s+/gi);
+    // let srcTokens = src.toLowerCase().trim().replace(/-/gi, '').split(/\s+/gi);
     // resIChar, is the number of matched inChars.
-    let res = srcTokenize(srcTokens, inChars.toLowerCase().trim(/\s+/gi), 0, 0);
-    res.words.reverse();
-    res.indexes.reverse();
+    // let res = srcTokenize(srcTokens, inChars.toLowerCase().trim(/\s+/gi), 0, 0);
+    let res = findSourceTokens(src, inChars);
+    // res.words.reverse();
+    // res.indexes.reverse();
     logger.log("res = ", res);
 
     return res;
@@ -339,10 +325,18 @@ function _triWayTokenMerge(source, target) {
         prevSource = source;
         prevTarget = target;
 
-        var prevMerge = newInsequence(source, target).match;
+
         logger.log("source = ", source, ", target = ", target);
         let prevSourceTokens = new TokenMatch();
         let prevTargetTokens = new TokenMatch();
+
+        var sourceTokens = wrapSrcTokenize(source, target);
+        logger.log("sourceTokens = ", sourceTokens);
+        var targetTokens = wrapSrcTokenize(target, source);
+        logger.log("targetTokens = ", targetTokens);
+        var prevMerge = newInsequence(sourceTokens.words.join(''), targetTokens.words.join('')).match;
+        // logger.log("prevMerge = ", prevMerge);
+        
 
         var {merge, sourceTokens, targetTokens} = _reduceTokens(source, target, prevMerge);
 
@@ -359,18 +353,22 @@ function _triWayTokenMerge(source, target) {
         prevTargetTokens.merge(targetTokens);
     
         // Remove noisy tokens and final tokens so we can try again with less noise, and out of order tokens.
-        source = removeMatchFromSources(source, finalSourceTokens.indexes);
-        target = removeMatchFromSources(target, finalTargetTokens.indexes);
+        // Actually, this doesn't seem to work.
+        // source = removeMatchFromSources(source, finalSourceTokens.indexes);
+        // target = removeMatchFromSources(target, finalTargetTokens.indexes);
     }
     
     return {sourceTokens: finalSourceTokens, targetTokens: finalTargetTokens};
 }
 
 
-// console.log(triWayTokenMerge('x3 35i', 'X3 xDrive35i Sport Utility 4D'));
+// console.log(triWayTokenMerge('X3 35i', 'X3 XDrive35i Sport Utility 4D'));
 // console.log(triWayTokenMerge('x3 35i', '3 Series 335i Convertible 2D'));
 
-console.log(triWayTokenMerge('335is Convertible convertible', '3 Series 335is'));
+// This results in noisy tokens which causes no match.
+// console.log(triWayTokenMerge('335is Convertible convertible', '3 Series 335is'));
+
+
 // console.log(triWayTokenMerge('335is Convertible convertible', '3 Series 335is Convertible 2D'));
 
 // console.log(triWayTokenMerge('x3 3.0i', 'X3 3.0si Sport Utility 4D'));

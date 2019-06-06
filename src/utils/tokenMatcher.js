@@ -1,8 +1,9 @@
 var {makeLogger} = require('./logger');
-var {insequenceCount} = require('./insequence-count');
+var {newInsequence} = require('./newInsequence');
+var {TokenMatch} = require('../model/TokenMatch');
 
 function toShortStr(s) {
-    return s.toLowerCase().replace(/\s|-/g, '');
+    return s.toLowerCase().replace(/\s|-/g, ' ');
 }
 
 function getTokens(s) {
@@ -17,39 +18,49 @@ function findSourceTokens(source, target) {
     var shortTarget = toShortStr(target);
     logger.log(sourceTokens, shortTarget);
     var res = _findSourceTokens(sourceTokens, shortTarget, 0);
-    res.matchWords.reverse();
-    res.matchIndexes.reverse();
+    res.words.reverse();
+    res.indexes.reverse();
     return res;
 }
 
-const SRC_TOKEN_MATCH_THRESHOLD = .85;
+const SRC_TOKEN_MATCH_THRESHOLD = .87;
 let logger = makeLogger(false);
 function _findSourceTokens(sourceTokens, shortTarget, iSource) {
     logger.log("sourceTokens = ", sourceTokens);
-    var res = {matchWords: [], matchIndexes: []};
+    logger.log("shortTarget = ", shortTarget);
+    var res;
 
     if (iSource >= sourceTokens.length || shortTarget.length === 0) {
-        return {matchWords: [], matchIndexes: []};
+        return new TokenMatch();
     }
 
     logger.log("iSource = ", iSource);
     var currToken = sourceTokens[iSource];
     logger.log("currToken = ", currToken);
-    var subMatch = insequenceCount(currToken, shortTarget, SRC_TOKEN_MATCH_THRESHOLD);
+    var subMatch = newInsequence(currToken, shortTarget);
+    // logger.log("subMatch = ", subMatch);
+    var subWeight = ((subMatch.count * 2) / (currToken.length + (subMatch.end - subMatch.start) + 1));
+    // var subWeight = ((subMatch.count * 2) / (sourceTokens.join(' ').length + (subMatch.end - subMatch.start) + 1));
     
-    if ((subMatch.count / currToken.length) > SRC_TOKEN_MATCH_THRESHOLD) {
-        logger.log("Found match = ", subMatch);
+    if (subWeight > SRC_TOKEN_MATCH_THRESHOLD) {
+        logger.log("\nFound match = ", subMatch, ", weight = ", subWeight);
         var newShortTarget = shortTarget.slice(0, subMatch.start) + shortTarget.slice(subMatch.end+1);
         var resA = _findSourceTokens(sourceTokens, newShortTarget, iSource + 1);
     }
 
     var resB = _findSourceTokens(sourceTokens, shortTarget, iSource + 1);
 
-    logger.log("resA = ", resA, ", resB = ", resB);
-    if (resA && (resA.matchWords.join('').length + subMatch.count) > resB.matchWords.join('').length) {
+    var averageWeight = resA && ((subWeight + resA.weight) / (resA.weight > 0 ? 2 : 1));
+    if (resA) {
+        logger.log("\nresA = ", resA, ", resB = ", resB, ", subWeight = ", subWeight, "subMatch = ", subMatch.match, ", average weight = ", averageWeight);
+    }
+    
+    if (resA && averageWeight >= resB.weight) {
         res = resA;
-        res.matchWords.push(currToken);
-        res.matchIndexes.push(iSource);
+        res.words.push(currToken);
+        res.indexes.push(iSource);
+        // Not sure if we want to do this, but I just don't want to favor more word matches if it brings down the average word weight.
+        res.weight = averageWeight;
     } else {
         res = resB;
     }
@@ -57,7 +68,11 @@ function _findSourceTokens(sourceTokens, shortTarget, iSource) {
     return res;
 }
 
-// console.log(findSourceTokens('style model make', 'make model style', true));
+// console.log(findSourceTokens('X3 35i', 'X3 XDrive35i Sport Utility 4D'));
+// console.log(findSourceTokens('3 Series 335is', '335is Convertible convertible'));
+// console.log(findSourceTokens('335is Convertible convertible', '3 Series 335is'));
+// console.log(findSourceTokens('3 Series 335d Sedan 4D', '335d'));
+// console.log(findSourceTokens('style model make', 'make model style'));
 // console.log(findSourceTokens('extra style model make', 'make model extra style'));
 // console.log(findSourceTokens("Mercedes-Benz", "mercedez benz s63"));
 
@@ -89,4 +104,4 @@ function tokenMatchMerge(source, target) {
 // console.log(tokenMatchMerge("mercedez benz s63", "Mercedes-Benz"));
 // console.log(tokenMatchMerge("2014 Honda Accord 21k miles - 1 Owner - Clean Title - Back-up Camera - Well Kept Sedan", "Honda Accord"));
 
-module.exports = {tokenMatchMerge};
+module.exports = {tokenMatchMerge, findSourceTokens};

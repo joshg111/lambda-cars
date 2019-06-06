@@ -1,53 +1,80 @@
 
 
 function newInsequence(a, b) {
-    // a = a.toLowerCase().replace(/\s|-/g, '');
-    // b = b.toLowerCase().replace(/\s|-/g, '');
     
+    var resMax = {count: 0, match: "", start: 0, end: 0, weight: 0};
     // Try to use a single space between words
-    a = a.toLowerCase().replace(/\s|-/g, ' ');
-    b = b.toLowerCase().replace(/\s|-/g, ' ');
+    a = a.toLowerCase().replace(/\s/g, ' ');
+    a = a.toLowerCase().replace(/(\w)-(\w)/g, '$1 $2');
+    b = b.toLowerCase().replace(/\s/g, ' ');
+    b = b.toLowerCase().replace(/(\w)-(\w)/g, '$1 $2');
     // Create empty edit distance matrix for all possible modifications of
     // substrings of a to substrings of b.
-    const distanceMatrix = Array(b.length + 1).fill({count: 0, match: ""})
-        .map(() => Array(a.length + 1).fill({count: 0, match: ""}));
-  
-    // Fill the first row of the matrix.
-    // If this is first row then we're transforming empty string to a.
-    // In this case the number of transformations equals to size of a substring.
-    // for (let i = 0; i <= a.length; i += 1) {
-    //   distanceMatrix[0][i] = i;
-    // }
-  
-    // Fill the first column of the matrix.
-    // If this is first column then we're transforming empty string to b.
-    // In this case the number of transformations equals to size of b substring.
-    // for (let j = 0; j <= b.length; j += 1) {
-    //   distanceMatrix[j][0] = j;
-    // }
+    const distanceMatrix = Array(b.length + 1).fill({count: 0, match: "", start: 0, end: 0, weight: 0})
+        .map(() => Array(a.length + 1).fill({count: 0, match: "", start: 0, end: 0, weight: 0}));
   
     for (let j = 1; j <= b.length; j += 1) {
       for (let i = 1; i <= a.length; i += 1) {
         const isMatch = a[i - 1] === b[j - 1];
-        const indicator = isMatch ? 1 : 0;
-        const matchChar = isMatch ? a[i-1] : "";
-        let deletion = distanceMatrix[j][i - 1]; // deletion
-        let insertion = distanceMatrix[j - 1][i]; // insertion
-        let substitution = distanceMatrix[j - 1][i - 1]; // substitution
-        substitution = {count: substitution.count + indicator, match: substitution.match + matchChar};
 
-        distanceMatrix[j][i] = [deletion,insertion,substitution].sort((a, b) => b.count - a.count)[0];
+        let deletion = Object.assign({}, distanceMatrix[j][i - 1]); // deletion
+        if (deletion.count > 0) {
+          deletion.end = deletion.end + 1;
+          deletion.weight = (deletion.count * 2) / (b.length + (deletion.end - deletion.start) + 1);
+        }
+
+        let insertion = Object.assign({}, distanceMatrix[j - 1][i]); // insertion
+        if (insertion.count > 0) {
+          insertion.end = insertion.end + 1;
+          insertion.weight = (insertion.count * 2) / (b.length + (insertion.end - insertion.start) + 1);
+        }
+
+        let substitution = distanceMatrix[j - 1][i - 1]; // substitution
+        substitution = {...substitution};
+        var end = substitution.end;
+        var count = substitution.count;
+        var match = substitution.match;
+        var start = substitution.start;
+        var weight = substitution.weight;
+        if (isMatch) {
+          if (substitution.count === 0) {
+            start = j-1;
+          }
+          end = j-1;
+          count += 1;
+          match = substitution.match + a[i-1];
+          weight = (count * 2) / (b.length + (end - start) + 1);
+        }
+        substitution = {count, match, start, end, weight};
+
+        var arr = [deletion,insertion,substitution].sort((a, b) => {
+          return b.weight - a.weight; //|| (a.end - a.start) - (b.end - b.start);
+        });
+
+        // if (isMatch) {
+        //   console.log("i = ", i-1, ", j = ", j-1 );
+        //   console.log( arr[0]);
+        // }
+
+        if (arr[0].weight > resMax.weight) {
+          resMax = arr[0];
+          // console.log("found max = ", resMax);
+        }
+        
+        distanceMatrix[j][i] = arr[0];
       }
     }
   
-    var res = distanceMatrix[b.length][a.length];
+    
+    // res.start.sort(a, b => b-res.end) - a);
     // console.log(res);
-    return res;
+    return resMax;
   }
-  
-  
+
+// console.log(newInsequence('abc d', 'aee abc eec'));
+// newInsequence('abc def ghi', 'ghi jkl abc x');  
 // newInsequence('CLS CLS500 MILITARY 0 DOWN NAVY FED', 'CLS Class CLS 500 Coupe 4D');
-//   newInsequence("Mercedes Benz GL 450 awd suv 7 passenger/ BEST OFFER .", "GLClass");
+  // newInsequence("Mercedes Benz GL 450 awd suv 7 passenger/ BEST OFFER .", "GLClass");
   // levenshteinDistance("Using lcs, found match source =  Mercedes Benz GL 450 awd suv 7 passenger/ BEST OFFER .", "CClass");
   
   
