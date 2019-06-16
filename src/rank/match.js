@@ -6,7 +6,7 @@ class Match {
     }
 
     toString() {
-        return "source = " + this.source.toString() + ", matchWords = " + this.matches;
+        return "source = " + this.source.toString() + ", matchWords = " + this.matches.toString();
     }
 }
 

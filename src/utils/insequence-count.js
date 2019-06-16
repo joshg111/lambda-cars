@@ -253,7 +253,6 @@ function triWayTokenMerge(source, target) {
     let startTime = new Date();
     let logger = makeLogger(true);
     let weight = 0;
-
     var {tokenMerge, sourceTokens, targetTokens} = _triWayTokenMerge(source, target);
     
     // Weight is calculated by the "source token's" characters with some penalty for the distance
@@ -287,18 +286,17 @@ function triWayTokenMerge(source, target) {
     return {weight, sourceTokens};
 }
 
-function _reduceTokens(source, target, prevMerge) {
+function _reduceTokens(source, target, sourceWords, targetWords) {
     let logger = makeLogger(true);
 
-    logger.log("prevMerge = ", prevMerge);
-    var sourceTokens = wrapSrcTokenize(source, prevMerge);
+    var sourceTokens = wrapSrcTokenize(source, targetWords);
     logger.log("sourceTokens = ", sourceTokens);
-    var targetTokens = wrapSrcTokenize(target, prevMerge);
+    var targetTokens = wrapSrcTokenize(target, sourceWords);
     logger.log("targetTokens = ", targetTokens);
-    merge = newInsequence(sourceTokens.words.join(''), targetTokens.words.join('')).match;
-    logger.log("tokenMerge = ", merge);
+    // merge = newInsequence(sourceTokens.words.join(''), targetTokens.words.join('')).match;
+    // logger.log("tokenMerge = ", merge);
 
-    return {merge, sourceTokens, targetTokens};
+    return {sourceTokens, targetTokens};
 }
 
 /**
@@ -330,21 +328,21 @@ function _triWayTokenMerge(source, target) {
         let prevSourceTokens = new TokenMatch();
         let prevTargetTokens = new TokenMatch();
 
-        var sourceTokens = wrapSrcTokenize(source, target);
-        logger.log("sourceTokens = ", sourceTokens);
-        var targetTokens = wrapSrcTokenize(target, source);
-        logger.log("targetTokens = ", targetTokens);
-        var prevMerge = newInsequence(sourceTokens.words.join(''), targetTokens.words.join('')).match;
+        // var sourceTokens = wrapSrcTokenize(source, target);
+        // logger.log("sourceTokens = ", sourceTokens);
+        // var targetTokens = wrapSrcTokenize(target, source);
+        // logger.log("targetTokens = ", targetTokens);
+        // var prevMerge = newInsequence(sourceTokens.words.join(''), targetTokens.words.join('')).match;
         // logger.log("prevMerge = ", prevMerge);
         
 
-        var {merge, sourceTokens, targetTokens} = _reduceTokens(source, target, prevMerge);
+        var {sourceTokens, targetTokens} = _reduceTokens(source, target, source, target);
 
-        while (prevMerge !== merge) {
-            prevMerge = merge;
-            prevSourceTokens.merge(sourceTokens);
-            prevTargetTokens.merge(targetTokens);
-            var {merge, sourceTokens, targetTokens} = _reduceTokens(source, target, prevMerge);
+        while (sourceTokens.words.join(' ') !== prevSourceTokens.words.join(' ')) {
+            prevSourceTokens = sourceTokens;
+            prevTargetTokens = targetTokens;
+            var {sourceTokens, targetTokens} = 
+                _reduceTokens(source, target, sourceTokens.words.join(' '), targetTokens.words.join(' '));
         }
 
         finalSourceTokens.merge(sourceTokens);
@@ -361,6 +359,13 @@ function _triWayTokenMerge(source, target) {
     return {sourceTokens: finalSourceTokens, targetTokens: finalTargetTokens};
 }
 
+
+console.log(triWayTokenMerge('E300 - Loaded! ASSUME MY $594 LEASE x 10 MONTHS! sedan', 'Sprinter 3500 XD Cargo Standard Roof w/144" WB Van 3D'))
+// console.log(triWayTokenMerge('E Class', 'E Class E 300 4MATIC Sedan 4D'));
+// console.log(triWayTokenMerge('E300 sedan', 'E 300 Sedan'));
+// console.log(triWayTokenMerge('ML 350 SUV', 'M Class ML 350 4MATIC Sport Utility 4D'));
+
+// console.log(triWayTokenMerge('Mercedes SLK 230 convertible', 'Mercedes-Benz'));
 
 // console.log(triWayTokenMerge('X3 35i', 'X3 XDrive35i Sport Utility 4D'));
 // console.log(triWayTokenMerge('x3 35i', '3 Series 335i Convertible 2D'));

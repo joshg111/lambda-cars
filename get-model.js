@@ -45,7 +45,8 @@ async function matchKbbMakeId(craigs, sources) {
     var cacheRes = await hgetAsync("kbbMakes", craigs.year);
     var makes = JSON.parse(cacheRes);
     var res = makes.map((m) => {
-        return {text: m.name, id: m.id};
+        var text = m.name.replace(/-/, ' ');
+        return {text, make: m.name, id: m.id};
     });
 
     // res = searchRank([kbb.extra.desc, kbb.extra.title], res, ["word", "findLongestPrefix"]);
@@ -59,7 +60,7 @@ async function matchKbbMakeId(craigs, sources) {
         return null;
     }
 
-    var {text: make, id, match} = res[0];
+    var {make, id, match} = res[0];
     console.log("matchKbbMakeId: ", new Date() - startTime);
     return {make, id, match}
 }

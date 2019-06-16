@@ -13,19 +13,29 @@ function getTokens(s) {
 }
 
 function findSourceTokens(source, target) {
-    let logger = makeLogger(false);
+    let startTime = new Date();
+    let logger = makeLogger(true);
     var sourceTokens = getTokens(source);
     var shortTarget = toShortStr(target);
     logger.log(sourceTokens, shortTarget);
     var res = _findSourceTokens(sourceTokens, shortTarget, 0);
     res.words.reverse();
     res.indexes.reverse();
+    logger.log("findSourceTokens Time: ", new Date() - startTime);
     return res;
 }
 
+let logger = makeLogger(true);
+function _findSourceTokens(sourceTokens, shortTarget, iSource) {
+
+
+
+}
+
+
 const SRC_TOKEN_MATCH_THRESHOLD = .87;
 let logger = makeLogger(false);
-function _findSourceTokens(sourceTokens, shortTarget, iSource) {
+function _findSourceTokensPath(sourceTokens, shortTarget, iSource) {
     logger.log("sourceTokens = ", sourceTokens);
     logger.log("shortTarget = ", shortTarget);
     var res;
@@ -52,24 +62,39 @@ function _findSourceTokens(sourceTokens, shortTarget, iSource) {
 
     var averageWeight = resA && ((subWeight + resA.weight) / (resA.weight > 0 ? 2 : 1));
     if (resA) {
-        logger.log("\nresA = ", resA, ", resB = ", resB, ", subWeight = ", subWeight, "subMatch = ", subMatch.match, ", average weight = ", averageWeight);
+        logger.log("\nresA = ", resA);
+        logger.log("resB = ", resB);
+        logger.log("subWeight = ", subWeight, "subMatch = ", subMatch, ", average weight = ", averageWeight);
     }
     
-    if (resA && averageWeight >= resB.weight) {
+    if (resA && ((resA.count + subMatch.count) > resB.count)) {
+        
         res = resA;
         res.words.push(currToken);
         res.indexes.push(iSource);
         // Not sure if we want to do this, but I just don't want to favor more word matches if it brings down the average word weight.
         res.weight = averageWeight;
+        res.count += subMatch.count;
     } else {
         res = resB;
     }
 
+    // resMax = [resMax, res].sort((a, b) => b.weight - a.weight)[0]
+
     return res;
 }
 
+// console.log(findSourceTokens('E300 - Loaded! ASSUME MY $594 LEASE x 10 MONTHS! sedan', 'Sprinter 3500 XD Cargo Standard Roof w/144" WB Van 3D'))
+
+// console.log(findSourceTokens('E Class', 'E Class E 300 4MATIC Sedan 4D'));
+// console.log(findSourceTokens('E Class E 300 4MATIC Sedan 4D', 'E Class'));
+// console.log(findSourceTokens('a abcdefghijklmn', 'abcdefghijklmn'));
+// console.log(findSourceTokens('E300 sedan', 'E 300 Sedan'));
+// console.log(findSourceTokens('E 300 Sedan', 'E300 sedan'));
+// console.log(findSourceTokens('M Class ML 350 4MATIC Sport Utility 4D', 'ML 350 SUV'));
+// console.log(findSourceTokens('ML 350 SUV', 'M Class ML 350 4MATIC Sport Utility 4D'));
 // console.log(findSourceTokens('X3 35i', 'X3 XDrive35i Sport Utility 4D'));
-// console.log(findSourceTokens('3 Series 335is', '335is Convertible convertible'));
+// console.log(findSourceTokens('3 series 335is', '335is Convertible convertible'));
 // console.log(findSourceTokens('335is Convertible convertible', '3 Series 335is'));
 // console.log(findSourceTokens('3 Series 335d Sedan 4D', '335d'));
 // console.log(findSourceTokens('style model make', 'make model style'));

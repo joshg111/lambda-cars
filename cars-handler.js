@@ -308,7 +308,13 @@ async function handleCar(href) {
 
 // TESTING 
 
-handleCar('https://sandiego.craigslist.org/nsd/cto/d/encinitas-bmw-2013-x3-35i/6903733458.html').then(console.log);
+
+handleCar('https://orangecounty.craigslist.org/cto/d/san-clemente-2017-mercedes-benz-e300/6892865682.html').then(console.log);
+// handleCar('https://sandiego.craigslist.org/csd/cto/d/bonita-mercedes-benz-ml-350/6898755255.html').then(console.log);
+
+// handleCar('https://sandiego.craigslist.org/csd/cto/d/san-diego-mercedes-slk/6906302412.html').then(console.log);
+
+// handleCar('https://sandiego.craigslist.org/nsd/cto/d/encinitas-bmw-2013-x3-35i/6903733458.html').then(console.log);
 
 // handleCar('https://sandiego.craigslist.org/csd/cto/d/el-cajon-2006-bmw-325i-clean-title/6904100824.html').then(console.log);
 

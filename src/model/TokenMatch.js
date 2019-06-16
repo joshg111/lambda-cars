@@ -1,8 +1,9 @@
 class TokenMatch {
-    constructor(words=[], indexes=[], weight=0) {
+    constructor(words=[], indexes=[], weight=0, count=0) {
         this.words = words;
         this.indexes = indexes;
         this.weight = weight;
+        this.count = count;
     }
 
     merge(otherTokenMatch) {
