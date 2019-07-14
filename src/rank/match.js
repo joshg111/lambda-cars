@@ -1,6 +1,6 @@
 
 class Match {
-    constructor(source, matches) {
+    constructor(source, matches=[]) {
         this.source = source;
         this.matches = matches;
     }

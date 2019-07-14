@@ -165,8 +165,8 @@ async function getKbbPrice(link, retryCount=0) {
   var body;
   try {
     body = await rp(options);
-    kbbPrice = /defaultprice%22%3a(\d+)%/g.exec(body)[1];
-    // console.log("kbbPrice = ", kbbPrice);
+    var parsed = JSON.parse(body);
+    kbbPrice = parsed.data.apiData.vehicle.values[2].value;
 
   }
   catch(err) {
@@ -227,6 +227,16 @@ function removeDuplicates(source) {
 // removeDuplicates(s);
 // console.log(s.data);
 
+function getKbbLink(matchLink, craigs) {
+  var kbbLink = "https://www.kbb.com/Api/3.9.395.0/70134/vehicle/upa/PriceAdvisor/meter.json?action=Get&intent=buy-used&pricetype=Private%20Party&zipcode=92101&hideMonthlyPayment=True&condition=good";
+  
+  var vehicleId = /vehicleid=([^&]*)/g.exec(matchLink)[1];
+  
+  kbbLink += "&vehicleid=" + vehicleId
+  kbbLink += craigs.odometer ? '&mileage=' + craigs.odometer : "";
+  return kbbLink;
+}
+
 async function getKbb(craigs) {
   var kbb = {extra:{desc: craigs.desc, title: craigs.title}};
   let sources = [new Source(craigs.desc), new Source(craigs.title + (craigs.type ? " " + craigs.type : ""))];
@@ -254,10 +264,8 @@ async function getKbb(craigs) {
     kbb["kbbModel"] = match.model;
     assert(kbb.kbbModel);
     
-    var kbbLink = match.href;
-    kbbLink = kbbLink.replace(/&mileage=\d*/g, "");
-    kbbLink += craigs.odometer ? '&mileage=' + craigs.odometer : "";
-    kbb["kbbLink"] = kbbLink;
+
+    kbb["kbbLink"] = getKbbLink(match.href, craigs);
     kbb["kbbStyle"] = match.isStyleMatch ? match.styleText : '';
     assert(kbb.kbbLink);
     kbb["kbbPrice"] = await getKbbPrice(kbb.kbbLink);
@@ -309,28 +317,13 @@ async function handleCar(href) {
 // TESTING 
 
 
-handleCar('https://orangecounty.craigslist.org/cto/d/san-clemente-2017-mercedes-benz-e300/6892865682.html').then(console.log);
-// handleCar('https://sandiego.craigslist.org/csd/cto/d/bonita-mercedes-benz-ml-350/6898755255.html').then(console.log);
+// handleCar('https://sandiego.craigslist.org/nsd/cto/d/san-marcos-bmw-528i-v-miles-no/6917680149.html').then(console.log);
 
-// handleCar('https://sandiego.craigslist.org/csd/cto/d/san-diego-mercedes-slk/6906302412.html').then(console.log);
+// handleCar('https://sandiego.craigslist.org/csd/cto/d/san-diego-2015-bmw-328i-clean-title/6918255822.html').then(console.log);
 
-// handleCar('https://sandiego.craigslist.org/nsd/cto/d/encinitas-bmw-2013-x3-35i/6903733458.html').then(console.log);
+// handleCar('https://sandiego.craigslist.org/nsd/cto/d/san-marcos-bmw-528i-v-miles-no/6917680149.html').then(console.log);
 
-// handleCar('https://sandiego.craigslist.org/csd/cto/d/el-cajon-2006-bmw-325i-clean-title/6904100824.html').then(console.log);
 
-// handleCar('https://sandiego.craigslist.org/nsd/cto/d/oceanside-2011-bmw-335is-convertible/6902461308.html').then(console.log);
-// handleCar('https://sandiego.craigslist.org/csd/cto/d/2008-bmw-x3-30-si-premium-package/6901799340.html').then(console.log);
-
-// handleCar('https://sandiego.craigslist.org/csd/cto/d/escondido-2017-bmw-x6-xdrive35i-awd/6902101361.html').then(console.log);
-
-// handleCar('https://sandiego.craigslist.org/nsd/cto/d/coronado-2006-mercedes-benz-cls-cls500/6885551987.html').then(console.log);
-// handleCar('https://sandiego.craigslist.org/csd/cto/d/san-diego-sweet-toyota-camry-leather/6901864078.html').then(console.log);
-// handleCar('https://sandiego.craigslist.org/esd/cto/d/lakeside-subaru-forester-used/6892934925.html').then(console.log);
-
-// handleCar('https://sandiego.craigslist.org/csd/cto/d/fontana-2017-mercedes-benz-amg-gle-43/6890065771.html').then(console.log);
-// handleCar('https://sandiego.craigslist.org/nsd/cto/d/san-diego-babied-2004-mercedes-benz-clk/6896550181.html').then(console.log);
-
-// handleCar('https://sandiego.craigslist.org/csd/cto/d/san-diego-li-bmw/6896730929.html').then(console.log);
 
 
 

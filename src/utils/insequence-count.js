@@ -5,6 +5,7 @@ var {lcsNaive} = require('./lcs');
 var {newInsequence} = require('./newInsequence');
 var {findSourceTokens} = require('./tokenMatcher');
 var {TokenMatch} = require('../model/TokenMatch');
+var {TokenList} = require('../model/TokenList');
 
 var WORD_COUNT_THRESHOLD = .6;
 
@@ -253,33 +254,13 @@ function triWayTokenMerge(source, target) {
     let startTime = new Date();
     let logger = makeLogger(true);
     let weight = 0;
-    var {tokenMerge, sourceTokens, targetTokens} = _triWayTokenMerge(source, target);
-    
-    // Weight is calculated by the "source token's" characters with some penalty for the distance
-    // between source and target tokens. 
-    // Eg. Tokens "abcd" and "abd" match with common characters "abd", but there's a distance of 1 edit between them.
-    // Therefore, the weight is 
-    // (3 - (<token's edit distance>)) / source.length 
-    // OR
-    // (3 / (source.length + <target token's length>))
-    // On second thought, let's not do this here, because we can just rerun the rank algorithm if there's more than one result.
-    // weight = ((tokenMerge.length) * 2) / (source.length + targetTokens.words.join('').length)
-    weight = sourceTokens.words.join(' ').length / source.length;
-    
-    // let weight = (sourceTokenMatch.words.join(" ").length) / (source.length);
-    
-    // Doing the following calculation helps us weigh in favor of either higher token match or lower mymatch.
-    // Both of which favor matches with less noise. 
-    // However, it's not clear how less noise translates to a better rank, and it's causing the algorithm 
-    // to favor certain matches over others arbitrarily when there's no real distinction, therefore removing for now.
-    // let diff = mymatch.length - tokenMatch.match.length;
-    // weight /= (diff > 0 ? diff : 1);
-    // We could try tokenMatch.match.length / (source.length + target.length)
+    var {sourceTokens, targetTokens} = _triWayTokenMerge(source, target);
+    weight = (sourceTokens.averageWeight() + targetTokens.averageWeight()) / 2;
 
     logger.log();
     logger.log("source = ", source, ", target = ", target);
-    logger.log("sourceTokens = ", sourceTokens);
-    logger.log("targetTokens = ", targetTokens);
+    logger.log("sourceTokens = " + sourceTokens);
+    logger.log("targetTokens = " + targetTokens);
     logger.log("weight = ", weight);
     logger.log("triWayTokenMerge Time: ", new Date() - startTime);
     // return {weight, sourceTokenMatch, targetTokenMatch};
@@ -287,7 +268,7 @@ function triWayTokenMerge(source, target) {
 }
 
 function _reduceTokens(source, target, sourceWords, targetWords) {
-    let logger = makeLogger(true);
+    let logger = makeLogger(false);
 
     var sourceTokens = wrapSrcTokenize(source, targetWords);
     logger.log("sourceTokens = ", sourceTokens);
@@ -309,58 +290,28 @@ function _reduceTokens(source, target, sourceWords, targetWords) {
  * @param {Target string} target 
  */
 function _triWayTokenMerge(source, target) {
-    let logger = makeLogger(true);
+    let logger = makeLogger(false);
     logger.log();
     logger.log("_triWayTokenMerge");
+    logger.log("source = ", source, ", target = ", target);
+    let prevSourceTokens = {};
+    var {sourceTokens, targetTokens} = _reduceTokens(source, target, source, target);
 
-    let finalSourceTokens = new TokenMatch();
-    let finalTargetTokens = new TokenMatch();
-
-    let prevSource = "";
-    let prevTarget = "";
-
-    while (prevSource !== source || prevTarget !== target) {
-        prevSource = source;
-        prevTarget = target;
-
-
-        logger.log("source = ", source, ", target = ", target);
-        let prevSourceTokens = new TokenMatch();
-        let prevTargetTokens = new TokenMatch();
-
-        // var sourceTokens = wrapSrcTokenize(source, target);
-        // logger.log("sourceTokens = ", sourceTokens);
-        // var targetTokens = wrapSrcTokenize(target, source);
-        // logger.log("targetTokens = ", targetTokens);
-        // var prevMerge = newInsequence(sourceTokens.words.join(''), targetTokens.words.join('')).match;
-        // logger.log("prevMerge = ", prevMerge);
-        
-
-        var {sourceTokens, targetTokens} = _reduceTokens(source, target, source, target);
-
-        while (sourceTokens.words.join(' ') !== prevSourceTokens.words.join(' ')) {
-            prevSourceTokens = sourceTokens;
-            prevTargetTokens = targetTokens;
-            var {sourceTokens, targetTokens} = 
-                _reduceTokens(source, target, sourceTokens.words.join(' '), targetTokens.words.join(' '));
-        }
-
-        finalSourceTokens.merge(sourceTokens);
-        finalTargetTokens.merge(targetTokens);
-        prevSourceTokens.merge(sourceTokens);
-        prevTargetTokens.merge(targetTokens);
-    
-        // Remove noisy tokens and final tokens so we can try again with less noise, and out of order tokens.
-        // Actually, this doesn't seem to work.
-        // source = removeMatchFromSources(source, finalSourceTokens.indexes);
-        // target = removeMatchFromSources(target, finalTargetTokens.indexes);
+    while (!(sourceTokens.joinMatch() in prevSourceTokens)) {
+    // for (let i = 0; i < 2; i++) {
+        prevSourceTokens[sourceTokens.joinMatch()] = 1;
+        var {sourceTokens, targetTokens} = 
+            _reduceTokens(source, target, sourceTokens.joinMatch(), targetTokens.joinMatch());
     }
     
-    return {sourceTokens: finalSourceTokens, targetTokens: finalTargetTokens};
+    return {sourceTokens, targetTokens};
 }
 
 
-console.log(triWayTokenMerge('E300 - Loaded! ASSUME MY $594 LEASE x 10 MONTHS! sedan', 'Sprinter 3500 XD Cargo Standard Roof w/144" WB Van 3D'))
+triWayTokenMerge("BMW 528i V6 65,000 miles No accidents, Excellent Condition, Luxurious! sedan",
+"X5 xDrive35i Sport Activity Sport Utility 4D");
+
+// triWayTokenMerge('E300 - Loaded! ASSUME MY $594 LEASE x 10 MONTHS! sedan', 'Sprinter 3500 XD Cargo Standard Roof w/144" WB Van 3D');
 // console.log(triWayTokenMerge('E Class', 'E Class E 300 4MATIC Sedan 4D'));
 // console.log(triWayTokenMerge('E300 sedan', 'E 300 Sedan'));
 // console.log(triWayTokenMerge('ML 350 SUV', 'M Class ML 350 4MATIC Sport Utility 4D'));

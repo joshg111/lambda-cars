@@ -1,6 +1,7 @@
 var {makeLogger} = require('./logger');
 var {newInsequence} = require('./newInsequence');
 var {TokenMatch} = require('../model/TokenMatch');
+var {TokenList} = require('../model/TokenList');
 
 function toShortStr(s) {
     return s.toLowerCase().replace(/\s|-/g, ' ');
@@ -12,24 +13,47 @@ function getTokens(s) {
     return s.toLowerCase().trim().replace(/-/gi, '').split(/\s+/gi);
 }
 
-function findSourceTokens(source, target) {
+function findSourceTokensPath(source, target) {
     let startTime = new Date();
-    let logger = makeLogger(true);
+    let logger = makeLogger(false);
     var sourceTokens = getTokens(source);
     var shortTarget = toShortStr(target);
     logger.log(sourceTokens, shortTarget);
-    var res = _findSourceTokens(sourceTokens, shortTarget, 0);
+    var res = _findSourceTokensPath(sourceTokens, shortTarget, 0);
     res.words.reverse();
     res.indexes.reverse();
     logger.log("findSourceTokens Time: ", new Date() - startTime);
     return res;
 }
 
-let logger = makeLogger(true);
-function _findSourceTokens(sourceTokens, shortTarget, iSource) {
+function findSourceTokens(source, target) {
+    let startTime = new Date();
+    let logger = makeLogger(false);
+    var sourceTokens = getTokens(source);
+    var shortTarget = toShortStr(target);
+    logger.log(sourceTokens, shortTarget);
+    var res = _findSourceTokens(sourceTokens, shortTarget);
+    logger.log("findSourceTokens Time: ", new Date() - startTime);
+    return new TokenList(res);
+}
 
+/**
+ * Iterates over sourceTokens and finds the insequence match using
+ * the whole target instead of removing from the target. For each
+ * insequence we check if it's more than 30% of the original token
+ * then we annotate the token with the match.
+ */
+var THRESHOLD = .3;
+function _findSourceTokens(sourceTokens, shortTarget) {
 
+    let res = [];
+    for (sourceToken of sourceTokens) {
+        var subMatch = newInsequence(sourceToken, shortTarget);
+        var weight = subMatch.count / sourceToken.length;
+        res.push({sourceToken, weight, match: subMatch.match});
+    }
 
+    return res;
 }
 
 
@@ -55,10 +79,10 @@ function _findSourceTokensPath(sourceTokens, shortTarget, iSource) {
     if (subWeight > SRC_TOKEN_MATCH_THRESHOLD) {
         logger.log("\nFound match = ", subMatch, ", weight = ", subWeight);
         var newShortTarget = shortTarget.slice(0, subMatch.start) + shortTarget.slice(subMatch.end+1);
-        var resA = _findSourceTokens(sourceTokens, newShortTarget, iSource + 1);
+        var resA = _findSourceTokensPath(sourceTokens, newShortTarget, iSource + 1);
     }
 
-    var resB = _findSourceTokens(sourceTokens, shortTarget, iSource + 1);
+    var resB = _findSourceTokensPath(sourceTokens, shortTarget, iSource + 1);
 
     var averageWeight = resA && ((subWeight + resA.weight) / (resA.weight > 0 ? 2 : 1));
     if (resA) {
