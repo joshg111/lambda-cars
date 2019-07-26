@@ -253,7 +253,10 @@ async function getKbb(craigs) {
     // console.log("kbbMake.match = ", kbbMake.match);
     // console.log("before sources = ", sources.toString());
     // removeMatch(["extra", "desc"], kbb, kbbMake.match);
-    removeMatchFromSources(kbbMake.match);
+
+    // JG 07/25/2019 - No longer have this match object since we call gocraigs.
+    // removeMatchFromSources(kbbMake.match);
+
     // console.log("after sources = ", sources.toString());
     // Need to reverse so we try to remove the appropriate match first, it's in the same order as the source list.
     // removeMatch(["extra", "title"], kbb, kbbMake.match.reverse());
@@ -266,7 +269,8 @@ async function getKbb(craigs) {
     
 
     kbb["kbbLink"] = getKbbLink(match.href, craigs);
-    kbb["kbbStyle"] = match.isStyleMatch ? match.styleText : '';
+    // kbb["kbbStyle"] = match.isStyleMatch ? match.styleText : '';
+    kbb["kbbStyle"] = match.styleText;
     assert(kbb.kbbLink);
     kbb["kbbPrice"] = await getKbbPrice(kbb.kbbLink);
     assert(kbb.kbbPrice);
@@ -316,6 +320,9 @@ async function handleCar(href) {
 
 // TESTING 
 
+handleCar('https://sandiego.craigslist.org/csd/cto/d/chula-vista-2017-mercedes-benz-e300/6933552724.html').then(console.log);
+
+// handleCar('https://sandiego.craigslist.org/nsd/cto/d/san-diego-2012-toyota-camry-xle-hybrid/6942081368.html').then(console.log);
 
 // handleCar('https://sandiego.craigslist.org/nsd/cto/d/san-marcos-bmw-528i-v-miles-no/6917680149.html').then(console.log);
 

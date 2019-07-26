@@ -15,7 +15,7 @@ class TokenList {
 
     averageWeight() {
         var sum = this.tokenWeights.reduce(function (accumulator, currentValue) {
-            return accumulator + (currentValue > .4 ? currentValue : 0);
+            return accumulator + (currentValue > .6 ? currentValue : 0);
         }, 0);
         return sum / this.tokenWeights.length;
     }

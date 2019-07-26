@@ -13,18 +13,18 @@ function getTokens(s) {
     return s.toLowerCase().trim().replace(/-/gi, '').split(/\s+/gi);
 }
 
-function findSourceTokensPath(source, target) {
-    let startTime = new Date();
-    let logger = makeLogger(false);
-    var sourceTokens = getTokens(source);
-    var shortTarget = toShortStr(target);
-    logger.log(sourceTokens, shortTarget);
-    var res = _findSourceTokensPath(sourceTokens, shortTarget, 0);
-    res.words.reverse();
-    res.indexes.reverse();
-    logger.log("findSourceTokens Time: ", new Date() - startTime);
-    return res;
-}
+// function findSourceTokensPath(source, target) {
+//     let startTime = new Date();
+//     let logger = makeLogger(false);
+//     var sourceTokens = getTokens(source);
+//     var shortTarget = toShortStr(target);
+//     logger.log(sourceTokens, shortTarget);
+//     var res = _findSourceTokensPath(sourceTokens, shortTarget, 0);
+//     res.words.reverse();
+//     res.indexes.reverse();
+//     logger.log("findSourceTokens Time: ", new Date() - startTime);
+//     return res;
+// }
 
 function findSourceTokens(source, target) {
     let startTime = new Date();

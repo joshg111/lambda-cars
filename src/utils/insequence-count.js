@@ -308,8 +308,8 @@ function _triWayTokenMerge(source, target) {
 }
 
 
-triWayTokenMerge("BMW 528i V6 65,000 miles No accidents, Excellent Condition, Luxurious! sedan",
-"X5 xDrive35i Sport Activity Sport Utility 4D");
+// triWayTokenMerge("BMW 528i V6 65,000 miles No accidents, Excellent Condition, Luxurious! sedan",
+// "X5 xDrive35i Sport Activity Sport Utility 4D");
 
 // triWayTokenMerge('E300 - Loaded! ASSUME MY $594 LEASE x 10 MONTHS! sedan', 'Sprinter 3500 XD Cargo Standard Roof w/144" WB Van 3D');
 // console.log(triWayTokenMerge('E Class', 'E Class E 300 4MATIC Sedan 4D'));
