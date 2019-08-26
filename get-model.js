@@ -136,7 +136,7 @@ async function matchModelsAndStyle(craigs, kbb, sources) {
     })
 
     var body = {targets: externalModels, sources: externalSources};
-    // console.log(JSON.stringify(body));
+    console.log(JSON.stringify(body));
 
     var options = {
       uri: GO_CRAIGS_URI,

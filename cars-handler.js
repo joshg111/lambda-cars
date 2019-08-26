@@ -9,8 +9,9 @@ const {matchModelsAndStyle, matchKbbMake} = require("./get-model");
 var {searchRank} = require('./src/utils/rank-actions');
 var {Source} = require('./src/rank/source');
 var {Match} = require('./src/rank/match');
+var {getKbbPrice} = require('./src/kbb/provider/price/KbbPriceProvider')
 
-const USER_AGENT = pConfig.rp.USER_AGENT;
+
 const OPTIONS = pConfig.rp.OPTIONS;
 const RETRYCOUNT = 2;
 
@@ -148,40 +149,6 @@ async function getCraigs(href, retryCount=0) {
 // getKbbStyle({'year': '2017', 'style': 'limited'}, {'kbbMake': 'lexus', 'kbbModel': 'lx'}).then(console.log);
 // getKbbStyle({'year': '1998', 'style': 'ex'}, {'kbbMake': 'Honda', 'kbbModel': 'Civic'}).then(console.log);
 // getKbbStyle({'year': '2010', 'style': 'ex-l'}, {'make': 'Honda', 'model': 'Accord'}).then(console.log);
-const KBB_PRICE_RETRY_COUNT = 2;
-async function getKbbPrice(link, retryCount=0) {
-  console.log("getKbbPrice retry = ", retryCount);
-
-  var kbbPrice = null;
-
-  var options = {
-      uri: link,
-      headers: {
-        'User-Agent': USER_AGENT
-    },
-    timeout: 6000
-  };
-
-  var body;
-  try {
-    body = await rp(options);
-    var parsed = JSON.parse(body);
-    kbbPrice = parsed.data.apiData.vehicle.values[2].value;
-
-  }
-  catch(err) {
-    if (retryCount < KBB_PRICE_RETRY_COUNT) {
-        return await getKbbPrice(link, retryCount + 1);
-    }
-    console.log("getKbbPrice err = ", err);
-    // throw new Error(err);
-    return Promise.reject(err);
-  }
-
-  return kbbPrice;
-}
-
-// getKbbPrice('https://www.kbb.com/nissan/xterra/2003/se-sport-utility-4d/?vehicleid=2984&intent=buy-used&modalview=false&pricetype=private-party&condition=good&mileage=130027').then(console.log);
 
 // For some `data` with `key`, remove `match` from data.
 function removeMatch(source, matchWords) {
@@ -228,11 +195,8 @@ function removeDuplicates(source) {
 // console.log(s.data);
 
 function getKbbLink(matchLink, craigs) {
-  var kbbLink = "https://www.kbb.com/Api/3.9.395.0/70134/vehicle/upa/PriceAdvisor/meter.json?action=Get&intent=buy-used&pricetype=Private%20Party&zipcode=92101&hideMonthlyPayment=True&condition=good";
-  
-  var vehicleId = /vehicleid=([^&]*)/g.exec(matchLink)[1];
-  
-  kbbLink += "&vehicleid=" + vehicleId
+  var kbbLink = matchLink;
+  kbbLink = kbbLink.replace(/&mileage=\d*/g, "");
   kbbLink += craigs.odometer ? '&mileage=' + craigs.odometer : "";
   return kbbLink;
 }
@@ -272,7 +236,7 @@ async function getKbb(craigs) {
     // kbb["kbbStyle"] = match.isStyleMatch ? match.styleText : '';
     kbb["kbbStyle"] = match.styleText;
     assert(kbb.kbbLink);
-    kbb["kbbPrice"] = await getKbbPrice(kbb.kbbLink);
+    kbb["kbbPrice"] = await getKbbPrice(match.href, craigs);
     assert(kbb.kbbPrice);
   }
   catch(err) {
@@ -320,7 +284,7 @@ async function handleCar(href) {
 
 // TESTING 
 
-handleCar('https://sandiego.craigslist.org/csd/cto/d/chula-vista-2017-mercedes-benz-e300/6933552724.html').then(console.log);
+handleCar('https://sandiego.craigslist.org/csd/cto/d/escondido-2019-chevy-equinox-lt-awd-4dr/6962373136.html').then(console.log);
 
 // handleCar('https://sandiego.craigslist.org/nsd/cto/d/san-diego-2012-toyota-camry-xle-hybrid/6942081368.html').then(console.log);
 

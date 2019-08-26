@@ -51,32 +51,21 @@ function newInsequence(a, b) {
           return b.weight - a.weight; //|| (a.end - a.start) - (b.end - b.start);
         });
 
-        // if (isMatch) {
-        //   console.log("i = ", i-1, ", j = ", j-1 );
-        //   console.log( arr[0]);
-        // }
-
         if (arr[0].weight > resMax.weight) {
           resMax = arr[0];
-          // console.log("found max = ", resMax);
         }
         
         distanceMatrix[j][i] = arr[0];
       }
     }
+    console.log(distanceMatrix);
   
-    
-    // res.start.sort(a, b => b-res.end) - a);
-    // console.log(res);
     return resMax;
   }
 
-// console.log(newInsequence('abc d', 'aee abc eec'));
-// newInsequence('abc def ghi', 'ghi jkl abc x');  
-// newInsequence('CLS CLS500 MILITARY 0 DOWN NAVY FED', 'CLS Class CLS 500 Coupe 4D');
-  // newInsequence("Mercedes Benz GL 450 awd suv 7 passenger/ BEST OFFER .", "GLClass");
-  // levenshteinDistance("Using lcs, found match source =  Mercedes Benz GL 450 awd suv 7 passenger/ BEST OFFER .", "CClass");
+// console.log(newInsequence("infiniti", "Chevy Prism (For Parts) sedan"));
+console.log(newInsequence("ii", "i"));
   
   
-  module.exports = {newInsequence};
+module.exports = {newInsequence};
   
