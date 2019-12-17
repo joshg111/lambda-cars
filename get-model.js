@@ -136,7 +136,8 @@ async function matchModelsAndStyle(craigs, kbb, sources) {
     })
 
     var body = {targets: externalModels, sources: externalSources};
-    console.log(JSON.stringify(body));
+    // Use this comment to debug string matching with data in our redis store
+    // console.log(JSON.stringify(body));
 
     var options = {
       uri: GO_CRAIGS_URI,

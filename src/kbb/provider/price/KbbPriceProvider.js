@@ -35,13 +35,22 @@ async function getKbbPrice(matchLink, craigs, retryCount=0) {
   return kbbPrice;
 }
 
+function getMileage(year) {
+  var d = new Date();
+  var currentYear = d.getFullYear();
+  var diff = currentYear - year;
+  return diff > 0 ? (diff * 12000) : 0;
+}
+
 function getKbbLink(matchLink, craigs) {
   var kbbLink = "https://www.kbb.com/Api/3.9.395.0/70134/vehicle/upa/PriceAdvisor/meter.json?action=Get&intent=buy-used&pricetype=Private%20Party&zipcode=92101&hideMonthlyPayment=True&condition=good";
   
   var vehicleId = /vehicleid=([^&]*)/g.exec(matchLink)[1];
   
-  kbbLink += "&vehicleid=" + vehicleId
-  kbbLink += craigs.odometer ? '&mileage=' + craigs.odometer : "";
+  kbbLink += "&vehicleid=" + vehicleId;
+  kbbLink += "&mileage="
+  kbbLink += craigs.odometer ? craigs.odometer : getMileage(parseInt(craigs.year, 10));
+  console.log("kbbLink = ", kbbLink);
   return kbbLink;
 }
 

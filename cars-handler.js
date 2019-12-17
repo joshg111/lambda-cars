@@ -253,10 +253,10 @@ async function handleCar(href) {
   let startTime = new Date();
   try {
     // First, check the cache.
-    // var cacheRes = await requestCache("get", {key: href});
-    // if(cacheRes !== null) {
-    //   return cacheRes;
-    // }
+    var cacheRes = await requestCache("get", {key: href});
+    if(cacheRes !== null) {
+      return cacheRes;
+    }
     console.log("Cache miss");
 
     var craigs = await getCraigs(href);
@@ -284,7 +284,10 @@ async function handleCar(href) {
 
 // TESTING 
 
-handleCar('https://sandiego.craigslist.org/csd/cto/d/escondido-2019-chevy-equinox-lt-awd-4dr/6962373136.html').then(console.log);
+
+// handleCar('https://sandiego.craigslist.org/nsd/cto/d/carlsbad-2015-subaru-crosstrek-20i/7025739250.html').then(console.log);
+
+// handleCar('https://sandiego.craigslist.org/esd/cto/d/la-mesa-2001-mercedes-benz-s430-amg/6963923606.html').then(console.log);
 
 // handleCar('https://sandiego.craigslist.org/nsd/cto/d/san-diego-2012-toyota-camry-xle-hybrid/6942081368.html').then(console.log);
 
